@@ -3,44 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CELESTIAL_VAULT_V248</title>
+    <title>ORBITAL_RESIDENT_V249</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #000; --sky: #00d4ff; --mesh: #00ff41; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #vault-hud { flex-grow: 1; margin: 20px; border: 5px solid var(--gold); padding: 40px; display: flex; flex-direction: column; background: radial-gradient(circle at top, rgba(0, 212, 255, 0.2) 0%, transparent 100%); box-shadow: 0 0 150px rgba(243, 207, 138, 0.4); position: relative; }
-        .header { text-align: center; border-bottom: 3px double var(--gold); padding-bottom: 20px; }
-        .title { font-size: 24px; letter-spacing: 22px; color: var(--gold); text-shadow: 0 0 30px var(--gold); }
+        #orbital-hud { flex-grow: 1; margin: 25px; border: 3px double var(--sky); padding: 45px; display: flex; flex-direction: column; background: radial-gradient(circle at top, rgba(0, 212, 255, 0.2) 0%, transparent 100%); box-shadow: 0 0 120px rgba(0, 212, 255, 0.3); position: relative; }
+        .header { text-align: center; border-bottom: 2px solid var(--sky); padding-bottom: 25px; }
+        .title { font-size: 22px; letter-spacing: 20px; color: var(--sky); text-shadow: 0 0 25px var(--sky); }
         
-        #orbital-sync { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
-        .star-base { width: 100px; height: 100px; border: 1px solid var(--mesh); transform: rotate(45deg); opacity: 0.6; }
-        .orbital-node { position: absolute; top: 15%; width: 20px; height: 20px; background: var(--sky); border-radius: 50%; box-shadow: 0 0 40px var(--sky); animation: float 3s ease-in-out infinite; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        #mirror-sync { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+        .earth-mesh { width: 140px; height: 140px; border: 1px solid var(--mesh); border-radius: 50%; opacity: 0.4; animation: rotate 30s linear infinite; }
+        .orbital-anchor { position: absolute; top: 10%; width: 40px; height: 40px; border: 2px solid var(--sky); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 7px; color: var(--sky); box-shadow: 0 0 30px var(--sky); }
+        
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        #ledger-display { text-align: center; border-top: 3px double var(--gold); padding-top: 25px; font-size: 40px; color: var(--gold); text-shadow: 0 0 40px var(--gold); }
+        #ledger-final { text-align: center; border-top: 2px solid var(--gold); padding-top: 30px; font-size: 38px; color: var(--gold); text-shadow: 0 0 30px var(--gold); }
     </style>
 </head>
 <body>
-    <div id="vault-hud">
+    <div id="orbital-hud">
         <div class="header">
-            <div class="title">CELESTIAL_VAULT // SEALED</div>
-            <div style="font-size: 10px; margin-top: 10px; color: var(--mesh); letter-spacing: 8px;">ORBITAL_001: VERIFIED // SYNC: 1440%</div>
+            <div class="title">ORBITAL_MIRROR // VERIFIED</div>
+            <div style="font-size: 10px; margin-top: 10px; color: var(--mesh); letter-spacing: 8px;">STATUS: GOD_WORLD_SYNC // 1440%</div>
         </div>
 
-        <div id="orbital-sync">
-            <div class="star-base"></div>
-            <div class="orbital-node"></div>
-            <div style="font-size: 14px; color: var(--sky); letter-spacing: 15px; position: absolute; bottom: 20%;">GOD_EYE_ACTIVE</div>
+        <div id="mirror-sync">
+            <div class="earth-mesh"></div>
+            <div class="orbital-anchor">ORBIT_01</div>
+            <div style="font-size: 12px; color: var(--gold); letter-spacing: 12px; text-align: center; margin-top: 200px;">CELESTIAL_VAULT_SEALED</div>
         </div>
 
-        <div id="ledger-display">$1,440,000,033,408.00</div>
+        <div id="ledger-final">$1,440,000,033,840.00</div>
     </div>
 <script>
-    let res = 1440000033408.00;
+    let res = 1440000033840.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('ledger-display').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('ledger-final').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
