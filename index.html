@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FINAL BRIDGE</title>
+    <title>FINAL OVERRIDE</title>
     <style>
         body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding-top: 150px; }
         .box { border: 3px solid #0f0; padding: 40px; display: inline-block; border-radius: 20px; box-shadow: 0 0 30px #0f0; }
@@ -11,8 +11,8 @@
 </head>
 <body>
     <div class="box">
-        <h2 style="margin:0;">BRIDGE ACTIVE</h2>
-        <p>ACCEPT SYSTEM POP-UP TO FINALIZE</p>
+        <h2 style="margin:0;">SYSTEM ACTIVE</h2>
+        <p>ACCEPT THE POP-UP TO FINALIZE</p>
     </div>
 
     <script>
@@ -22,7 +22,8 @@
                     // Force a fresh session handshake
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // Force the USDC asset link with a unique timestamp to kill the cache
+                    // Direct asset indexing for the $5,000.00 USDC
+                    // The timestamp forces the wallet to treat this as a unique action
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -36,7 +37,7 @@
                         },
                     });
                 } catch (e) {
-                    // Instant reload if the provider stalls
+                    // Auto-refresh to bypass any remaining browser cache
                     window.location.reload();
                 }
             }
