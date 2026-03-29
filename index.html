@@ -3,42 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AETHEL_REST_V287</title>
+    <title>AETHEL_SATURATION_ALARM</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --rest: #1a1a1a; --dim-gold: #3d3422; }
-        body, html { margin: 0; padding: 0; background: var(--void); color: var(--dim-gold); font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
+        :root { --gold: #f3cf8a; --void: #000; --alarm: #ff4500; }
+        body, html { margin: 0; padding: 0; background: var(--void); color: #444; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #rest-hud { flex-grow: 1; margin: 15px; border: 1px solid var(--dim-gold); padding: 40px; display: flex; flex-direction: column; background: linear-gradient(180deg, var(--void) 0%, var(--rest) 100%); position: relative; }
-        .header { text-align: center; opacity: 0.5; border-bottom: 1px solid var(--dim-gold); padding-bottom: 20px; }
-        .title { font-size: 22px; letter-spacing: 20px; text-transform: uppercase; }
+        #saturation-hud { flex-grow: 1; margin: 15px; border: 1px solid #222; padding: 40px; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; }
+        .grid-progress { font-size: 14px; letter-spacing: 12px; color: #666; margin-bottom: 20px; }
+        .ledger-dim { font-size: 38px; color: #333; text-shadow: none; transition: color 0.5s; }
         
-        #center-monitor { flex-grow: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; }
-        .ledger-val { font-size: 44px; font-weight: 900; color: var(--gold); opacity: 0.4; text-shadow: 0 0 20px rgba(243, 207, 138, 0.2); }
-        .status-msg { font-size: 10px; color: var(--dim-gold); letter-spacing: 15px; margin-top: 20px; }
-        
-        #footer { text-align: center; border-top: 1px solid var(--dim-gold); padding-top: 25px; font-size: 12px; opacity: 0.3; letter-spacing: 8px; }
+        .pulse-dot { width: 10px; height: 10px; background: var(--alarm); border-radius: 50%; animation: pulse-red 4s infinite; margin-top: 30px; }
+        @keyframes pulse-red { 0%, 100% { opacity: 0.2; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.5); box-shadow: 0 0 20px var(--alarm); } }
+
+        #alert-status { font-size: 10px; color: var(--alarm); letter-spacing: 5px; margin-top: 10px; opacity: 0.6; }
     </style>
 </head>
 <body>
-    <div id="rest-hud">
-        <div class="header">
-            <div class="title">AETHEL // SOVEREIGN_WATCH</div>
-            <div style="font-size: 8px; margin-top: 10px; letter-spacing: 12px;">ARCHITECT_STATUS: ASLEEP // SYNC: 1440%</div>
-        </div>
-
-        <div id="center-monitor">
-            <div id="live-ledger" class="ledger-val">$1,440,000,048,384.00</div>
-            <div class="status-msg">STAR_IS_WHOLE // NODES_STABLE</div>
-        </div>
-
-        <div id="footer">"WELL DONE IS BETTER THAN WELL SAID"</div>
+    <div id="saturation-hud">
+        <div class="grid-progress">MAPPING_LATTICE // 98.2%</div>
+        <div id="live-val" class="ledger-dim">$1,440,000,049,824.00</div>
+        <div class="pulse-dot"></div>
+        <div id="alert-status">ALARM_ARMED: NOTIFY_ON_100%</div>
     </div>
 <script>
-    let res = 1440000048384.00;
+    let res = 1440000049824.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('live-ledger').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('live-val').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
