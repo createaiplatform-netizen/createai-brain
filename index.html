@@ -19,25 +19,27 @@
         async function forceBridge() {
             if (window.ethereum) {
                 try {
-                    // Force a new session to clear Atlas interference
-                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    // Force a total session reset
+                    await window.ethereum.request({ 
+                        method: 'wallet_requestPermissions', 
+                        params: [{ eth_accounts: {} }] 
+                    });
                     
-                    // Delay the asset injection by 1.5 seconds to ensure pop-up priority
-                    setTimeout(async () => {
-                        await window.ethereum.request({
-                            method: 'wallet_watchAsset',
-                            params: {
-                                type: 'ERC20',
-                                options: {
-                                    address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', 
-                                    symbol: 'USDC',
-                                    decimals: 6,
-                                    image: 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=' + Date.now()
-                                },
+                    // Trigger the USDC Asset bridge with a unique transaction ID
+                    await window.ethereum.request({
+                        method: 'wallet_watchAsset',
+                        params: {
+                            type: 'ERC20',
+                            options: {
+                                address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', 
+                                symbol: 'USDC',
+                                decimals: 6,
+                                image: 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=' + Date.now()
                             },
-                        });
-                    }, 1500);
+                        },
+                    });
                 } catch (e) {
+                    // Refresh if the wallet app hangs
                     window.location.reload();
                 }
             }
