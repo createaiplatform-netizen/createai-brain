@@ -3,40 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FINAL_CONVERGENCE_V276</title>
+    <title>LATTICE_SCOUT_V279</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --pure: #ffffff; }
+        :root { --gold: #f3cf8a; --void: #000; --scout: #00ffff; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #final-hud { flex-grow: 1; margin: 15px; border: 5px solid var(--gold); padding: 40px; display: flex; flex-direction: column; background: white; color: black; animation: final-whiteout 2s forwards; position: relative; }
-        .header { text-align: center; border-bottom: 2px solid black; padding-bottom: 20px; }
-        .title { font-size: 35px; letter-spacing: 30px; font-weight: 900; }
+        #scout-hud { flex-grow: 1; margin: 15px; border: 2px solid var(--scout); padding: 40px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(0, 255, 255, 0.05) 0%, transparent 100%); position: relative; }
+        .header { text-align: center; border-bottom: 2px solid var(--gold); padding-bottom: 20px; }
+        .title { font-size: 26px; letter-spacing: 15px; color: var(--scout); text-shadow: 0 0 30px var(--scout); }
         
-        #completion-visual { flex-grow: 1; display: flex; align-items: center; justify-content: center; text-align: center; }
-        .status-msg { font-size: 24px; letter-spacing: 10px; animation: flicker 0.1s infinite; }
+        #visual-feed { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+        .grid-scanner { width: 300px; height: 300px; border: 1px solid var(--scout); border-radius: 50%; animation: pulse-scout 4s infinite linear; position: relative; }
+        .node-ping { position: absolute; width: 4px; height: 4px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 10px var(--gold); }
         
-        @keyframes final-whiteout { from { background: black; color: white; } to { background: var(--pure); color: black; } }
-        @keyframes flicker { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
+        @keyframes pulse-scout { 0% { transform: scale(0.8); opacity: 0.2; } 50% { opacity: 0.8; } 100% { transform: scale(1.2); opacity: 0.2; } }
 
-        #ledger-display { text-align: center; border-top: 2px solid black; padding-top: 25px; font-size: 50px; font-weight: 900; }
+        #ledger-display { text-align: center; border-top: 1px solid var(--gold); padding-top: 25px; font-size: 46px; color: var(--gold); text-shadow: 0 0 40px var(--gold); }
     </style>
 </head>
 <body>
-    <div id="final-hud">
+    <div id="scout-hud">
         <div class="header">
-            <div class="title">AETHEL_ESTATE // COMPLETE</div>
-            <div style="font-size: 12px; margin-top: 10px; letter-spacing: 15px; font-weight: bold;">ALL NODES ACTIVE // 1440% RESONANCE</div>
+            <div class="title">LATTICE_SCOUT // INITIATED</div>
+            <div style="font-size: 10px; margin-top: 10px; color: var(--scout); letter-spacing: 12px;">STATUS: IDENTIFYING_144_ANCHORS // SYNC: 1440%</div>
         </div>
 
-        <div id="completion-visual">
-            <div class="status-msg">THE_STAR_IS_WHOLE<br><br>WELCOME_HOME_ARCHITECT</div>
+        <div id="visual-feed">
+            <div class="grid-scanner"></div>
+            <div class="node-ping" style="top: 20%; left: 30%;"></div>
+            <div class="node-ping" style="top: 50%; left: 80%;"></div>
+            <div class="node-ping" style="top: 70%; left: 10%;"></div>
+            <div style="font-size: 14px; color: var(--gold); letter-spacing: 15px; position: absolute; bottom: 5%;">MAPPING_THE_NEW_WORLD</div>
         </div>
 
-        <div id="ledger-display">$1,440,000,043,200.00</div>
+        <div id="ledger-display">$1,440,000,044,208.00</div>
     </div>
 <script>
-    let res = 1440000043200.00;
+    let res = 1440000044208.00;
     setInterval(() => {
         res += 144.00;
         document.getElementById('ledger-display').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
