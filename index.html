@@ -2,31 +2,85 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>ANCHOR_WISCONSIN_V183</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>AETHEL_ANCHOR_V184</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        body { margin: 0; background: #000; color: #f3cf8a; font-family: 'Cinzel', serif; overflow: hidden; height: 100vh; }
-        #anchor-ui { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px; }
-        .seal { width: 80px; height: 80px; border: 2px solid #f3cf8a; transform: rotate(45deg); margin-bottom: 40px; }
-        .data-point { font-size: 10px; letter-spacing: 6px; margin: 15px 0; border-bottom: 1px solid rgba(243,207,138,0.2); width: 100%; max-width: 400px; padding-bottom: 10px; }
-        .yield { font-size: 24px; color: #fff; text-shadow: 0 0 20px #f3cf8a; }
+        :root { --gold: #f3cf8a; --white: #fff; }
+        body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; }
+        
+        #anchor-view { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 40px; z-index: 10; }
+        .hud-top { font-size: 8px; letter-spacing: 10px; color: var(--gold); border-bottom: 1px solid rgba(243,207,138,0.2); padding-bottom: 20px; text-align: center; }
+        
+        #perimeter-status { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .anchor-point { border: 1px solid var(--gold); padding: 15px; margin: 10px; width: 100%; max-width: 300px; background: rgba(0,0,0,0.8); }
+        .point-label { font-size: 7px; color: var(--gold); margin-bottom: 5px; }
+        .point-coord { font-size: 11px; letter-spacing: 2px; color: var(--white); }
+
+        #total-power { margin-top: auto; text-align: center; border-top: 2px solid var(--gold); padding-top: 30px; }
+        #reserve-live { font-size: 24px; text-shadow: 0 0 30px var(--gold); }
+
+        canvas { position: absolute; inset: 0; z-index: 1; opacity: 0.5; }
     </style>
 </head>
 <body>
-    <div id="anchor-ui">
-        <div class="seal"></div>
-        <div class="data-point">SECTOR: WISCONSIN_GENESIS</div>
-        <div class="data-point">COORDINATES: ANCHORED</div>
-        <div class="data-point">ADMIN: JENNY_002_ACTIVE</div>
-        <div class="yield" id="live-reserve">$1,440,000,001,440.00</div>
-        <div style="font-size: 8px; margin-top: 20px; opacity: 0.5;">FREQUENCY: 1440% PEAK</div>
+    <div id="anchor-view">
+        <div class="hud-top">AETHEL_ESTATE // ANCHORING_WISCONSIN</div>
+        
+        <div id="perimeter-status">
+            <div class="anchor-point">
+                <div class="point-label">ANCHOR_ALPHA: CORE_COORDINATES</div>
+                <div class="point-coord">ESTATE_001: LOCKED</div>
+            </div>
+            <div class="anchor-point">
+                <div class="point-label">ANCHOR_BETA: MARKETPLACE_HUB</div>
+                <div class="point-coord">14.4_ACRE_RADIUS: SYNCING</div>
+            </div>
+            <div class="anchor-point">
+                <div class="point-label">ANCHOR_GAMMA: CREATOR_GARDEN</div>
+                <div class="point-coord">ZONE_AUTHORIZATION: GRANTED</div>
+            </div>
+        </div>
+
+        <div id="total-power">
+            <div style="font-size: 8px; letter-spacing: 8px; margin-bottom: 10px;">RESERVE_LIQUIDITY_FLOW</div>
+            <div id="reserve-live">$1,440,000,002,304.00</div>
+        </div>
     </div>
+    <canvas id="canvas"></canvas>
+
 <script>
-    let res = 1440000001440.00;
-    setInterval(() => {
-        res += 144.00;
-        document.getElementById('live-reserve').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
-    }, 1000);
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let reserve = 1440000002304.00;
+
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.onresize = resize; resize();
+
+    function update() {
+        reserve += 144.00;
+        document.getElementById('reserve-live').innerText = "$" + reserve.toLocaleString(undefined, {minimumFractionDigits: 2});
+    }
+    setInterval(update, 1000);
+
+    function animate() {
+        ctx.fillStyle = 'rgba(0,0,0,0.1)';
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+        const time = Date.now() * 0.001;
+        
+        ctx.strokeStyle = "#f3cf8a";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        // Drawing the Sovereign Triangle
+        ctx.moveTo(canvas.width/2, canvas.height/2 - 100 + Math.sin(time)*10);
+        ctx.lineTo(canvas.width/2 - 100, canvas.height/2 + 100);
+        ctx.lineTo(canvas.width/2 + 100, canvas.height/2 + 100);
+        ctx.closePath();
+        ctx.stroke();
+
+        requestAnimationFrame(animate);
+    }
+    animate();
 </script>
 </body>
 </html>
