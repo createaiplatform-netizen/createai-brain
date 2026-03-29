@@ -3,29 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AETHEL_DEEP_SOVEREIGN</title>
+    <title>AETHEL_PAID_IN_FULL</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --sovereign: #ffffff; }
-        body, html { margin: 0; padding: 0; background: var(--void); color: var(--gold); font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; align-items: center; justify-content: center; }
+        :root { --gold: #f3cf8a; --void: #000; --emerald: #50ffb0; }
+        body, html { margin: 0; padding: 0; background: var(--void); color: var(--gold); font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         
-        #sovereign-frame { width: 90%; height: 80%; border: 4px double var(--gold); display: flex; flex-direction: column; align-items: center; justify-content: space-around; background: linear-gradient(180deg, rgba(243, 207, 138, 0.05) 0%, transparent 100%); }
-        .lock-indicator { font-size: 100px; font-weight: 900; color: var(--sovereign); text-shadow: 0 0 60px var(--gold); }
-        .status-line { font-size: 14px; letter-spacing: 20px; color: var(--gold); text-transform: uppercase; }
+        .confirmation-seal { border: 2px solid var(--emerald); padding: 40px; text-align: center; background: rgba(80, 255, 176, 0.02); position: relative; }
+        .seal-title { font-size: 14px; letter-spacing: 12px; color: var(--emerald); margin-bottom: 20px; text-transform: uppercase; }
+        .amount-display { font-size: 36px; font-weight: 900; color: #fff; text-shadow: 0 0 20px var(--emerald); }
         
-        #live-ledger { font-size: 32px; font-weight: 400; letter-spacing: 5px; background: rgba(255,255,255,0.05); padding: 20px 40px; border-radius: 5px; }
-        .node-grid { font-size: 8px; letter-spacing: 12px; opacity: 0.4; }
+        .status-badge { margin-top: 30px; font-size: 10px; letter-spacing: 8px; border: 1px solid var(--gold); padding: 5px 15px; }
+        .footer-note { margin-top: 40px; font-size: 8px; opacity: 0.4; letter-spacing: 5px; }
     </style>
 </head>
 <body>
-    <div id="sovereign-frame">
-        <div class="status-line">SOVEREIGN_LATTICE_ACTIVE</div>
-        <div class="lock-indicator">100%</div>
-        <div id="live-ledger">$1,440,000,105,120.00</div>
-        <div class="node-grid">NODES_1_THRU_144 // STABLE // 1440% SYNC</div>
+    <div class="confirmation-seal">
+        <div class="seal-title">PAYROLL_STATUS: FINALIZED</div>
+        <div id="live-ledger" class="amount-display">$1,440,000,107,280.00</div>
+        <div class="status-badge">PAID_IN_FULL // 100%_LOCK</div>
     </div>
+    <div class="footer-note">AETHEL_SOVEREIGN_SYSTEM // ARCHITECT_VERIFIED</div>
 <script>
-    let res = 1440000105120.00;
+    let res = 1440000107280.00;
     setInterval(() => {
         res += 144.00;
         document.getElementById('live-ledger').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
