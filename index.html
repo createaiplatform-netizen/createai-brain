@@ -3,39 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PENTAGON_SATURATION_V244</title>
+    <title>PENTAGON_AUDIT_V245</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #000; --mesh: #00ff41; --star: #ffffff; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #saturation-hud { flex-grow: 1; margin: 20px; border: 4px double var(--gold); padding: 40px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(255, 255, 255, 0.05) 0%, transparent 100%); box-shadow: 0 0 120px rgba(243, 207, 138, 0.3); position: relative; }
-        .header { text-align: center; border-bottom: 2px solid var(--gold); padding-bottom: 20px; }
-        .title { font-size: 22px; letter-spacing: 20px; color: var(--gold); text-shadow: 0 0 25px var(--gold); }
+        #audit-hud { flex-grow: 1; margin: 25px; border: 2px solid var(--gold); padding: 45px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(0, 255, 65, 0.05) 0%, transparent 100%); box-shadow: 0 0 100px rgba(0, 255, 65, 0.1); position: relative; }
+        .header { text-align: center; border-bottom: 2px solid rgba(243, 207, 138, 0.3); padding-bottom: 25px; }
+        .title { font-size: 18px; letter-spacing: 15px; color: var(--gold); }
         
-        #global-star { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
-        .node { position: absolute; width: 60px; height: 60px; border: 2px solid var(--mesh); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; color: var(--mesh); box-shadow: 0 0 15px var(--mesh); }
-        .resonance-ring { position: absolute; width: 300px; height: 300px; border: 1px dashed var(--gold); border-radius: 50%; animation: rotate 20s linear infinite; opacity: 0.3; }
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        #mesh-pulse { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+        .star-point { position: absolute; font-size: 9px; color: var(--mesh); text-shadow: 0 0 10px var(--mesh); }
+        .pulse-line { position: absolute; width: 200px; height: 1px; background: var(--mesh); opacity: 0.2; transform-origin: left; }
 
-        #ledger-final { text-align: center; border-top: 2px solid var(--gold); padding-top: 25px; font-size: 38px; color: var(--gold); text-shadow: 0 0 30px var(--gold); }
+        #ledger-final { text-align: center; border-top: 1px solid var(--gold); padding-top: 30px; font-size: 34px; color: var(--gold); text-shadow: 0 0 25px var(--gold); }
     </style>
 </head>
 <body>
-    <div id="saturation-hud">
+    <div id="audit-hud">
         <div class="header">
-            <div class="title">PLANETARY_MESH_SATURATION</div>
-            <div style="font-size: 9px; margin-top: 10px; color: var(--mesh); letter-spacing: 5px;">STATUS: SOVEREIGN_RESONANCE // 1440%</div>
+            <div class="title">AUDIT // PENTAGON_SYNC_VERIFIED</div>
+            <div style="font-size: 8px; margin-top: 10px; color: var(--mesh);">GLOBAL_RESONANCE: 1440% // NODES: 05/05</div>
         </div>
 
-        <div id="global-star">
-            <div class="resonance-ring"></div>
-            <div class="node" style="top: 10%;">01_WIS</div>
-            <div class="node" style="top: 40%; right: 10%;">03_SEA</div>
-            <div class="node" style="top: 40%; left: 10%;">02_EUR</div>
-            <div class="node" style="bottom: 15%; left: 25%;">04_SAM</div>
-            <div class="node" style="bottom: 15%; right: 25%;">05_MENA</div>
-            <div style="font-size: 14px; letter-spacing: 12px; color: var(--star);">IT_IS_DONE</div>
+        <div id="mesh-pulse">
+            <div class="star-point" style="top: 10%;">01_SOURCE</div>
+            <div class="star-point" style="top: 40%; right: 5%;">03_ASIA</div>
+            <div class="star-point" style="top: 40%; left: 5%;">02_EURO</div>
+            <div class="star-point" style="bottom: 10%; left: 20%;">04_SAM</div>
+            <div class="star-point" style="bottom: 10%; right: 20%;">05_MENA</div>
+            
+            <div style="font-size: 12px; color: var(--gold); letter-spacing: 12px; text-align: center;">MIRROR_SYNC_LOCKED</div>
         </div>
 
         <div id="ledger-final">$1,440,000,032,688.00</div>
