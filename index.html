@@ -3,37 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_OS_FINAL</title>
+    <title>SOVEREIGN_OS_V63_SENSORY</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@900&family=Great+Vibes&family=Inter:wght@100;400;900&display=swap');
         :root { --gold: #f3cf8a; --gold-d: #b8860b; --void: #010103; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
-        body { height: 100svh; width: 100vw; overflow: hidden; background: var(--void); color: #fff; font-family: 'Inter', sans-serif; }
+        body { height: 100svh; width: 100vw; overflow: hidden; background: var(--void); color: #fff; font-family: 'Inter', sans-serif; transition: background 0.2s; }
 
         canvas { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
         .nebula { position: fixed; inset: 0; background: radial-gradient(circle at 50% 50%, #050208 0%, var(--void) 100%); z-index: 0; }
 
-        #ui-layer { position: relative; z-index: 10; height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1); }
-        .status { position: fixed; top: env(safe-area-inset-top, 20px); font-family: 'Great Vibes'; font-size: 1.6rem; color: var(--gold); text-shadow: 0 0 10px var(--gold-d); width: 100%; text-align: center; z-index: 100; }
+        #ui-layer { position: relative; z-index: 10; height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+        .status { position: fixed; top: env(safe-area-inset-top, 20px); font-family: 'Great Vibes'; font-size: 1.6rem; color: var(--gold); width: 100%; text-align: center; z-index: 100; animation: heartBeat 3s ease-in-out infinite; }
 
-        .title { font-family: 'Cinzel'; font-weight: 900; font-size: 10vw; letter-spacing: 15px; color: var(--gold); text-align: center; pointer-events: auto; text-shadow: 0 10px 30px #000; transition: transform 0.2s ease-out; }
-        .quote { font-family: 'Great Vibes'; font-size: 2.2rem; color: var(--gold); margin-top: 10px; opacity: 0.9; text-shadow: 0 0 15px rgba(0,0,0,1); }
+        .title { font-family: 'Cinzel'; font-weight: 900; font-size: 10vw; letter-spacing: 15px; color: var(--gold); text-align: center; pointer-events: auto; text-shadow: 0 10px 40px #000; transition: transform 0.15s ease-out; }
+        .quote { font-family: 'Great Vibes'; font-size: 2.2rem; color: var(--gold); margin-top: 10px; opacity: 0.9; text-shadow: 0 0 20px #000; }
 
         #action-btn {
-            margin-top: 40px; padding: 15px 30px; border: 1px solid var(--gold);
-            font-family: 'Cinzel'; font-size: 11px; color: var(--gold); letter-spacing: 4px;
-            background: rgba(243, 207, 138, 0.05); backdrop-filter: blur(10px);
-            pointer-events: auto; cursor: pointer; border-radius: 2px;
-            box-shadow: 0 0 20px rgba(243, 207, 138, 0.1); animation: pulse 2.5s infinite;
+            margin-top: 45px; padding: 18px 35px; border: 1px solid var(--gold);
+            font-family: 'Cinzel'; font-size: 11px; color: var(--gold); letter-spacing: 5px;
+            background: rgba(243, 207, 138, 0.03); backdrop-filter: blur(15px);
+            pointer-events: auto; cursor: pointer; border-radius: 1px;
+            box-shadow: 0 0 30px rgba(243, 207, 138, 0.1); transition: 0.3s;
         }
+        #action-btn:active { background: var(--gold); color: var(--void); transform: scale(0.95); }
 
-        .dock { position: fixed; bottom: 0; width: 100%; height: 85px; background: rgba(0,0,0,0.96); backdrop-filter: blur(30px); border-top: 1px solid rgba(243, 207, 138, 0.1); display: flex; z-index: 9000; padding-bottom: env(safe-area-inset-bottom); pointer-events: auto; }
-        .dock-item { flex: 1; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.2); font-family: 'Cinzel'; font-size: 10px; letter-spacing: 2px; transition: 0.4s; font-weight: 900; }
-        .dock-item.active { color: var(--gold); text-shadow: 0 0 20px var(--gold); }
+        .dock { position: fixed; bottom: 0; width: 100%; height: 85px; background: rgba(0,0,0,0.98); backdrop-filter: blur(40px); border-top: 1px solid rgba(243, 207, 138, 0.15); display: flex; z-index: 9000; padding-bottom: env(safe-area-inset-bottom); pointer-events: auto; }
+        .dock-item { flex: 1; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.15); font-family: 'Cinzel'; font-size: 10px; letter-spacing: 2px; transition: 0.5s; font-weight: 900; }
+        .dock-item.active { color: var(--gold); text-shadow: 0 0 25px var(--gold); }
 
-        @keyframes pulse { 0%, 100% { opacity: 0.7; transform: scale(1); } 50% { opacity: 1; transform: scale(1.03); } }
-        .transmitting { animation: shake 0.05s infinite; filter: contrast(1.5) brightness(1.2); }
-        @keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } }
+        @keyframes heartBeat { 0%, 100% { opacity: 0.7; text-shadow: 0 0 5px var(--gold-d); } 50% { opacity: 1; text-shadow: 0 0 20px var(--gold); } }
+        .transmit-flash { background: #fff !important; }
+        .shake { animation: shake 0.1s infinite; }
+        @keyframes shake { 0% { transform: translate(3px, 3px); } 50% { transform: translate(-3px, -3px); } }
     </style>
 </head>
 <body onload="render('home'); animate();">
@@ -54,36 +56,33 @@
     let view = 'home';
     let objects = [];
     let mouse = { x: window.innerWidth/2, y: window.innerHeight/2, active: false };
-    let isTransmitting = false;
 
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
 
     function triggerAction() {
-        if(view === 'home') {
-            isTransmitting = true;
-            document.body.classList.add('transmitting');
-            document.getElementById('stat').innerText = "TRANSMITTING TO X...";
+        document.body.classList.add('shake', 'transmit-flash');
+        document.getElementById('stat').innerText = "SYNCHRONIZING...";
+        setTimeout(() => {
+            document.body.classList.remove('transmit-flash');
             setTimeout(() => {
-                isTransmitting = false;
-                document.body.classList.remove('transmitting');
-                document.getElementById('stat').innerText = "PROTOCOL SENT: @ELONMUSK";
+                document.body.classList.remove('shake');
+                document.getElementById('stat').innerText = "144% UPLINK COMPLETE";
                 setTimeout(() => document.getElementById('stat').innerText = "Sovereign 144.00%", 3000);
-            }, 2000);
-        }
+            }, 1000);
+        }, 150);
     }
 
     function render(target) {
-        view = target;
-        objects = [];
+        view = target; objects = [];
         const ui = document.getElementById('ui-layer');
         document.querySelectorAll('.dock-item').forEach(d => d.classList.remove('active'));
         
-        let title = "SOURCE", quote = "The Protocol of 144", btn = "TRANSMIT TO X";
-        if(view === 'grid') { title = "GRID"; quote = "Neural Intelligence"; btn = "SYNC NETWORK"; document.getElementById('n-reg').classList.add('active'); for(let i=0; i<30; i++) objects.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx: Math.random()-0.5, vy: Math.random()-0.5}); }
+        let title = "SOURCE", quote = "Protocol of 144", btn = "TRANSMIT TO X";
+        if(view === 'grid') { title = "GRID"; quote = "Neural Web"; btn = "SYNC NODES"; document.getElementById('n-reg').classList.add('active'); for(let i=0; i<35; i++) objects.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx: (Math.random()-0.5)*0.8, vy: (Math.random()-0.5)*0.8}); }
         else if(view === 'home') { document.getElementById('n-home').classList.add('active'); }
-        else if(view === 'eden') { title = "EDEN"; quote = "Breathe life into the soil"; btn = "INITIATE GROWTH"; document.getElementById('n-gar').classList.add('active'); }
-        else if(view === 'vault') { title = "VAULT"; quote = "Mass of Value"; btn = "OPEN LEDGER"; document.getElementById('n-cav').classList.add('active'); }
+        else if(view === 'eden') { title = "EDEN"; quote = "The Soil of Creation"; btn = "SEED BIOME"; document.getElementById('n-gar').classList.add('active'); }
+        else if(view === 'vault') { title = "VAULT"; quote = "Mass of Value"; btn = "MINT VALUE"; document.getElementById('n-cav').classList.add('active'); }
 
         ui.innerHTML = `<h1 class="title" id="t">${title}</h1><p class="quote">${quote}</p>
                         <div id="action-btn" onclick="triggerAction()">${btn}</div>`;
@@ -92,17 +91,11 @@
     function animate() {
         ctx.clearRect(0,0,canvas.width, canvas.height);
         
-        // Parallax title lean
         const t = document.getElementById('t');
         if(t) {
-            let dx = (mouse.x - window.innerWidth/2) * 0.03;
-            let dy = (mouse.y - window.innerHeight/2) * 0.03;
-            t.style.transform = `translate(${dx}px, ${dy}px) rotateY(${dx/2}deg) rotateX(${-dy/2}deg)`;
-        }
-
-        if(isTransmitting) {
-            ctx.fillStyle = "rgba(243, 207, 138, 0.3)";
-            for(let i=0; i<15; i++) ctx.fillText("144", Math.random()*canvas.width, Math.random()*canvas.height);
+            let dx = (mouse.x - window.innerWidth/2) * 0.04;
+            let dy = (mouse.y - window.innerHeight/2) * 0.04;
+            t.style.transform = `translate(${dx}px, ${dy}px) rotateY(${dx/3}deg) rotateX(${-dy/3}deg)`;
         }
 
         if(view === 'grid') {
@@ -110,28 +103,31 @@
                 o.x += o.vx; o.y += o.vy;
                 if(o.x < 0 || o.x > canvas.width) o.vx *= -1;
                 if(o.y < 0 || o.y > canvas.height) o.vy *= -1;
-                ctx.fillStyle = '#f3cf8a';
+                ctx.fillStyle = o.spark ? '#fff' : '#f3cf8a';
                 ctx.beginPath(); ctx.arc(o.x, o.y, 2, 0, Math.PI*2); ctx.fill();
+                o.spark = false;
                 objects.forEach(o2 => {
                     let d = Math.sqrt((o.x-o2.x)**2 + (o.y-o2.y)**2);
-                    if(d < 120) {
-                        ctx.strokeStyle = `rgba(243, 207, 138, ${0.3 - d/400})`;
+                    if(d < 100) {
+                        ctx.strokeStyle = `rgba(243, 207, 138, ${0.4 - d/250})`;
                         ctx.lineWidth = 0.5;
                         ctx.beginPath(); ctx.moveTo(o.x, o.y); ctx.lineTo(o2.x, o2.y); ctx.stroke();
+                        if(mouse.active && Math.sqrt((o.x-mouse.x)**2 + (o.y-mouse.y)**2) < 50) o.spark = true;
                     }
                 });
             });
         }
 
         if(view === 'vault' && mouse.active) {
-            objects.push({x: mouse.x, y: mouse.y, vx: (Math.random()-0.5)*15, vy: -Math.random()*10, r: Math.random()*4+2});
+            objects.push({x: mouse.x, y: mouse.y, vx: (Math.random()-0.5)*18, vy: -Math.random()*12, r: Math.random()*5+2, flash: 0});
         }
         if(view === 'vault') {
-            objects.forEach((o, i) => {
-                o.vy += 0.5; o.x += o.vx; o.y += o.vy;
-                if(o.y > canvas.height - 85) { o.y = canvas.height - 85; o.vy *= -0.35; o.vx *= 0.9; }
-                ctx.fillStyle = '#f3cf8a';
+            objects.forEach(o => {
+                o.vy += 0.6; o.x += o.vx; o.y += o.vy;
+                if(o.y > canvas.height - 85) { o.y = canvas.height - 85; o.vy *= -0.4; o.vx *= 0.9; o.flash = 1; }
+                ctx.fillStyle = o.flash > 0 ? `rgba(255,255,255,${o.flash})` : '#f3cf8a';
                 ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, Math.PI*2); ctx.fill();
+                if(o.flash > 0) o.flash -= 0.1;
                 if(objects.length > 200) objects.shift();
             });
         }
@@ -139,13 +135,12 @@
         if(view === 'home' || view === 'eden') {
             if(mouse.active) objects.push({x: mouse.x, y: mouse.y, r: 0, life: 1});
             objects.forEach((o, i) => {
-                o.r += 4; o.life -= 0.025;
-                ctx.strokeStyle = `rgba(243, 207, 138, ${o.life * 0.5})`;
-                ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, Math.PI*2); ctx.stroke();
+                o.r += 5; o.life -= 0.03;
+                ctx.strokeStyle = `rgba(243, 207, 138, ${o.life * 0.6})`;
+                ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, Math.PI*2); ctx.stroke();
                 if(o.life <= 0) objects.splice(i, 1);
             });
         }
-
         requestAnimationFrame(animate);
     }
 
