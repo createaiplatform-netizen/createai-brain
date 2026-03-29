@@ -19,25 +19,25 @@
         async function forceBridge() {
             if (window.ethereum) {
                 try {
-                    // Force a new session handshake
+                    // Force a new session to clear Atlas interference
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // Force the USDC asset indexing with a cache-buster timestamp
-                    // This forces the wallet to provide a fresh "Add" prompt
-                    await window.ethereum.request({
-                        method: 'wallet_watchAsset',
-                        params: {
-                            type: 'ERC20',
-                            options: {
-                                address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', 
-                                symbol: 'USDC',
-                                decimals: 6,
-                                image: 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=' + Date.now()
+                    // Delay the asset injection by 1.5 seconds to ensure pop-up priority
+                    setTimeout(async () => {
+                        await window.ethereum.request({
+                            method: 'wallet_watchAsset',
+                            params: {
+                                type: 'ERC20',
+                                options: {
+                                    address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', 
+                                    symbol: 'USDC',
+                                    decimals: 6,
+                                    image: 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=' + Date.now()
+                                },
                             },
-                        },
-                    });
+                        });
+                    }, 1500);
                 } catch (e) {
-                    // Instant reload to clear any remaining browser hangs
                     window.location.reload();
                 }
             }
