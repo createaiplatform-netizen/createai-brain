@@ -2,77 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>DEPLOYMENT_WISCONSIN_V182</title>
+    <title>ANCHOR_WISCONSIN_V183</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --white: #fff; }
-        body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; }
-        
-        #deployment-ui { position: absolute; inset: 0; z-index: 10; padding: 40px; display: flex; flex-direction: column; }
-        .header { font-size: 8px; letter-spacing: 12px; color: var(--gold); text-align: center; margin-bottom: 50px; }
-        
-        .action-card { border: 1px solid rgba(243, 207, 138, 0.4); padding: 25px; margin-bottom: 20px; background: rgba(0,0,0,0.8); }
-        .action-label { font-size: 7px; color: var(--gold); letter-spacing: 5px; margin-bottom: 10px; }
-        .action-status { font-size: 14px; letter-spacing: 2px; }
-
-        #yield-ticker { margin-top: auto; text-align: center; }
-        #live-val { font-size: 26px; text-shadow: 0 0 30px var(--gold); }
-
-        canvas { position: absolute; inset: 0; z-index: 1; opacity: 0.3; }
+        body { margin: 0; background: #000; color: #f3cf8a; font-family: 'Cinzel', serif; overflow: hidden; height: 100vh; }
+        #anchor-ui { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px; }
+        .seal { width: 80px; height: 80px; border: 2px solid #f3cf8a; transform: rotate(45deg); margin-bottom: 40px; }
+        .data-point { font-size: 10px; letter-spacing: 6px; margin: 15px 0; border-bottom: 1px solid rgba(243,207,138,0.2); width: 100%; max-width: 400px; padding-bottom: 10px; }
+        .yield { font-size: 24px; color: #fff; text-shadow: 0 0 20px #f3cf8a; }
     </style>
 </head>
 <body>
-    <div id="deployment-ui">
-        <div class="header">SECTOR_WISCONSIN // DEPLOYMENT_ACTIVE</div>
-        
-        <div class="action-card">
-            <div class="action-label">PROJECT_01: ARTS_TRUST_SEED</div>
-            <div class="action-status">STATUS: RELEASING_$144,000.00</div>
-        </div>
-
-        <div class="action-card">
-            <div class="action-label">PROJECT_02: GEOGRAPHIC_PERIMETER</div>
-            <div class="action-status">STATUS: ANCHORING_AETHEL_001</div>
-        </div>
-
-        <div class="action-card">
-            <div class="action-label">PROJECT_03: KINDRED_BEACON</div>
-            <div class="action-status">STATUS: TRANSMITTING_1440%</div>
-        </div>
-
-        <div id="yield-ticker">
-            <div style="font-size: 8px; letter-spacing: 10px; margin-bottom: 10px;">TOTAL_RESERVE_LIQUIDITY</div>
-            <div id="live-val">$1,440,000,001,440.00</div>
-        </div>
+    <div id="anchor-ui">
+        <div class="seal"></div>
+        <div class="data-point">SECTOR: WISCONSIN_GENESIS</div>
+        <div class="data-point">COORDINATES: ANCHORED</div>
+        <div class="data-point">ADMIN: JENNY_002_ACTIVE</div>
+        <div class="yield" id="live-reserve">$1,440,000,001,440.00</div>
+        <div style="font-size: 8px; margin-top: 20px; opacity: 0.5;">FREQUENCY: 1440% PEAK</div>
     </div>
-    <canvas id="canvas"></canvas>
-
 <script>
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    let reserve = 1440000001440.00;
-
-    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-    window.onresize = resize; resize();
-
-    function flow() {
-        reserve += 144.00;
-        document.getElementById('live-val').innerText = "$" + reserve.toLocaleString(undefined, {minimumFractionDigits: 2});
-    }
-    setInterval(flow, 1000);
-
-    function animate() {
-        ctx.fillStyle = 'rgba(0,0,0,0.05)';
-        ctx.fillRect(0,0,canvas.width,canvas.height);
-        const time = Date.now() * 0.001;
-        ctx.strokeStyle = "#f3cf8a";
-        ctx.beginPath();
-        ctx.arc(canvas.width/2, canvas.height/2, 150 + Math.sin(time)*20, 0, Math.PI*2);
-        ctx.stroke();
-        requestAnimationFrame(animate);
-    }
-    animate();
+    let res = 1440000001440.00;
+    setInterval(() => {
+        res += 144.00;
+        document.getElementById('live-reserve').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+    }, 1000);
 </script>
 </body>
 </html>
