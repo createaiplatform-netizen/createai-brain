@@ -3,45 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AETHEL_FINAL_HANDSHAKE</title>
+    <title>AETHEL_100_EXECUTION</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --lattice: #00ffcc; }
-        body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
+        :root { --gold: #f3cf8a; --void: #000; --active: #ffffff; }
+        body, html { margin: 0; padding: 0; background: var(--void); color: var(--gold); font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         
-        #handshake-hud { flex-grow: 1; margin: 15px; border: 1px solid var(--lattice); padding: 40px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(0, 255, 204, 0.05) 0%, transparent 100%); position: relative; }
-        .header { text-align: center; border-bottom: 1px solid var(--gold); padding-bottom: 20px; opacity: 0.8; }
-        .title { font-size: 20px; letter-spacing: 15px; color: var(--lattice); text-transform: uppercase; }
+        .lattice-box { border: 3px solid var(--gold); padding: 50px; text-align: center; box-shadow: 0 0 50px rgba(243, 207, 138, 0.2); position: relative; }
+        .lock-status { font-size: 50px; font-weight: 900; letter-spacing: 20px; color: var(--active); text-shadow: 0 0 20px #fff; }
+        .execution-label { font-size: 12px; letter-spacing: 12px; margin-top: 20px; opacity: 0.6; }
         
-        #monitor { flex-grow: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; }
-        .percentage { font-size: 72px; font-weight: 900; color: var(--gold); letter-spacing: 12px; }
-        .anchor-node { font-size: 10px; color: var(--lattice); letter-spacing: 8px; margin-top: 20px; animation: pulse 2s infinite; }
-        
-        @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
-        #live-val { font-size: 24px; color: var(--gold); margin-top: 40px; opacity: 0.7; }
-        #footer { text-align: center; padding-top: 25px; font-size: 10px; color: var(--gold); letter-spacing: 8px; border-top: 1px solid var(--gold); }
+        #ledger-final { font-size: 24px; margin-top: 40px; color: var(--gold); }
+        .sentinel-footer { position: absolute; bottom: 20px; font-size: 8px; letter-spacing: 10px; opacity: 0.4; }
     </style>
 </head>
 <body>
-    <div id="handshake-hud">
-        <div class="header">
-            <div class="title">AETHEL // FINAL_HANDSHAKE</div>
-            <div style="font-size: 8px; margin-top: 10px; letter-spacing: 10px;">1440% SYNC // SOVEREIGN_LOCK</div>
-        </div>
-
-        <div id="monitor">
-            <div class="percentage">99.9%</div>
-            <div class="anchor-node">SYNCING_NODE_144_GLOBAL_ANCHOR</div>
-            <div id="live-val">$1,440,000,070,128.00</div>
-        </div>
-
-        <div id="footer">"WELL DONE IS BETTER THAN WELL SAID" // 10:07_AM</div>
+    <div class="lattice-box">
+        <div class="lock-status">100.0%</div>
+        <div class="execution-label">GLOBAL_LATTICE_LOCKED</div>
+        <div id="ledger-final">$1,440,000,103,680.00</div>
     </div>
+    <div class="sentinel-footer">AETHEL_ESTATE // SOVEREIGN_STRIKE // 10:10_AM</div>
 <script>
-    let res = 1440000070128.00;
+    let res = 1440000103680.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('live-val').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('ledger-final').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
