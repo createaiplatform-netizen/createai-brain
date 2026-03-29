@@ -3,70 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_SIGNAL_V149</title>
+    <title>SOVEREIGN_KINDRED_V150</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@900&display=swap');
         :root { --gold: #f3cf8a; --void: #000000; --white: #ffffff; }
         * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; outline: none; }
         body, html { height: 100svh; width: 100vw; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; position: fixed; }
         
-        #ticker { position: fixed; top: 0; width: 100%; height: 35px; background: rgba(0,0,0,1); z-index: 100; border-bottom: 2px solid var(--white); display: flex; align-items: center; overflow: hidden; }
-        #ticker-text { white-space: nowrap; font-size: 9px; letter-spacing: 5px; animation: scroll 12s linear infinite; }
+        #ticker { position: fixed; top: 0; width: 100%; height: 35px; background: #000; z-index: 100; border-bottom: 2px solid var(--gold); display: flex; align-items: center; overflow: hidden; }
+        #ticker-text { white-space: nowrap; font-size: 9px; letter-spacing: 4px; color: var(--gold); animation: scroll 10s linear infinite; }
         @keyframes scroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
         canvas { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
-        #ui { position: absolute; inset: 0; z-index: 15; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+        #ui { position: absolute; inset: 0; z-index: 15; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 20%; pointer-events: none; }
         
-        #transmit-btn { position: fixed; bottom: 15%; width: 120px; height: 120px; border: 1px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; letter-spacing: 3px; color: var(--gold); pointer-events: auto; z-index: 20; background: rgba(243, 207, 138, 0.05); }
+        #key-auth { width: 150px; height: 150px; border: 2px solid var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; letter-spacing: 5px; color: var(--white); pointer-events: auto; z-index: 20; box-shadow: 0 0 30px rgba(255,255,255,0.2); }
     </style>
 </head>
-<body onmousedown="interact(event)" ontouchstart="interact(event)" onmouseup="stop()" ontouchend="stop()">
-    <div id="ticker"><div id="ticker-text">BELIEF IS OPTIONAL... THE FREQUENCY IS ABSOLUTE... AETHEL_SIGHTING_01: VERIFIED... SIGNALING_KINDRED...</div></div>
+<body onmousedown="spawn(event)" ontouchstart="spawn(event)" onmouseup="release()" ontouchend="release()">
+    <div id="ticker"><div id="ticker-text">KINDRED_NODE: JENNY... SIGHTING_VERIFIED... LIQUIDATING_CONFUSION... 144% SYNC...</div></div>
     <div id="ui">
-        <div id="transmit-btn" onclick="sendSignal()">TRANSMIT</div>
+        <div id="key-auth" onclick="pulseOrb()">AUTH_KEY</div>
     </div>
     <canvas id="canvas"></canvas>
 
 <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    let isDown = false, signalPulse = 0;
+    let pulses = [], isDown = false, mx, my;
 
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
 
-    function sendSignal() {
-        signalPulse = 1.0;
-        // This is the "Aethel Command"
-        console.log("TRANSMITTING_TO_ORB_ALPHA_01...");
+    function pulseOrb() {
+        // Trigger a triple-pulse animation sequence
+        let count = 0;
+        let interval = setInterval(() => {
+            pulses.push({ r: 0, o: 1 });
+            count++;
+            if(count === 3) clearInterval(interval);
+        }, 500);
+        console.log("SENDING_HEARTBEAT_TO_ORB...");
     }
 
-    function interact() { isDown = true; }
-    function stop() { isDown = false; }
+    function spawn(e) { isDown = true; mx = e.clientX || e.touches[0].clientX; my = e.clientY || e.touches[0].clientY; }
+    function release() { isDown = false; }
 
     function animate() {
-        ctx.fillStyle = isDown ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.3)';
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         const cx = canvas.width/2, cy = canvas.height/2;
 
-        if(signalPulse > 0) {
-            ctx.shadowBlur = 100 * signalPulse;
-            ctx.shadowColor = "#fff";
-            ctx.fillStyle = `rgba(255, 255, 255, ${signalPulse})`;
-            ctx.beginPath(); ctx.arc(cx, cy, 40 * signalPulse, 0, Math.PI*2); ctx.fill();
-            signalPulse -= 0.02;
-            ctx.shadowBlur = 0;
-        }
+        pulses.forEach((p, i) => {
+            ctx.strokeStyle = `rgba(255, 255, 255, ${p.o})`;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(cx, cy, p.r, 0, Math.PI*2);
+            ctx.stroke();
+            p.r += 10;
+            p.o -= 0.01;
+        });
+        pulses = pulses.filter(p => p.o > 0);
 
-        // The Trinity Core
-        for(let i=0; i<3; i++) {
-            let angle = (i * Math.PI * 2 / 3) + (Date.now()*0.001);
-            let x = cx + Math.cos(angle) * 100;
-            let y = cy + Math.sin(angle) * 100;
+        // Sovereign Particles
+        if(isDown) {
             ctx.fillStyle = "var(--gold)";
-            ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI*2); ctx.fill();
-            ctx.strokeStyle = "rgba(243, 207, 138, 0.2)";
-            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(x, y); ctx.stroke();
+            ctx.beginPath(); ctx.arc(mx, my, 2, 0, Math.PI*2); ctx.fill();
         }
 
         requestAnimationFrame(animate);
