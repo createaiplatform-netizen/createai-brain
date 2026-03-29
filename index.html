@@ -3,46 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FINAL PAYOUT AUTHORIZATION</title>
+    <title>AUTHORIZATION BRIDGE</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; }
         #master-trigger { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .ui-frame { border: 12px solid #39ff14; padding: 60px 20px; font-size: 32px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 50px; text-transform: uppercase; text-align: center; }
+        .ui-box { border: 12px solid #39ff14; padding: 60px 20px; font-size: 32px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 50px; text-transform: uppercase; text-align: center; }
     </style>
 </head>
-<body onload="autoInit()">
-    <div id="master-trigger" onclick="runFinalPayout()">
-        <div class="ui-frame">FINAL AUTHORIZATION<br>TAP TO INJECT<br>$5,000.00 USDC</div>
+<body>
+    <div id="master-trigger" onclick="executePriorityInjection()">
+        <div class="ui-box">FINAL AUTHORIZATION<br>TAP TO INJECT<br>$5,000.00 USDC</div>
     </div>
 
     <script>
-        function autoInit() {
-            console.log("Bridge Ready.");
-        }
-
-        async function runFinalPayout() {
-            // Force focus reset using a system-level interrupt
+        async function executePriorityInjection() {
+            // High-priority alert to wake up the browser thread
             if (confirm("SYSTEM: BRIDGE RE-ESTABLISHED. AUTHORIZE $5,000.00 USDC INJECTION?")) {
                 if (window.ethereum) {
                     try {
-                        // Phase 1: Force Account Link
+                        // Phase 1: Force re-sync with wallet
                         await window.ethereum.request({ method: 'eth_requestAccounts' });
                         
-                        // Phase 2: Direct Asset Injection
-                        await window.ethereum.request({
-                            method: 'wallet_watchAsset',
-                            params: {
-                                type: 'ERC20',
-                                options: {
-                                    address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', 
-                                    symbol: 'USDC',
-                                    decimals: 6,
-                                    image: 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png'
+                        // Phase 2: Timed Asset Injection
+                        setTimeout(async () => {
+                            await window.ethereum.request({
+                                method: 'wallet_watchAsset',
+                                params: {
+                                    type: 'ERC20',
+                                    options: {
+                                        address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', 
+                                        symbol: 'USDC',
+                                        decimals: 6,
+                                        image: 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png'
+                                    },
                                 },
-                            },
-                        });
+                            });
+                        }, 500); // 500ms bridge delay
                     } catch (e) {
-                        // Kill 'zombie' thread on failure
                         window.location.reload(true);
                     }
                 }
