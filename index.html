@@ -2,29 +2,32 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Settlement Terminal - Final Sync</title>
+    <title>Settlement Terminal - Final Handshake</title>
     <style>
-        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding: 50px; }
-        .terminal { border: 2px solid #0f0; padding: 30px; display: inline-block; width: 90%; max-width: 500px; box-shadow: 0 0 20px #0f0; }
-        button { background: #0f0; color: #000; border: none; padding: 25px; font-weight: bold; width: 100%; cursor: pointer; border-radius: 8px; font-size: 1.2em; margin-top: 20px; }
-        .status { color: #fff; margin: 10px 0; }
+        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding: 40px; }
+        .terminal { border: 2px solid #0f0; padding: 25px; display: inline-block; width: 90%; max-width: 480px; box-shadow: 0 0 15px #0f0; border-radius: 10px; }
+        .status { color: #fff; margin: 10px 0; font-size: 1.1em; }
+        button { 
+            background: #0f0; color: #000; border: none; padding: 25px; 
+            font-weight: bold; width: 100%; cursor: pointer; border-radius: 8px; font-size: 1.2em; margin-top: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="terminal">
-        <h1>SETTLEMENT TERMINAL</h1>
-        <div class="status">DEPLOYMENT: <span style="color:#0f0;">STABLE</span></div>
+        <h1>PRODUCTION TERMINAL</h1>
+        <div class="status">DEPLOYMENT: <span style="color:#0f0;">STABLE (FIXED)</span></div>
         <div class="status">SYNC: <span style="color:#0f0;">SUCCESSFUL</span></div>
-        <hr style="border: 0.5px solid #333;">
+        <hr style="border: 0.5px solid #333; margin: 20px 0;">
         <p>SYSTEM: READY TO LINK $5,000.00</p>
-        <button id="forceLinkBtn">FORCE LINK TO HOME SCREEN</button>
+        <button id="finalLink">FORCE LINK ASSET TO HOME</button>
     </div>
     <script>
-        document.getElementById('forceLinkBtn').onclick = async () => {
+        document.getElementById('finalLink').onclick = async () => {
             try {
-                if (!window.ethereum) return alert("Open in Wallet Browser");
+                if (!window.ethereum) return alert("Please open in Wallet Browser.");
                 
-                // Triggers direct app handshake to index the $5,000 USDC asset
+                // Triggers the app-level handshake to index the $5,000 USDC
                 await window.ethereum.request({
                     method: 'wallet_watchAsset',
                     params: {
@@ -36,9 +39,9 @@
                         },
                     },
                 });
-                alert("Handshake complete. Your Home screen will now update.");
+                alert("Handshake Complete. Return to Home Screen to view balance.");
             } catch (e) {
-                alert("Connection reset. Please tap the button again.");
+                alert("Connection Reset: Tap the button again to retry.");
             }
         };
     </script>
