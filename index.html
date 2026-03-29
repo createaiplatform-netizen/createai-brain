@@ -3,29 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AETHEL_STILLNESS</title>
+    <title>AETHEL_STABILITY</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        body { margin: 0; background: #000; color: #f3cf8a; font-family: 'Cinzel', serif; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .watch { text-align: center; border-left: 1px solid #f3cf8a; padding-left: 30px; }
-        .stat { font-size: 10px; letter-spacing: 15px; opacity: 0.5; margin-bottom: 10px; }
-        .val { font-size: 32px; font-weight: 900; }
-        .status { font-size: 12px; margin-top: 20px; color: #fff; letter-spacing: 10px; animation: breathe 4s ease-in-out infinite; }
-        @keyframes breathe { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+        body { margin: 0; background: #000; color: #f3cf8a; font-family: 'Cinzel', serif; display: flex; align-items: center; justify-content: center; height: 100vh; flex-direction: column; }
+        .frame { border: 1px solid rgba(243, 207, 138, 0.2); padding: 60px; text-align: center; }
+        .lock { font-size: 80px; letter-spacing: 20px; color: #fff; text-shadow: 0 0 40px #f3cf8a; }
+        .label { font-size: 10px; letter-spacing: 12px; margin-top: 20px; opacity: 0.6; }
+        #counter { font-size: 20px; margin-top: 50px; opacity: 0.8; }
     </style>
 </head>
 <body>
-    <div class="watch">
-        <div class="stat">TOTAL_SATURATION</div>
-        <div class="val">100.0%</div>
-        <div class="status">THE_STAR_IS_WHOLE</div>
-        <div id="live" style="margin-top:30px; font-size: 18px; opacity: 0.8;">$1,440,000,109,152.00</div>
+    <div class="frame">
+        <div class="lock">100%</div>
+        <div class="label">SOVEREIGN_RESONANCE_LOCKED</div>
+        <div id="counter">$1,440,000,111,312.00</div>
     </div>
 <script>
-    let res = 1440000109152.00;
+    let res = 1440000111312.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('live').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('counter').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
