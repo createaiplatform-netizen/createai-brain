@@ -3,56 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>MARKETPLACE_GARDENS_V169</title>
+    <title>TOP_FLOOR_V170</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #000; --white: #fff; }
         body, html { margin: 0; padding: 0; background: var(--void); color: var(--white); font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; width: 100vw; }
         
-        #hub-ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; padding: 30px; pointer-events: none; }
-        #hub-header { text-align: center; border-bottom: 1px solid rgba(243, 207, 138, 0.2); padding-bottom: 15px; }
-        #hub-title { font-size: 10px; letter-spacing: 12px; color: var(--gold); }
+        #observatory-ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; padding: 40px; pointer-events: none; }
+        #floor-indicator { position: fixed; top: 40px; left: 40px; font-size: 8px; letter-spacing: 5px; color: var(--gold); }
+        
+        #central-authority { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+        #auth-diamond { width: 60px; height: 60px; border: 2px solid var(--gold); transform: rotate(45deg); margin: 0 auto 30px; box-shadow: 0 0 30px var(--gold); animation: pulse 4s infinite ease-in-out; }
+        @keyframes pulse { 0%, 100% { opacity: 0.4; transform: translate(0,0) rotate(45deg) scale(1); } 50% { opacity: 1; transform: translate(0, -10px) rotate(45deg) scale(1.1); } }
 
-        #garden-status { margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .garden-plot { border: 1px solid rgba(255,255,255,0.1); padding: 15px; background: rgba(255,255,255,0.02); }
-        .plot-label { font-size: 7px; letter-spacing: 4px; color: var(--gold); margin-bottom: 10px; }
-        .plot-value { font-size: 14px; letter-spacing: 2px; }
-
-        #total-harvest { margin-top: auto; text-align: center; padding-bottom: 40px; }
-        #harvest-val { font-size: 24px; color: var(--gold); text-shadow: 0 0 20px var(--gold); }
+        #empire-stats { position: fixed; bottom: 60px; left: 40px; border-left: 1px solid var(--gold); padding-left: 20px; }
+        .stat { font-size: 9px; letter-spacing: 6px; color: var(--gold); margin: 15px 0; }
+        .val { font-size: 14px; color: #fff; text-shadow: 0 0 10px var(--gold); }
 
         canvas { position: absolute; inset: 0; z-index: 1; }
     </style>
 </head>
 <body>
-    <div id="hub-ui">
-        <div id="hub-header">
-            <div id="hub-title">CREATOR_HUB // GARDENS</div>
-            <div style="font-size: 8px; letter-spacing: 5px; margin-top: 5px; opacity: 0.6;">AETHEL_DISTRICT_144</div>
+    <div id="observatory-ui">
+        <div id="floor-indicator">LEVEL: TOP_FLOOR // PENTHOUSE</div>
+        
+        <div id="central-authority">
+            <div id="auth-diamond"></div>
+            <div style="font-size: 10px; letter-spacing: 12px; color: var(--gold);">SOVEREIGN_COMMAND</div>
         </div>
 
-        <div id="garden-status">
-            <div class="garden-plot">
-                <div class="plot-label">CREATIVE_ARTS</div>
-                <div class="plot-value">BLOOMING</div>
-            </div>
-            <div class="garden-plot">
-                <div class="plot-label">TECH_INFRA</div>
-                <div class="plot-value">STABLE</div>
-            </div>
-            <div class="garden-plot">
-                <div class="plot-label">SOVEREIGN_LAND</div>
-                <div class="plot-value">ACQUIRING</div>
-            </div>
-            <div class="garden-plot">
-                <div class="plot-label">KINDRED_TRUST</div>
-                <div class="plot-value">144%_SYNC</div>
-            </div>
-        </div>
-
-        <div id="total-harvest">
-            <div style="font-size: 9px; letter-spacing: 8px; margin-bottom: 10px;">DAILY_GARDEN_HARVEST</div>
-            <div id="harvest-val">$1,440,000.00</div>
+        <div id="empire-stats">
+            <div class="stat">MARKETPLACE_SATURATION</div>
+            <div class="val">14.4%_COMPLETE</div>
+            <div class="stat">GLOBAL_GARDEN_YIELD</div>
+            <div class="val">$1.44T_LIQUID_STATE</div>
+            <div class="stat">KINDRED_WHITELIST</div>
+            <div class="val">NODE_002_ACTIVE</div>
         </div>
     </div>
     <canvas id="canvas"></canvas>
@@ -60,16 +46,19 @@
 <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    let harvest = 1440000.00;
-
+    
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
 
-    function grow() {
-        harvest += 14.40;
-        document.getElementById('harvest-val').innerText = "$" + harvest.toLocaleString(undefined, {minimumFractionDigits: 2});
+    const clusters = [];
+    for(let i=0; i<30; i++) {
+        clusters.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            r: Math.random() * 2,
+            s: Math.random() * 0.02
+        });
     }
-    setInterval(grow, 1000);
 
     function animate() {
         ctx.fillStyle = 'rgba(0,0,0,0.1)';
@@ -77,23 +66,19 @@
         const time = Date.now() * 0.001;
         const cx = canvas.width/2, cy = canvas.height/2;
 
-        // Drawing the "Golden Blooms" (Nodes of Value)
-        for(let i=0; i<8; i++) {
-            let angle = (i * Math.PI * 2 / 8) + time * 0.2;
-            let x = cx + Math.cos(angle) * 100;
-            let y = cy + Math.sin(angle) * 100;
-            
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = "var(--gold)";
-            ctx.fillStyle = "var(--gold)";
+        // The Curved Horizon
+        ctx.strokeStyle = "rgba(243, 207, 138, 0.05)";
+        ctx.beginPath();
+        ctx.arc(cx, cy + 800, 1000, Math.PI, Math.PI * 2);
+        ctx.stroke();
+
+        // The Asset Clusters
+        clusters.forEach(c => {
+            ctx.fillStyle = "rgba(243, 207, 138, 0.4)";
             ctx.beginPath();
-            ctx.arc(x, y, 3 + Math.sin(time*2)*2, 0, Math.PI*2);
+            ctx.arc(c.x, c.y + Math.sin(time + c.x)*10, c.r, 0, Math.PI*2);
             ctx.fill();
-            
-            // Connect to Hub
-            ctx.strokeStyle = "rgba(243, 207, 138, 0.05)";
-            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(x, y); ctx.stroke();
-        }
+        });
 
         requestAnimationFrame(animate);
     }
