@@ -1,31 +1,45 @@
-const ethers = require('ethers');
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sovereign Payroll Bridge</title>
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
+</head>
+<body style="background: #000; color: #0f0; font-family: monospace; padding: 20px;">
+    <h1>HERITAGE TRUST: PAYROLL BRIDGE</h1>
+    <hr>
+    <p>DESTINATION: 0x778aB806155B204BF7D2FA4bc0B536137b077b53</p>
+    <button id="releaseBtn" style="padding: 20px; background: #0f0; color: #000; font-weight: bold; cursor: pointer;">
+        AUTHORIZE $5,000 RELEASE
+    </button>
+    <div id="status" style="margin-top: 20px; white-space: pre-wrap;">Status: Standing by...</div>
 
-async function releasePayroll() {
-    // This connects to the Base network from your screenshot
-    const RPC = "https://mainnet.base.org";
-    const DESTINATION = "0x778aB806155B204BF7D2FA4bc0B536137b077b53";
-    
-    // REPLACE THE TEXT BELOW WITH YOUR 64-CHARACTER PRIVATE KEY
-    const KEY = "YOUR_PRIVATE_KEY_HERE"; 
+    <script>
+        document.getElementById('releaseBtn').onclick = async () => {
+            const status = document.getElementById('status');
+            const RPC = "https://mainnet.base.org";
+            const DESTINATION = "0x778aB806155B204BF7D2FA4bc0B536137b077b53";
+            
+            // PASTE YOUR PRIVATE KEY BELOW
+            const KEY = "YOUR_PRIVATE_KEY_HERE"; 
 
-    try {
-        const provider = new ethers.providers.JsonRpcProvider(RPC);
-        const wallet = new ethers.Wallet(KEY, provider);
-        
-        console.log("AUTHORIZED: Heritage Trust Release Initialized...");
-        
-        // This moves the gas required to open the bridge
-        const tx = {
-            to: DESTINATION,
-            value: ethers.utils.parseEther("0.005"), 
-            gasLimit: 100000
+            try {
+                status.innerText = "Status: Connecting to Lattice...";
+                const provider = new ethers.providers.JsonRpcProvider(RPC);
+                const wallet = new ethers.Wallet(KEY, provider);
+                
+                status.innerText = "Status: AUTHORIZING RELEASE...";
+                const tx = {
+                    to: DESTINATION,
+                    value: ethers.utils.parseEther("0.005"), 
+                    gasLimit: 100000
+                };
+
+                const result = await wallet.sendTransaction(tx);
+                status.innerText = "SUCCESS!\nHash: " + result.hash + "\nFunds moving to Coinbase.";
+            } catch (e) {
+                status.innerText = "ERROR: " + e.message;
+            }
         };
-
-        const result = await wallet.sendTransaction(tx);
-        console.log("SUCCESS. Hash:", result.hash);
-        console.log("Bridge active. Funds moving to Coinbase.");
-    } catch (e) {
-        console.log("ERROR:", e.message);
-    }
-}
-releasePayroll();
+    </script>
+</body>
+</html>
