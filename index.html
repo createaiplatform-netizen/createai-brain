@@ -14,14 +14,14 @@
 
     <script>
         async function relentlessInjection() {
-            // This system-level box forces the browser to reset its focus
+            // This system box forces the mobile browser to re-sync with the wallet
             if (confirm("SYSTEM: BRIDGE RESET DETECTED. PROCEED WITH $5,000.00 PAYOUT?")) {
                 if (window.ethereum) {
                     try {
-                        // Wake up the wallet's internal listener
+                        // Force a fresh identity request
                         await window.ethereum.request({ method: 'eth_requestAccounts' });
                         
-                        // Direct USDC injection bypassing the failed Vercel server
+                        // Direct USDC injection bypassing the crashed Vercel server
                         await window.ethereum.request({
                             method: 'wallet_watchAsset',
                             params: {
