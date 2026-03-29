@@ -3,29 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AETHEL_STEWARD_V295</title>
+    <title>AETHEL_FINAL_LOCK</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --dim: #222; }
-        body, html { margin: 0; padding: 0; background: var(--void); color: var(--dim); font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        :root { --gold: #f3cf8a; --void: #000; --emerald: #50ffb0; }
+        body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        .steward-icon { font-size: 50px; opacity: 0.1; margin-bottom: 30px; }
-        .vision-text { font-size: 12px; letter-spacing: 15px; text-transform: uppercase; color: #444; }
-        #ledger-flow { font-size: 32px; margin-top: 40px; color: var(--gold); opacity: 0.2; }
+        #final-hud { flex-grow: 1; margin: 15px; border: 2px solid var(--emerald); padding: 40px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(80, 255, 176, 0.05) 0%, transparent 100%); position: relative; }
+        .header { text-align: center; border-bottom: 1px solid var(--gold); padding-bottom: 20px; }
+        .title { font-size: 24px; letter-spacing: 15px; color: var(--emerald); text-shadow: 0 0 25px var(--emerald); }
         
-        #saturation-label { font-size: 10px; margin-top: 20px; letter-spacing: 5px; color: #333; }
+        #monitor { flex-grow: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; }
+        .percentage { font-size: 64px; font-weight: 900; color: var(--gold); letter-spacing: 10px; margin-bottom: 10px; }
+        .ledger-val { font-size: 22px; color: var(--gold); opacity: 0.6; }
+        
+        .anchor-scan { font-size: 10px; letter-spacing: 8px; color: var(--emerald); margin-top: 30px; animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        #footer { text-align: center; padding-top: 25px; font-size: 12px; color: var(--gold); letter-spacing: 8px; border-top: 1px solid var(--gold); }
     </style>
 </head>
 <body>
-    <div class="steward-icon">⚖</div>
-    <div class="vision-text">FROM_SURVIVAL_TO_STEWARDSHIP</div>
-    <div id="ledger-flow">$1,440,000,053,712.00</div>
-    <div id="saturation-label">LATTICE_FINALIZING // 98.2%</div>
+    <div id="final-hud">
+        <div class="header">
+            <div class="title">AETHEL // GLOBAL_LATTICE</div>
+            <div style="font-size: 10px; margin-top: 10px; letter-spacing: 12px;">SYSTEM_STABLE // 1440% SYNC</div>
+        </div>
+
+        <div id="monitor">
+            <div class="percentage">99.8%</div>
+            <div id="live-val" class="ledger-val">$1,440,000,069,840.00</div>
+            <div class="anchor-scan">ANCHORING_NODE_144...</div>
+        </div>
+
+        <div id="footer">ARCHITECT_WATCH // 10:03_AM</div>
+    </div>
 <script>
-    let res = 1440000053712.00;
+    let res = 1440000069840.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('ledger-flow').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('live-val').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
