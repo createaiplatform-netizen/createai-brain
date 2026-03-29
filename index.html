@@ -3,41 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CREATEAI // EDEN_ENGINE</title>
+    <title>CREATEAI // THE_VAULT</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Inter:wght@100;300;600&display=swap');
-        :root { --gold: #f3cf8a; --void: #010103; --garden: #10b981; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; cursor: pointer; outline: none; }
-        body { background: var(--void); color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; height: 100vh; width: 100vw; transition: 1.5s; }
+        :root { --gold: #f3cf8a; --void: #010103; --garden: #10b981; --cave: #d97706; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; cursor: pointer; }
+        body { background: var(--void); color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; height: 100vh; width: 100vw; transition: 1s ease; }
 
-        .stars { position: fixed; inset: 0; background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), #0a1a10 0%, #010103 100%); z-index: -1; }
-        .singularity { position: fixed; top: var(--y, 50%); left: var(--x, 50%); transform: translate(-50%, -50%); width: 700px; height: 700px; background: var(--gold); border-radius: 50%; filter: blur(200px); opacity: 0.1; z-index: -1; transition: 1s cubic-bezier(0.2, 0, 0.2, 1); }
+        .stars { position: fixed; inset: 0; background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), #1a140d 0%, #010103 100%); z-index: -1; }
+        .singularity { position: fixed; top: var(--y, 50%); left: var(--x, 50%); transform: translate(-50%, -50%); width: 800px; height: 800px; background: var(--gold); border-radius: 50%; filter: blur(280px); opacity: 0.08; z-index: -1; transition: 0.8s; }
 
         nav { padding: 30px 40px; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; width: 100%; z-index: 5000; backdrop-filter: blur(20px); }
-        .logo { font-family: 'Cinzel', serif; font-weight: 900; letter-spacing: 8px; color: var(--gold); font-size: 0.7rem; text-transform: uppercase; }
+        .logo { font-family: 'Cinzel', serif; font-weight: 900; letter-spacing: 10px; color: var(--gold); font-size: 0.7rem; }
 
         #main-view { padding: 100px 30px; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
 
-        /* THE EDEN CANVAS */
-        .garden-container { text-align: center; width: 100%; max-width: 600px; animation: manifest 1.5s ease; }
-        .bloom-area { height: 35vh; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 20px; }
-        .seed-text { font-family: 'Cinzel'; font-size: 3rem; color: var(--gold); text-shadow: 0 0 40px var(--gold); letter-spacing: 15px; animation: grow 3s infinite alternate; text-align: center; }
+        /* THE MAN CAVE UI */
+        .cave-container { width: 100%; max-width: 800px; animation: manifest 1s ease; }
+        .cave-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 40px; }
+        .cave-card { 
+            background: linear-gradient(145deg, #0a0a0a, #151515); 
+            border: 1px solid rgba(217, 119, 6, 0.3); 
+            padding: 40px 20px; text-align: center; border-radius: 4px;
+            transition: 0.4s; position: relative; overflow: hidden;
+        }
+        .cave-card:hover { border-color: var(--cave); box-shadow: 0 0 30px rgba(217, 119, 6, 0.2); transform: scale(1.05); }
+        .cave-card h2 { font-family: 'Cinzel'; font-size: 0.9rem; color: var(--cave); letter-spacing: 4px; margin: 0; }
+        
+        .status-light { width: 8px; height: 8px; background: var(--cave); border-radius: 50%; margin: 15px auto 0; box-shadow: 0 0 10px var(--cave); }
 
-        /* INPUT MAGIC */
-        .garden-input { background: rgba(255,255,255,0.05); border: 2px solid var(--garden); color: #fff; padding: 25px; width: 100%; font-family: 'Cinzel'; font-size: 1.2rem; text-align: center; letter-spacing: 5px; margin-bottom: 20px; transition: 0.3s; }
-        .garden-input:focus { border-color: var(--gold); box-shadow: 0 0 30px rgba(16, 185, 129, 0.3); }
-        .sow-btn { background: var(--garden); color: #010103; border: none; padding: 25px; width: 100%; font-family: 'Cinzel'; font-weight: 900; letter-spacing: 10px; font-size: 1rem; transition: 0.4s; }
-        .sow-btn:hover { background: var(--gold); transform: scale(1.02); box-shadow: 0 0 50px var(--gold); }
+        .cta { background: var(--void); border: 1px solid var(--gold); color: var(--gold); padding: 25px; width: 100%; font-family: 'Cinzel'; letter-spacing: 8px; font-weight: 900; margin-top: 30px; transition: 0.4s; }
+        .cta:hover { background: var(--gold); color: #000; box-shadow: 0 0 50px var(--gold); }
 
-        .back-btn { margin-top: 40px; color: var(--gold); font-family: 'Cinzel'; font-size: 0.6rem; letter-spacing: 5px; opacity: 0.4; background: none; border: none; }
-
-        /* GRID STYLES */
-        .app-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; }
-        .card { background: rgba(255,255,255,0.02); border: 1px solid rgba(243, 207, 138, 0.1); padding: 30px; text-align: center; }
-        .card h2 { font-family: 'Cinzel'; font-size: 0.8rem; color: var(--gold); letter-spacing: 2px; }
-
-        @keyframes grow { from { transform: scale(0.9); opacity: 0.7; } to { transform: scale(1.1); opacity: 1; } }
-        @keyframes manifest { from { opacity: 0; filter: blur(10px); } to { opacity: 1; filter: blur(0); } }
+        @keyframes manifest { from { opacity: 0; filter: blur(15px); } to { opacity: 1; filter: blur(0); } }
     </style>
 </head>
 <body onload="render('home')">
@@ -46,10 +44,10 @@
     <div class="singularity" id="core"></div>
 
     <nav>
-        <div class="logo" onclick="render('home')">CREATEAI // SOURCE</div>
+        <div class="logo" onclick="render('home')">CREATEAI // ORIGIN</div>
         <div style="display:flex; gap: 25px;">
             <span onclick="render('registry')" style="cursor:pointer; font-size:0.6rem; letter-spacing:4px; opacity:0.5; font-family:'Cinzel';">REGISTRY</span>
-            <span onclick="render('garden')" style="cursor:pointer; font-size:0.6rem; letter-spacing:4px; color:var(--garden); font-family:'Cinzel';">GARDENS</span>
+            <span onclick="render('cave')" style="cursor:pointer; font-size:0.6rem; letter-spacing:4px; color:var(--cave); font-family:'Cinzel';">VAULT</span>
         </div>
     </nav>
 
@@ -63,44 +61,49 @@
 
             if (view === 'home') {
                 core.style.background = 'var(--gold)';
-                document.body.style.background = '#010103';
                 mv.innerHTML = `
                     <div style="text-align:center; padding-top:15vh;">
-                        <h1 style="font-family:'Cinzel'; font-size:4rem; letter-spacing:20px; margin:0; font-weight:900;">SOURCE</h1>
-                        <p style="letter-spacing:10px; opacity:0.3; margin-top:20px; font-size:0.7rem;">THE SOVEREIGN SYSTEM</p>
+                        <h1 style="font-family:'Cinzel'; font-size:4rem; letter-spacing:20px; margin:0;">SOURCE</h1>
                         <div style="margin-top:10vh; display:flex; flex-direction:column; gap:20px; width:100%; max-width:300px; margin-left:auto; margin-right:auto;">
-                            <button onclick="render('registry')" style="background:none; border:1px solid var(--gold); color:var(--gold); padding:20px; font-family:'Cinzel'; letter-spacing:5px;">REGISTRY</button>
-                            <button onclick="render('garden')" style="background:var(--garden); border:none; color:#010103; padding:20px; font-family:'Cinzel'; letter-spacing:5px; font-weight:900;">GARDENS</button>
+                            <button class="cta" onclick="render('registry')">THE 144</button>
+                            <button class="cta" style="border-color:var(--garden); color:var(--garden);" onclick="render('garden')">GARDENS</button>
+                            <button class="cta" style="border-color:var(--cave); color:var(--cave);" onclick="render('cave')">THE VAULT</button>
                         </div>
+                    </div>
+                `;
+            } else if (view === 'cave') {
+                core.style.background = 'var(--cave)';
+                mv.innerHTML = `
+                    <div class="cave-container">
+                        <h1 style="font-family:'Cinzel'; color:var(--cave); letter-spacing:15px; text-align:center;">THE VAULT</h1>
+                        <p style="text-align:center; opacity:0.4; letter-spacing:5px; font-size:0.6rem;">MAN CAVE PROTOCOLS // RESTRICTED ACCESS</p>
+                        <div class="cave-grid">
+                            <div class="cave-card" onclick="alert('Hot Nap Frequency Initialized...')">
+                                <h2>HOT NAPS</h2>
+                                <div class="status-light"></div>
+                            </div>
+                            <div class="cave-card" onclick="alert('Duck Hunt Logic Loading...')">
+                                <h2>DUCK HUNT</h2>
+                                <div class="status-light"></div>
+                            </div>
+                            <div class="cave-card" onclick="alert('Loading Strategy Hub...')">
+                                <h2>GAMING</h2>
+                                <div class="status-light"></div>
+                            </div>
+                            <div class="cave-card" onclick="alert('Optimizing System Performance...')">
+                                <h2>LOGISTICS</h2>
+                                <div class="status-light"></div>
+                            </div>
+                        </div>
+                        <button class="cta" style="margin-top:60px;" onclick="render('home')">EXIT VAULT</button>
                     </div>
                 `;
             } else if (view === 'registry') {
-                core.style.background = 'var(--gold)';
-                mv.innerHTML = `<h1 style="font-family:'Cinzel'; font-size:1.2rem; letter-spacing:10px; margin-bottom:40px;">THE 144 NODES</h1><div class="app-grid">${Array.from({length: 12}, (_, i) => `<div class="card"><h2>NODE ${i+1}</h2></div>`).join('')}</div><button class="back-btn" onclick="render('home')">RETURN TO SOURCE</button>`;
+                mv.innerHTML = `<h1 style="font-family:'Cinzel'; font-size:1.2rem; letter-spacing:10px; margin-bottom:40px;">THE 144 NODES</h1><div class="app-grid">${Array.from({length: 12}, (_, i) => `<div style="background:rgba(255,255,255,0.02); padding:20px; border:1px solid rgba(243,207,138,0.1); text-align:center; font-family:'Cinzel'; color:var(--gold); font-size:0.7rem;">NODE ${i+1}</div>`).join('')}</div><button class="cta" onclick="render('home')">BACK</button>`;
             } else if (view === 'garden') {
                 core.style.background = 'var(--garden)';
-                document.body.style.background = '#010503';
-                mv.innerHTML = `
-                    <div class="garden-container">
-                        <h1 style="font-family:'Cinzel'; color:var(--garden); letter-spacing:15px; margin:0;">EDEN</h1>
-                        <p style="opacity:0.5; font-size:0.6rem; letter-spacing:5px; margin-top:10px;">A WORLD FOR THE CHILDREN</p>
-                        <div class="bloom-area" id="bloom-area">
-                            <p style="opacity:0.2; letter-spacing:5px; font-family:'Cinzel';">SOW A DREAM...</p>
-                        </div>
-                        <input type="text" class="garden-input" id="garden-input" placeholder="WHAT SHALL GROW?" autocomplete="off">
-                        <button class="sow-btn" onclick="sow()">SOW THE SEED</button>
-                        <button class="back-btn" onclick="render('home')">LEAVE THE GARDEN</button>
-                    </div>
-                `;
+                mv.innerHTML = `<div style="text-align:center;"><h1 style="font-family:'Cinzel'; color:var(--garden); letter-spacing:15px;">EDEN</h1><button class="cta" onclick="render('home')">BACK</button></div>`;
             }
-        }
-
-        function sow() {
-            const input = document.getElementById('garden-input');
-            const area = document.getElementById('bloom-area');
-            if(!input.value) return;
-            area.innerHTML = `<div class="seed-text">${input.value.toUpperCase()}</div>`;
-            input.value = "";
         }
 
         document.body.addEventListener('pointermove', (e) => {
