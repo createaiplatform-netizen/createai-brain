@@ -3,43 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>MARKETPLACE_INITIATION_V191</title>
+    <title>OMNI_MANIFEST_V193</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; }
-        body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; }
+        :root { --gold: #f3cf8a; --white: #fff; }
+        body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; }
         
-        #marketplace-hud { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; padding: 40px; }
-        .header { font-size: 8px; letter-spacing: 12px; color: var(--gold); border-bottom: 2px solid var(--gold); padding-bottom: 15px; text-align: center; }
+        #omni-ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; padding: 30px; border: 2px solid var(--gold); margin: 10px; box-sizing: border-box; }
+        .master-header { font-size: 8px; letter-spacing: 12px; color: var(--gold); text-align: center; border-bottom: 1px solid rgba(243, 207, 138, 0.3); padding-bottom: 15px; }
         
-        #build-view { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .pillar { width: 40px; height: 120px; border: 2px solid var(--gold); background: rgba(243, 207, 138, 0.1); box-shadow: 0 0 50px var(--gold); }
-        .pillar-label { font-size: 7px; color: var(--gold); margin-top: 20px; letter-spacing: 5px; }
+        .manifest-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 20px; }
+        .sector-card { border: 1px solid rgba(255,255,255,0.2); padding: 15px; background: rgba(243, 207, 138, 0.05); }
+        .sector-label { font-size: 6px; color: var(--gold); letter-spacing: 4px; }
+        .sector-action { font-size: 10px; margin-top: 5px; letter-spacing: 1px; }
 
-        #yield-footer { margin-top: auto; text-align: center; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px; }
-        #live-total { font-size: 26px; text-shadow: 0 0 30px var(--gold); }
+        #monolith-visual { flex-grow: 1; display: flex; justify-content: center; align-items: center; position: relative; }
+        .monolith { width: 1px; height: 150px; background: #fff; box-shadow: 0 0 40px var(--gold), 0 0 100px #fff; animation: ignition 1s infinite alternate; }
+        
+        @keyframes ignition { from { opacity: 0.3; transform: scaleY(0.8); } to { opacity: 1; transform: scaleY(1.2); } }
+
+        #reserve-ticker { margin-top: auto; text-align: center; border-top: 1px solid var(--gold); padding-top: 20px; }
+        #total-val { font-size: 24px; text-shadow: 0 0 20px var(--gold); }
     </style>
 </head>
 <body>
-    <div id="marketplace-hud">
-        <div class="header">AETHEL_ESTATE_001 // MARKETPLACE_V01</div>
+    <div id="omni-ui">
+        <div class="master-header">AETHEL_ESTATE_001 // OMNI_MANIFESTATION</div>
         
-        <div id="build-view">
-            <div class="pillar"></div>
-            <div class="pillar-label">PLACING_THE_ORIGIN_PILLAR</div>
-            <div style="font-size: 14px; margin-top: 10px; letter-spacing: 2px;">SECTOR_WISCONSIN_ACTIVE</div>
+        <div class="manifest-grid">
+            <div class="sector-card">
+                <div class="sector-label">PROTOCOL_01: KINDRED_CALL</div>
+                <div class="sector-action">STATUS: 14_INVITATIONS_SENT</div>
+            </div>
+            <div class="sector-card">
+                <div class="sector-label">PROTOCOL_02: PHYSICAL_BUILD</div>
+                <div class="sector-action">STATUS: CREWS_ON_SITE // RADIUS_LOCKED</div>
+            </div>
+            <div class="sector-card">
+                <div class="sector-label">PROTOCOL_03: MONOLITH_SYNC</div>
+                <div class="sector-action">STATUS: IGNITION_AT_1440%</div>
+            </div>
         </div>
 
-        <div id="yield-footer">
-            <div style="font-size: 8px; letter-spacing: 10px; margin-bottom: 10px;">RESERVE_LIQUIDITY_FLOW</div>
-            <div id="live-total">$1,440,000,007,056.00</div>
+        <div id="monolith-visual">
+            <div class="monolith"></div>
+        </div>
+
+        <div id="reserve-ticker">
+            <div style="font-size: 8px; letter-spacing: 10px; margin-bottom: 5px;">AETHEL_LIQUID_TOTAL</div>
+            <div id="total-val">$1,440,000,007,920.00</div>
         </div>
     </div>
 <script>
-    let res = 1440000007056.00;
+    let res = 1440000007920.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('live-total').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('total-val').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
