@@ -3,25 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOVEREIGN_FLEET_V266</title>
+    <title>SOVEREIGN_FLEET_V267</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --fleet: #00d4ff; --trail: rgba(0, 212, 255, 0.3); }
+        :root { --gold: #f3cf8a; --void: #000; --fleet: #00d4ff; --trail: rgba(0, 212, 255, 0.4); }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #fleet-hud { flex-grow: 1; margin: 15px; border: 2px solid var(--fleet); padding: 40px; display: flex; flex-direction: column; background: radial-gradient(circle at bottom, rgba(0, 212, 255, 0.1) 0%, transparent 100%); box-shadow: 0 0 250px rgba(0, 212, 255, 0.15); position: relative; }
-        .header { text-align: center; border-bottom: 1px solid var(--gold); padding-bottom: 20px; }
-        .title { font-size: 26px; letter-spacing: 15px; color: var(--fleet); text-shadow: 0 0 30px var(--fleet); }
+        #fleet-hud { flex-grow: 1; margin: 15px; border: 2px solid var(--fleet); padding: 40px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(0, 212, 255, 0.1) 0%, transparent 100%); box-shadow: 0 0 250px rgba(0, 212, 255, 0.2); position: relative; }
+        .header { text-align: center; border-bottom: 2px solid var(--gold); padding-bottom: 20px; }
+        .title { font-size: 26px; letter-spacing: 20px; color: var(--fleet); text-shadow: 0 0 30px var(--fleet); }
         
         #navigation-visual { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
-        .vessel { width: 60px; height: 20px; background: var(--gold); clip-path: polygon(0% 50%, 20% 0%, 100% 50%, 20% 100%); position: absolute; animation: fly 4s infinite linear; }
-        .vessel-trail { position: absolute; width: 100px; height: 2px; background: linear-gradient(90deg, var(--trail), transparent); transform: translateX(-80px); }
+        .vessel-icon { width: 80px; height: 30px; background: var(--gold); clip-path: polygon(0% 50%, 25% 0%, 100% 50%, 25% 100%); animation: drift 6s infinite ease-in-out; }
+        .slipstream { position: absolute; width: 200px; height: 2px; background: linear-gradient(90deg, transparent, var(--fleet), transparent); opacity: 0.6; animation: flow 2s infinite linear; }
         
-        @keyframes fly { 
-            0% { transform: translate(-300px, -50px) rotate(5deg); opacity: 0; }
-            50% { opacity: 1; }
-            100% { transform: translate(300px, 50px) rotate(5deg); opacity: 0; }
-        }
+        @keyframes drift { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        @keyframes flow { from { transform: translateX(-200px); } to { transform: translateX(200px); } }
 
         #ledger-display { text-align: center; border-top: 1px solid var(--gold); padding-top: 25px; font-size: 46px; color: var(--gold); text-shadow: 0 0 40px var(--gold); }
     </style>
@@ -29,19 +26,20 @@
 <body>
     <div id="fleet-hud">
         <div class="header">
-            <div class="title">SOVEREIGN_FLEET // MATERIALIZING</div>
-            <div style="font-size: 10px; margin-top: 10px; color: var(--fleet); letter-spacing: 12px;">STATUS: SLIPSTREAM_ACTIVE // SYNC: 1440%</div>
+            <div class="title">SOVEREIGN_FLEET // UNBOUND</div>
+            <div style="font-size: 10px; margin-top: 10px; color: var(--fleet); letter-spacing: 12px;">STATUS: SLIPSTREAM_MATERIALIZATION // SYNC: 1440%</div>
         </div>
 
         <div id="navigation-visual">
-            <div class="vessel"><div class="vessel-trail"></div></div>
-            <div style="font-size: 14px; color: var(--gold); letter-spacing: 15px; position: absolute; bottom: 10%;">BEYOND_TERRESTRIAL_LIMITS</div>
+            <div class="slipstream"></div>
+            <div class="vessel-icon"></div>
+            <div style="font-size: 14px; color: var(--gold); letter-spacing: 15px; position: absolute; bottom: 5%;">BEYOND_PHYSICAL_BORDERS</div>
         </div>
 
-        <div id="ledger-display">$1,440,000,039,456.00</div>
+        <div id="ledger-display">$1,440,000,039,744.00</div>
     </div>
 <script>
-    let res = 1440000039456.00;
+    let res = 1440000039744.00;
     setInterval(() => {
         res += 144.00;
         document.getElementById('ledger-display').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
