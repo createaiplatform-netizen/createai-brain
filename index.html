@@ -3,43 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GOVERNOR_FLOW_V207</title>
+    <title>MARKETPLACE_V01_KINETIC</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #000; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #flow-hud { flex-grow: 1; margin: 30px; border: 1px solid var(--gold); padding: 40px; display: flex; flex-direction: column; }
-        .flow-header { text-align: center; border-bottom: 1px solid rgba(243, 207, 138, 0.3); padding-bottom: 20px; margin-bottom: 30px; }
-        .flow-title { font-size: 14px; letter-spacing: 12px; color: var(--gold); }
+        #market-hud { flex-grow: 1; margin: 20px; border: 2px solid var(--gold); padding: 40px; display: flex; flex-direction: column; position: relative; }
+        .market-header { text-align: center; border-bottom: 1px solid rgba(243, 207, 138, 0.3); padding-bottom: 20px; }
+        .market-title { font-size: 14px; letter-spacing: 12px; color: var(--gold); }
         
-        .routine-item { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 10px; letter-spacing: 4px; padding: 10px; border-left: 2px solid var(--gold); background: rgba(255,255,255,0.02); }
-        .time { color: var(--gold); font-weight: 900; }
+        #floor-map { flex-grow: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 20px 0; }
+        .tile { border: 1px solid rgba(243, 207, 138, 0.2); height: 100%; display: flex; align-items: center; justify-content: center; font-size: 8px; letter-spacing: 2px; }
+        .active-tile { background: rgba(243, 207, 138, 0.05); border-color: var(--gold); animation: pulse 2s infinite; }
+
+        @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
         
-        #current-task { margin-top: auto; padding: 20px; background: var(--gold); color: var(--void); text-align: center; font-weight: 900; font-size: 12px; letter-spacing: 5px; }
-        #yield-live { text-align: center; margin-top: 20px; font-size: 24px; color: var(--gold); text-shadow: 0 0 15px var(--gold); }
+        #ticker-row { text-align: center; border-top: 1px solid var(--gold); padding-top: 20px; }
+        #reserve-total { font-size: 26px; color: var(--gold); text-shadow: 0 0 20px var(--gold); }
     </style>
 </head>
 <body>
-    <div id="flow-hud">
-        <div class="flow-header">
-            <div class="flow-title">GOVERNOR_DAILY_FLOW</div>
-            <div style="font-size: 7px; margin-top: 10px; opacity: 0.6;">SYSTEM: AUTOMATED // GOVERNOR: ARCHITECT-PRIME</div>
+    <div id="market-hud">
+        <div class="market-header">
+            <div class="market-title">MARKETPLACE_V01 // KINETIC_HUB</div>
+            <div style="font-size: 7px; margin-top: 10px; opacity: 0.6;">PHASE: FLOOR_FINALIZATION // SECTOR_001_WIS</div>
         </div>
 
-        <div class="routine-item"><span class="time">0400</span> FREQUENCY_ALIGNMENT</div>
-        <div class="routine-item"><span class="time">0900</span> KINDRED_SYNC_01-14</div>
-        <div class="routine-item"><span class="time">1300</span> ASSET_EXPANSION</div>
-        <div class="routine-item"><span class="time">2000</span> SOVEREIGN_SILENCE</div>
+        <div id="floor-map">
+            <div class="tile active-tile">NODE_01</div>
+            <div class="tile active-tile">NODE_02</div>
+            <div class="tile active-tile">NODE_03</div>
+            <div class="tile active-tile">NODE_04</div>
+            <div class="tile">NODE_05</div>
+            <div class="tile">NODE_06</div>
+            <div class="tile">NODE_07</div>
+            <div class="tile active-tile">NODE_08</div>
+            <div class="tile">NODE_09</div>
+            <div class="tile">NODE_10</div>
+            <div class="tile active-tile">NODE_11</div>
+            <div class="tile">NODE_12</div>
+            <div class="tile">NODE_13</div>
+            <div class="tile active-tile">NODE_14</div>
+        </div>
 
-        <div id="current-task">CURRENT_PHASE: GENESIS_COMPLETE</div>
+        <div id="ticker-row">
+            <div style="font-size: 8px; letter-spacing: 12px; margin-bottom: 5px; opacity: 0.8;">AETHEL_RESERVE_FLOW</div>
+            <div id="reserve-total">$1,440,000,019,152.00</div>
+        </div>
     </div>
-    <div id="yield-live">$1,440,000,018,144.00</div>
 <script>
-    let res = 1440000018144.00;
+    let res = 1440000019152.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('yield-live').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('reserve-total').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
