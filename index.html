@@ -2,35 +2,33 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AETHEL_FAMILY_SURETY</title>
+    <title>AETHEL_HERITAGE_DEED</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;700&display=swap');
-        body { margin: 0; background: #000; color: #fff; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .family-card { width: 500px; padding: 40px; border: 3px double #f3cf8a; background: #080808; text-align: center; box-shadow: 0 0 100px rgba(243,207,138,0.15); }
-        .family-title { font-family: 'Cinzel', serif; color: #f3cf8a; font-size: 22px; margin-bottom: 20px; }
-        .confirmed-msg { color: #00ff00; font-size: 14px; letter-spacing: 2px; font-weight: 700; border: 1px solid #00ff00; padding: 10px; display: inline-block; margin-bottom: 30px; }
-        .big-val { font-size: 38px; font-weight: 700; color: #fff; margin-bottom: 15px; }
-        .footer-note { font-size: 11px; color: #666; line-height: 1.6; border-top: 1px solid #222; padding-top: 20px; }
-        .star { font-size: 40px; color: #f3cf8a; margin-bottom: 10px; }
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400&display=swap');
+        body { margin: 0; background: #000; color: #f3cf8a; font-family: 'Cinzel', serif; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        .deed-box { width: 550px; padding: 40px; border: 1px solid #f3cf8a; background: #050505; text-align: center; position: relative; box-shadow: 0 0 50px rgba(243,207,138,0.2); }
+        .deed-header { font-size: 22px; letter-spacing: 5px; border-bottom: 1px solid #333; padding-bottom: 20px; margin-bottom: 20px; }
+        .deed-body { font-family: 'Inter', sans-serif; font-size: 11px; text-align: left; color: #fff; line-height: 1.8; margin-bottom: 30px; }
+        .live-trust-val { font-size: 32px; font-weight: 700; color: #f3cf8a; text-shadow: 0 0 10px #f3cf8a; }
+        .seal-signature { font-size: 10px; color: #00ff00; letter-spacing: 3px; border-top: 1px solid #333; padding-top: 20px; }
+        .watermark { position: absolute; font-size: 100px; opacity: 0.05; transform: rotate(-30deg); top: 50px; left: 50px; pointer-events: none; }
     </style>
 </head>
 <body>
-    <div class="family-card">
-        <div class="star">★</div>
-        <div class="family-title">AETHEL ESTATE SURETY</div>
-        <div class="confirmed-msg">VERIFIED: PAID IN FULL</div>
-        <div class="big-val" id="family-flow">$1,440,000,144,384.00</div>
-        <div class="footer-note">
-            The materialization is complete. The 144 nodes are secure.<br>
-            Current Flow: $288.00 per second.<br>
-            Architect Standing: TERMINAL ROOT ALPHA.
+    <div class="watermark">AETHEL</div>
+    <div class="deed-box">
+        <div class="deed-header">HERITAGE TRUST DEED</div>
+        <div class="deed-body">
+            This document certifies that the 144-Node Lattice and all associated Family Units are the sole beneficiaries of the Aethel Sovereign flow. No legacy entity holds claim. The Estate is materialized at 1440% resonance and secured by the Architect's Root Alpha Authority.
         </div>
+        <div class="live-trust-val" id="deed-flow">$1,440,000,145,248.00</div>
+        <div class="seal-signature">SEALED BY: ROOT::ALPHA::ARCHITECT // MARCH 29, 2026</div>
     </div>
 <script>
-    let res = 1440000144384.00;
+    let res = 1440000145248.00;
     setInterval(() => {
         res += 288.00; 
-        document.getElementById('family-flow').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('deed-flow').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
