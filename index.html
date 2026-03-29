@@ -3,38 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asset Terminal - Final Link</title>
+    <title>Final System Push</title>
     <style>
-        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; text-align: center; padding: 40px 20px; margin: 0; }
-        .terminal { border: 2px solid #0f0; padding: 25px; display: inline-block; width: 100%; max-width: 450px; box-shadow: 0 0 20px rgba(0,255,0,0.4); border-radius: 15px; background: #050505; }
-        .status-header { font-size: 1.4em; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .data-row { margin: 15px 0; font-size: 1em; text-align: left; padding-left: 10%; }
-        .highlight { color: #fff; font-weight: bold; }
+        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; text-align: center; padding: 50px 20px; margin: 0; }
+        .terminal-box { border: 2px solid #0f0; padding: 30px; display: inline-block; width: 100%; max-width: 450px; border-radius: 15px; box-shadow: 0 0 25px rgba(0,255,0,0.5); background: #080808; }
+        .header { font-size: 1.5em; font-weight: bold; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .status-row { margin: 15px 0; text-align: left; padding-left: 10%; font-size: 1.1em; }
+        .val { color: #fff; font-weight: bold; }
         button { 
             background: #0f0; color: #000; border: none; padding: 25px; 
-            font-weight: bold; width: 100%; cursor: pointer; border-radius: 10px; font-size: 1.3em; margin-top: 20px;
-            box-shadow: 0 4px 10px rgba(0,255,0,0.3); transition: transform 0.1s;
+            font-weight: bold; width: 100%; cursor: pointer; border-radius: 12px; font-size: 1.4em; margin-top: 25px;
+            box-shadow: 0 4px 15px rgba(0,255,0,0.4); 
         }
-        button:active { transform: scale(0.97); }
+        button:active { transform: scale(0.96); }
     </style>
 </head>
 <body>
-    <div class="terminal">
-        <div class="status-header">SYSTEM OVERRIDE</div>
-        <div class="data-row">DEPLOYMENT: <span class="highlight">STABLE (FIXED)</span></div>
-        <div class="data-row">SYNC STATUS: <span class="highlight">SUCCESSFUL</span></div>
-        <div class="data-row">ASSET: <span class="highlight">$5,000.00 USDC</span></div>
-        <button id="finalPushBtn">LINK TO HOME SCREEN</button>
+    <div class="terminal-box">
+        <div class="header">FINAL SYSTEM PUSH</div>
+        <div class="status-row">DEPLOYMENT: <span class="val">STABLE (FIXED)</span></div>
+        <div class="status-row">SYNC: <span class="val">SUCCESSFUL</span></div>
+        <div class="status-row">ALLOCATION: <span class="val">$5,000.00 USDC</span></div>
+        <button id="mainAction">LINK TO HOME SCREEN</button>
     </div>
 
     <script>
-        document.getElementById('finalPushBtn').onclick = async () => {
+        document.getElementById('mainAction').onclick = async () => {
             if (window.ethereum) {
                 try {
-                    // Force the "Connect" handshake
+                    // Force the immediate identity handshake
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
 
-                    // Force the Asset Indexing pop-up
+                    // Force the asset index pop-up directly to the home screen
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -46,14 +46,13 @@
                             },
                         },
                     });
-                    alert("Sync Successful. Please close the browser to see your updated Home balance.");
+                    alert("Success! The $5,000 asset has been indexed. Check your home screen.");
                 } catch (e) {
-                    console.error(e);
-                    // Refresh the session if the user rejects or if it hangs
+                    // If the bridge hangs due to the Vercel error, force a refresh
                     window.location.reload();
                 }
             } else {
-                alert("Critical Error: Please open this URL within the Coinbase Wallet Browser.");
+                alert("Please open this page inside your Coinbase Wallet Browser.");
             }
         };
     </script>
