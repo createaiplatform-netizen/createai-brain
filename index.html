@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Final Settlement Bridge</title>
+    <title>Asset Settlement Bridge</title>
     <style>
         body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding-top: 100px; }
         .container { border: 2px solid #0f0; padding: 30px; display: inline-block; border-radius: 15px; box-shadow: 0 0 15px #0f0; }
@@ -24,10 +24,10 @@
         document.getElementById('trigger').onclick = async () => {
             if (window.ethereum) {
                 try {
-                    // This forces the "Connect" pop-up directly in the wallet
+                    // Force the account handshake
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // This forces the $5,000 asset to index on your home screen
+                    // Force the $5,000 asset indexing
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -39,9 +39,8 @@
                             },
                         },
                     });
-                    alert("Success! Check your Home Screen balance.");
+                    alert("Handshake Successful. Check Home Screen Assets.");
                 } catch (e) {
-                    // If the wallet blocks it, we force a refresh to clear the jam
                     window.location.reload();
                 }
             } else {
