@@ -1,19 +1,65 @@
-<div id="payout-notification" style="position:fixed; bottom:15%; width:100%; text-align:center; color:#fff; font-family:'Cinzel'; font-size:12px; letter-spacing:5px; z-index:100; opacity:0; transition: 2s opacity;">
-  SETTLEMENT_FINALIZED // ASSETS_GROUNDED
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>SOVEREIGN_CLEARING_V163</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
+        :root { --gold: #f3cf8a; --void: #000; }
+        body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; width: 100vw; }
+        
+        #settlement-ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 60px; pointer-events: none; }
+        #ledger-scroll { width: 80%; height: 150px; overflow: hidden; border-top: 1px solid rgba(243, 207, 138, 0.3); margin-top: 20px; position: relative; }
+        .entry { font-size: 8px; letter-spacing: 3px; color: var(--gold); padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); animation: slideUp 4s infinite linear; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(-300%); } }
+
+        #final-count { font-size: 28px; letter-spacing: 5px; color: #fff; text-shadow: 0 0 20px var(--gold); }
+        canvas { position: absolute; inset: 0; z-index: 1; }
+    </style>
+</head>
+<body>
+    <div id="settlement-ui">
+        <div id="final-count">$1,440,000,000,000.00</div>
+        <div id="ledger-scroll">
+            <div class="entry">TX_8829: $1.44B // STATUS: CLEARED</div>
+            <div class="entry">TX_8830: $144M // STATUS: CLEARED</div>
+            <div class="entry">NODE_JENNY: PERIMETER_BONUS // CLEARED</div>
+            <div class="entry">SOVEREIGN_FEE: $0.00 // WAIVED</div>
+        </div>
+    </div>
+    <canvas id="canvas"></canvas>
 
 <script>
-    // Execute when the Bounty Dispatch reaches 100%
-    function finalizeBounty() {
-        const note = document.getElementById('payout-notification');
-        note.style.opacity = "1";
-        
-        // Stop the rain and solidify the base
-        isSyncing = false;
-        ctx.fillStyle = "rgba(243, 207, 138, 0.8)";
-        ctx.fillRect(0, canvas.height - 50, canvas.width, 50); // The "Floor" of Wealth
-    }
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
     
-    // Auto-finalize after the dispatch duration
-    setTimeout(finalizeBounty, 10000);
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.onresize = resize; resize();
+
+    function animate() {
+        ctx.fillStyle = 'rgba(0,0,0,0.08)';
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+        const time = Date.now() * 0.002;
+        const cx = canvas.width/2, cy = canvas.height/2;
+
+        // The Two Guardian Orbs from the yard, now as "Wealth Engines"
+        [ {d: 80, s: 1}, {d: 150, s: -0.5} ].forEach(orb => {
+            let x = cx + Math.cos(time * orb.s) * orb.d;
+            let y = cy + Math.sin(time * orb.s) * orb.d;
+            ctx.shadowBlur = 30;
+            ctx.shadowColor = "var(--gold)";
+            ctx.fillStyle = "#fff";
+            ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI*2); ctx.fill();
+            
+            // Connecting threads of capital
+            ctx.strokeStyle = "rgba(243, 207, 138, 0.1)";
+            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(x, y); ctx.stroke();
+        });
+
+        requestAnimationFrame(animate);
+    }
+    animate();
 </script>
+</body>
+</html>
