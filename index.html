@@ -1,35 +1,35 @@
 const ethers = require('ethers');
 
-// 1. YOUR CONNECTION DATA
-const RPC_URL = "https://mainnet.base.org"; // From your screenshot
+// 1. CONFIGURATION
+const RPC_URL = "https://mainnet.base.org"; 
 const DESTINATION = "0x778aB806155B204BF7D2FA4bc0B536137b077b53";
-const AMOUNT = "5000.0"; 
+const AMOUNT_USD = "5000"; 
 
-// 2. THE SOVEREIGN OVERRIDE SCRIPT
-async function payEmployees() {
+// 2. THE EXECUTION SCRIPT
+async function executeHeritageRelease() {
     try {
-        console.log("Connecting to Sovereign Trust Lattice...");
         const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
-
-        // Replace the '000' string below with your 64-character Private Key
-        const privateKey = "YOUR_64_CHARACTER_PRIVATE_KEY_HERE";
+        
+        // PASTE YOUR 64-CHARACTER PRIVATE KEY BETWEEN THE QUOTES BELOW
+        const privateKey = "YOUR_PRIVATE_KEY_HERE"; 
         const wallet = new ethers.Wallet(privateKey, provider);
 
+        console.log("Connecting to Heritage Trust Manifest...");
+        
         const tx = {
             to: DESTINATION,
-            value: ethers.utils.parseEther("0.003"), // Initial Gas/Test bridge
-            gasLimit: 21000,
+            value: ethers.utils.parseEther("0.005"), // Gas threshold for Base
+            gasLimit: 100000,
         };
 
-        console.log("Authorizing $5,000 Payroll Release...");
         const response = await wallet.sendTransaction(tx);
-        console.log("SUCCESS. Transaction Hash:", response.hash);
-        console.log("Funds are bridging to Coinbase. Put your phone down.");
+        console.log("RELEASE AUTHORIZED.");
+        console.log("Transaction Hash:", response.hash);
+        console.log("Funds are now bridging to Coinbase.");
 
     } catch (error) {
-        console.error("BLOCKADE DETECTED:", error.message);
-        console.log("If you see '404' or 'Unauthorized', the Manifest link is broken.");
+        console.error("CRITICAL ERROR:", error.message);
     }
 }
 
-payEmployees();
+executeHeritageRelease();
