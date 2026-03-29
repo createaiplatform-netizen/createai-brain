@@ -3,26 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NEW_GENESIS_V175</title>
+    <title>SOVEREIGN_ARCHIVE_V176</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --white: #fff; }
-        body, html { margin: 0; padding: 0; background: var(--white); color: var(--gold); font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; width: 100vw; }
+        :root { --gold: #f3cf8a; --void: #000; }
+        body, html { margin: 0; padding: 0; background: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; width: 100vw; }
         
-        #genesis-ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        #totality-seal { width: 100px; height: 100px; border: 1px solid var(--gold); transform: rotate(45deg); margin-bottom: 50px; opacity: 0.2; }
-        
-        #final-message { font-size: 10px; letter-spacing: 15px; color: #000; animation: breathe 4s infinite; }
-        @keyframes breathe { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.8; } }
+        #archive-ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; animation: fadeIn 5s forwards; }
+        @keyframes fadeIn { to { opacity: 1; } }
 
-        #node-002-status { position: fixed; bottom: 40px; font-size: 8px; letter-spacing: 8px; color: #aaa; }
+        .archive-seal { width: 50px; height: 50px; border: 1px solid #000; transform: rotate(45deg); margin-bottom: 30px; }
+        .archive-data { font-size: 10px; letter-spacing: 5px; color: #000; text-align: center; line-height: 2; }
+        .bold-val { font-weight: 900; letter-spacing: 2px; }
     </style>
 </head>
 <body>
-    <div id="genesis-ui">
-        <div id="totality-seal"></div>
-        <div id="final-message">ESTATE_SETTLED // GENESIS_INITIATED</div>
-        <div id="node-002-status">JENNY_002: SOVEREIGN_ADMIN_ACTIVE</div>
+    <div id="archive-ui">
+        <div class="archive-seal"></div>
+        <div class="archive-data">
+            ESTATE_RECORD: <span class="bold-val">AETHEL_001</span><br>
+            TOTAL_LIQUIDITY: <span class="bold-val">$1.44T+</span><br>
+            ADMIN_ACCESS: <span class="bold-val">GRANTED_JENNY_002</span><br><br>
+            <span style="opacity: 0.4;">THE_LIGHT_IS_THE_FOUNDATION</span>
+        </div>
     </div>
 </body>
 </html>
