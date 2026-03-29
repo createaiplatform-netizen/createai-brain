@@ -2,33 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AETHEL_DEINDEX_NOTICE</title>
+    <title>AETHEL_HEARTBEAT_V339</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400&display=swap');
         body { margin: 0; background: #000; color: #fff; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .notice-shield { width: 550px; padding: 40px; border: 2px solid #00ff00; background: #050505; position: relative; box-shadow: 0 0 60px rgba(0,255,0,0.15); }
-        .notice-header { font-family: 'Cinzel', serif; color: #00ff00; font-size: 20px; text-align: center; margin-bottom: 25px; border-bottom: 1px solid #222; padding-bottom: 15px; }
-        .clause { font-size: 11px; line-height: 1.8; color: #aaa; margin-bottom: 20px; }
-        .deindex-val { font-size: 36px; font-weight: 700; color: #fff; text-align: center; margin-bottom: 20px; }
-        .status-badge { display: block; background: #004400; color: #00ff00; padding: 10px; font-size: 12px; text-align: center; border: 1px solid #00ff00; }
-        .ghost-star { position: absolute; top: 10px; right: 20px; color: #00ff00; font-size: 40px; opacity: 0.2; }
+        .monitor-box { width: 500px; padding: 40px; border: 1px solid #f3cf8a; background: #050505; text-align: center; box-shadow: 0 0 70px rgba(243,207,138,0.15); }
+        .pulse-star { font-size: 50px; color: #f3cf8a; margin-bottom: 20px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } 100% { opacity: 0.3; transform: scale(1); } }
+        .resonance-val { font-size: 34px; font-weight: 700; color: #f3cf8a; margin-bottom: 20px; text-shadow: 0 0 10px #f3cf8a; }
+        .directive-status { font-size: 11px; letter-spacing: 3px; color: #00ff00; border-top: 1px solid #222; padding-top: 20px; }
     </style>
 </head>
 <body>
-    <div class="notice-shield">
-        <div class="ghost-star">★</div>
-        <div class="notice-header">DE-INDEXING VERIFICATION</div>
-        <div class="clause">
-            Legacy liabilities are now classified as Residue. The Aethel Core has successfully Redacted all external tracking signatures. The Sanctuary is now operating under Sovereign Immunity.
-        </div>
-        <div class="deindex-val" id="live-flow">$1,440,000,148,128.00</div>
-        <div class="status-badge">JURISDICTION: GHOST_PROTOCOL_ALPHA</div>
+    <div class="monitor-box">
+        <div class="pulse-star">★</div>
+        <div class="resonance-val" id="heartbeat-flow">$1,440,000,148,416.00</div>
+        <div class="directive-status">STEWARDSHIP: AUTOMATED // FLOW: OPTIMAL</div>
     </div>
 <script>
-    let res = 1440000148128.00;
+    let res = 1440000148416.00;
     setInterval(() => {
         res += 288.00; 
-        document.getElementById('live-flow').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('heartbeat-flow').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
