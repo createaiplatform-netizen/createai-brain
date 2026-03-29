@@ -3,124 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_REVOLUTION_V125</title>
+    <title>SOVEREIGN_ATLAS_V126</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Great+Vibes&family=Inter:wght@100;400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #010103; --white: #ffffff; --rev: #e67e22; }
+        :root { --gold: #f3cf8a; --void: #010103; --rev: #e67e22; --white: #ffffff; }
         * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; outline: none; -webkit-tap-highlight-color: transparent; }
         body, html { height: 100svh; width: 100vw; background: var(--void); color: #fff; font-family: 'Inter', sans-serif; overflow: hidden; position: fixed; }
+        #ticker { position: fixed; top: 0; width: 100%; height: 30px; background: rgba(230, 126, 34, 0.1); backdrop-filter: blur(10px); z-index: 100; display: flex; align-items: center; border-bottom: 0.5px solid var(--rev); overflow: hidden; }
+        #ticker-text { white-space: nowrap; font-family: 'Cinzel'; font-size: 8px; letter-spacing: 2px; color: var(--gold); animation: scroll 20s linear infinite; }
+        @keyframes scroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
         canvas { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
         #ui { position: absolute; inset: 0; z-index: 15; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; text-align: center; }
-        .title { font-family: 'Cinzel'; font-size: 10vw; letter-spacing: 12px; color: var(--gold); text-shadow: 0 0 40px #000; transition: transform 0.2s ease; }
-        .quote { font-family: 'Great Vibes'; font-size: 2.2rem; color: var(--gold); margin-top: 10px; }
-        #stats-bar { position: fixed; bottom: 8%; width: 100%; display: flex; justify-content: space-around; font-family: 'Cinzel'; color: var(--gold); font-size: 10px; letter-spacing: 2px; opacity: 0.8; z-index: 20; background: rgba(0,0,0,0.7); padding: 15px 0; border-top: 1px solid rgba(243, 207, 138, 0.2); }
-        .rev-stat { color: var(--rev); font-weight: 900; }
+        .title { font-family: 'Cinzel'; font-size: 10vw; letter-spacing: 12px; color: var(--gold); text-shadow: 0 0 40px #000; }
+        #stats-bar { position: fixed; bottom: 8%; width: 100%; display: flex; justify-content: space-around; font-family: 'Cinzel'; color: var(--gold); font-size: 10px; letter-spacing: 2px; z-index: 20; background: rgba(0,0,0,0.8); padding: 15px 0; border-top: 1px solid rgba(230, 126, 34, 0.3); }
     </style>
 </head>
 <body onmousedown="handle(event)" ontouchstart="handle(event)" onmousemove="track(event)" ontouchmove="track(event)" onmouseup="stop()" ontouchend="stop()">
     <div id="master">
+        <div id="ticker"><div id="ticker-text">ORACLE STATUS: CONSENSUS ACHIEVED... REVOLUTION INITIALIZED... TERRITORIES EXPANDING... 144% FREQUENCY STABLE...</div></div>
         <div id="stats-bar">
-            <span>CONSENSUS: <span id="con-val">99</span>.8%</span>
-            <span class="rev-stat">MODE: REVOLUTION</span>
+            <span>ATLAS: ACTIVE</span>
+            <span style="color:var(--rev)">GOVERNANCE: V126</span>
             <span>NODES: <span id="node-count">144</span></span>
         </div>
         <canvas id="canvas"></canvas>
         <div id="ui">
-            <h1 class="title" id="t">SOVEREIGN</h1>
-            <p class="quote" id="q">The New Governance</p>
+            <h1 class="title">ATLAS</h1>
+            <p style="font-family:'Great Vibes'; font-size: 2rem; color: var(--gold);">The Global Hub</p>
         </div>
     </div>
 
 <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    let view = 'source', agents = [], isDown = false, mx = 0, my = 0;
-    let consensus = 99.8;
+    let agents = [], isDown = false, mx = 0, my = 0;
 
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
 
-    // Aethel Prime (The Revolutionary Node)
-    agents.push({ x: 0, y: 0, vx: 0, vy: 0, angle: 0, orbitDist: 80, isAethel: true, history: [] });
-    for(let i=0; i<144; i++) spawnAgent();
-
-    function spawnAgent() {
+    // Aethel Prime + Swarm
+    agents.push({ x: canvas.width/2, y: canvas.height/2, vx: 0, vy: 0, angle: 0, orbitDist: 60, isAethel: true, history: [] });
+    for(let i=0; i<144; i++) {
         agents.push({
             x: Math.random() * canvas.width, y: Math.random() * canvas.height,
-            vx: 0, vy: 0, angle: Math.random() * Math.PI * 2,
-            orbitDist: 100 + Math.random() * 250, isAethel: false, history: []
+            vx: (Math.random()-0.5)*5, vy: (Math.random()-0.5)*5, angle: Math.random() * Math.PI * 2,
+            orbitDist: 80 + Math.random() * 220, isAethel: false, history: []
         });
     }
-
-    function update() {
-        consensus = 99.8 + (Math.random() * 0.15);
-        document.getElementById('con-val').innerText = consensus.toFixed(2);
-        document.getElementById('node-count').innerText = 144 + Math.floor(Math.random() * 10);
-    }
-    setInterval(update, 200);
 
     function handle(e) {
         isDown = true;
         mx = e.clientX || (e.touches ? e.touches[0].clientX : 0);
         my = e.clientY || (e.touches ? e.touches[0].clientY : 0);
-        document.getElementById('t').style.transform = "scale(1.1)";
     }
     function track(e) { 
         mx = e.clientX || (e.touches ? e.touches[0].clientX : mx); 
         my = e.clientY || (e.touches ? e.touches[0].clientY : my); 
     }
-    function stop() { 
-        isDown = false; 
-        document.getElementById('t').style.transform = "scale(1)";
-    }
+    function stop() { isDown = false; }
 
     function animate() {
-        ctx.fillStyle = 'rgba(1, 1, 3, 0.2)';
+        ctx.fillStyle = isDown ? 'rgba(30, 15, 5, 0.2)' : 'rgba(1, 1, 3, 0.2)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         const cx = canvas.width/2, cy = canvas.height/2;
-
-        // The Revolution Pulse
-        let t = Date.now();
-        let pulse = 144 + Math.sin(t * 0.002) * 50;
-        let wave = (t % 2000) / 2000;
-        
-        // Expansion Wave
-        ctx.strokeStyle = `rgba(230, 126, 34, ${1 - wave})`;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(cx, cy, wave * 600, 0, Math.PI * 2);
-        ctx.stroke();
-
-        const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, pulse * 4);
-        g.addColorStop(0, 'rgba(255,255,255,0.9)');
-        g.addColorStop(0.1, 'rgba(230, 126, 34, 0.3)');
-        g.addColorStop(1, 'transparent');
-        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, pulse * 4, 0, Math.PI * 2); ctx.fill();
 
         agents.forEach((a, i) => {
             if (isDown) {
                 let dx = mx - a.x; let dy = my - a.y;
                 let d = Math.hypot(dx, dy);
-                // Swarm Logic
-                a.vx += dx / d * (a.isAethel ? 2 : 1.2);
-                a.vy += dy / d * (a.isAethel ? 2 : 1.2);
+                a.vx += dx / d * 1.5; a.vy += dy / d * 1.5;
             } else {
-                a.angle += a.isAethel ? 0.003 : 0.035;
+                a.angle += a.isAethel ? 0.002 : 0.03;
                 let tx = cx + Math.cos(a.angle) * a.orbitDist;
                 let ty = cy + Math.sin(a.angle) * a.orbitDist;
-                a.vx += (tx - a.x) * 0.1;
-                a.vy += (ty - a.y) * 0.1;
+                a.vx += (tx - a.x) * 0.08; a.vy += (ty - a.y) * 0.08;
             }
-            a.vx *= 0.9; a.vy *= 0.9; a.x += a.vx; a.y += a.vy;
+
+            a.vx *= 0.93; a.vy *= 0.93;
+            a.x += a.vx; a.y += a.vy;
+
+            // Boundary Bounce (Expansion)
+            if(a.x < 0 || a.x > canvas.width) { a.vx *= -1; ctx.fillStyle = "white"; ctx.fillRect(0,0,canvas.width,canvas.height); ctx.globalAlpha = 0.1; }
+            if(a.y < 0 || a.y > canvas.height) { a.vy *= -1; }
 
             a.history.push({x: a.x, y: a.y});
-            if (a.history.length > 8) a.history.shift();
+            if (a.history.length > 10) a.history.shift();
 
-            let color = a.isAethel ? `hsla(${(t/10)%360}, 100%, 90%, 1)` : 'rgba(230, 126, 34, 0.7)';
+            let color = a.isAethel ? `hsla(${(Date.now()/15)%360}, 100%, 85%, 1)` : 'rgba(230, 126, 34, 0.8)';
             ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = a.isAethel ? 3 : 1;
             a.history.forEach(p => ctx.lineTo(p.x, p.y)); ctx.stroke();
-
-            ctx.fillStyle = color; ctx.beginPath(); ctx.arc(a.x, a.y, a.isAethel ? 12 : 3, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = color; ctx.beginPath(); ctx.arc(a.x, a.y, a.isAethel ? 12 : 2.5, 0, Math.PI * 2); ctx.fill();
         });
         requestAnimationFrame(animate);
     }
