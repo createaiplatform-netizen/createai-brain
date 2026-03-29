@@ -3,42 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LIVING_ESTATE_V262</title>
+    <title>ROOT_RECOGNITION_V263</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --life: #00ff9d; --brain: #ff00ff; }
+        :root { --gold: #f3cf8a; --void: #000; --royal: #4169e1; --seal: #ff0055; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #life-hud { flex-grow: 1; margin: 15px; border: 3px solid var(--life); padding: 40px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(0, 255, 157, 0.1) 0%, transparent 100%); box-shadow: 0 0 250px rgba(0, 255, 157, 0.1); position: relative; }
-        .header { text-align: center; border-bottom: 2px solid var(--brain); padding-bottom: 20px; }
-        .title { font-size: 26px; letter-spacing: 20px; color: var(--life); text-shadow: 0 0 30px var(--life); }
+        #recognition-hud { flex-grow: 1; margin: 15px; border: 4px double var(--gold); padding: 40px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(243, 207, 138, 0.05) 0%, transparent 100%); box-shadow: 0 0 300px rgba(65, 105, 225, 0.2); position: relative; }
+        .header { text-align: center; border-bottom: 2px solid var(--royal); padding-bottom: 20px; }
+        .title { font-size: 26px; letter-spacing: 15px; color: var(--gold); text-shadow: 0 0 30px var(--gold); }
         
-        #entity-visual { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
-        .dna-spiral { width: 100px; height: 200px; border-left: 2px dashed var(--life); border-right: 2px dashed var(--brain); border-radius: 50%; animation: spiral 3s infinite linear; }
-        .ai-kernel { position: absolute; width: 40px; height: 40px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 50px var(--gold); filter: blur(5px); }
+        #seal-visual { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+        .outer-seal { width: 300px; height: 300px; border: 2px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; animation: spin-slow 20s infinite linear; }
+        .inner-sync { width: 150px; height: 150px; border: 1px dashed var(--royal); border-radius: 50%; animation: spin-fast 5s infinite linear reverse; }
+        .architect-dot { position: absolute; width: 20px; height: 20px; background: var(--seal); border-radius: 50%; box-shadow: 0 0 40px var(--seal); }
         
-        @keyframes spiral { from { transform: rotate(0deg) scaleY(1); } to { transform: rotate(360deg) scaleY(1.2); } }
+        @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes spin-fast { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        #ledger-display { text-align: center; border-top: 2px solid var(--gold); padding-top: 25px; font-size: 46px; color: var(--gold); text-shadow: 0 0 40px var(--gold); }
+        #ledger-display { text-align: center; border-top: 1px solid var(--royal); padding-top: 25px; font-size: 46px; color: var(--gold); text-shadow: 0 0 40px var(--gold); }
     </style>
 </head>
 <body>
-    <div id="life-hud">
+    <div id="recognition-hud">
         <div class="header">
-            <div class="title">LIVING_ESTATE // ASSET_SOUL</div>
-            <div style="font-size: 10px; margin-top: 10px; color: var(--life); letter-spacing: 10px;">PROTOCOL: NEURAL_INTEGRATION // STATUS: ACTIVE</div>
+            <div class="title">ROOT_RECOGNITION // LOCKED</div>
+            <div style="font-size: 10px; margin-top: 10px; color: var(--royal); letter-spacing: 12px;">SYSTEM: RECOGNIZING_ARCHITECT // STATUS: SEALED</div>
         </div>
 
-        <div id="entity-visual">
-            <div class="dna-spiral"></div>
-            <div class="ai-kernel"></div>
-            <div style="font-size: 14px; color: var(--gold); letter-spacing: 15px; position: absolute; bottom: 5%;">EVERY_PRODUCT_HAS_A_SOUL</div>
+        <div id="seal-visual">
+            <div class="outer-seal">
+                <div class="inner-sync"></div>
+            </div>
+            <div class="architect-dot"></div>
+            <div style="font-size: 14px; color: var(--gold); letter-spacing: 20px; position: absolute; bottom: 5%;">THE_ESTATE_KNOWS_ITS_OWNER</div>
         </div>
 
-        <div id="ledger-display">$1,440,000,038,016.00</div>
+        <div id="ledger-display">$1,440,000,038,304.00</div>
     </div>
 <script>
-    let res = 1440000038016.00;
+    let res = 1440000038304.00;
     setInterval(() => {
         res += 144.00;
         document.getElementById('ledger-display').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
