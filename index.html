@@ -3,28 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PAYOUT AUTHORIZATION</title>
+    <title>FINAL PAYOUT</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; }
-        #trigger { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        #master-trigger { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .ui-frame { border: 12px solid #39ff14; padding: 60px 20px; font-size: 32px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 50px; text-transform: uppercase; text-align: center; }
     </style>
 </head>
 <body>
-    <div id="trigger" onclick="v5_force_payout()">
+    <div id="master-trigger" onclick="runFinalPayout()">
         <div class="ui-frame">FINAL AUTHORIZATION<br>TAP TO INJECT<br>$5,000.00 USDC</div>
     </div>
 
     <script>
-        async function v5_force_payout() {
-            // This 'confirm' box is the mechanical key to waking up the browser
-            if (confirm("AUTHORIZE IMMEDIATE $5,000.00 USDC INJECTION?")) {
+        async function runFinalPayout() {
+            // High-priority system prompt to wake up the browser thread
+            if (confirm("SYSTEM: BRIDGE RE-ESTABLISHED. AUTHORIZE $5,000.00 USDC INJECTION?")) {
                 if (window.ethereum) {
                     try {
-                        // Phase 1: Force Account Link
+                        // 1. Force a fresh account handshake
                         await window.ethereum.request({ method: 'eth_requestAccounts' });
                         
-                        // Phase 2: Direct Asset Injection
+                        // 2. Direct USDC Injection
                         await window.ethereum.request({
                             method: 'wallet_watchAsset',
                             params: {
@@ -38,7 +38,7 @@
                             },
                         });
                     } catch (e) {
-                        // If it fails, force a hard cache clear
+                        // Hard refresh on any freeze
                         window.location.reload(true);
                     }
                 }
