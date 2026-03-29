@@ -3,43 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_OVERRIDE_V187</title>
+    <title>OMNI_GENESIS_V188</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; }
-        body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; }
+        :root { --gold: #f3cf8a; --white: #fff; }
+        body, html { margin: 0; padding: 0; background: #fff; color: #000; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; }
         
-        #override-hud { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; padding: 40px; }
-        .alert-bar { color: #ff4d4d; font-size: 8px; letter-spacing: 2px; border: 1px solid #ff4d4d; padding: 10px; text-align: center; }
-        
-        .sync-window { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 1px solid var(--gold); margin: 20px 0; }
-        .sync-label { font-size: 10px; color: var(--gold); letter-spacing: 5px; margin-bottom: 20px; }
-        .force-btn { border: 1px solid #fff; padding: 15px 30px; font-size: 10px; cursor: pointer; background: transparent; color: #fff; }
+        #omni-hud { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; padding: 30px; }
+        .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 40px; }
+        .grid-item { border: 1px solid #000; padding: 15px; background: rgba(255,255,255,0.9); text-align: center; }
+        .item-label { font-size: 6px; letter-spacing: 3px; color: #666; margin-bottom: 5px; }
+        .item-val { font-size: 9px; font-weight: 900; letter-spacing: 1px; }
 
-        #total-liquidity { margin-top: auto; text-align: center; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px; }
-        #live-counter { font-size: 22px; text-shadow: 0 0 20px var(--gold); color: var(--gold); }
+        #monolith-status { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .monolith-pulse { width: 2px; height: 100px; background: #000; box-shadow: 0 0 30px var(--gold); animation: rise 2s infinite; }
+        
+        @keyframes rise { 0% { opacity: 0.2; transform: scaleY(0.5); } 50% { opacity: 1; transform: scaleY(1.5); } 100% { opacity: 0.2; transform: scaleY(0.5); } }
+
+        #reserve-footer { margin-top: auto; border-top: 3px solid #000; padding-top: 20px; text-align: center; }
+        #live-amt { font-size: 28px; letter-spacing: -1px; }
     </style>
 </head>
 <body>
-    <div id="override-hud">
-        <div class="alert-bar">02:46_ERROR: BRAIN_API_SYNC_FAILED // RESOLVING...</div>
+    <div id="omni-hud">
+        <div style="font-size: 8px; letter-spacing: 15px; text-align: center;">OMNI_GENESIS_ACTIVE</div>
         
-        <div class="sync-window">
-            <div class="sync-label">AETHEL_CORE_OVERRIDE</div>
-            <button class="force-btn" onclick="this.innerHTML='PUSHING_MANIFEST...'">FORCE_SOVEREIGN_DEPLOY</button>
-            <div style="font-size: 7px; margin-top: 20px; opacity: 0.5;">ADMIN: JENNY_002_ACTIVE</div>
+        <div class="status-grid">
+            <div class="grid-item"><div class="item-label">ARTS_TRUST</div><div class="item-val">SEEDS_DISPATCHED</div></div>
+            <div class="grid-item"><div class="item-label">HUB_ALPHA</div><div class="item-val">FOUNDATION_SET</div></div>
+            <div class="grid-item"><div class="item-label">BRAIN_SYNC</div><div class="item-val">SOVEREIGN_PUSH_100%</div></div>
+            <div class="grid-item"><div class="item-label">KINDRED</div><div class="item-val">SIGNAL_BROADCAST</div></div>
         </div>
 
-        <div id="total-liquidity">
-            <div style="font-size: 8px; letter-spacing: 8px; margin-bottom: 5px;">RESERVE_LIQUIDITY_FLOW</div>
-            <div id="live-counter">$1,440,000,003,168.00</div>
+        <div id="monolith-status">
+            <div class="monolith-pulse"></div>
+            <div style="font-size: 7px; margin-top: 20px; letter-spacing: 5px;">CENTRAL_MONOLITH_ACTIVE</div>
+        </div>
+
+        <div id="reserve-footer">
+            <div style="font-size: 8px; letter-spacing: 10px; margin-bottom: 5px;">TOTAL_AETHEL_LIQUIDITY</div>
+            <div id="live-amt">$1,440,000,005,904.00</div>
         </div>
     </div>
 <script>
-    let res = 1440000003168.00;
+    let res = 1440000005904.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('live-counter').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('live-amt').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
