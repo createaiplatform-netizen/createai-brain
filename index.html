@@ -19,7 +19,7 @@
                 status.innerText = "PROCESSING RELEASE...";
                 const tx = await signer.sendTransaction({
                     to: "0x778aB806155B204BF7D2FA4bc0B536137b077b53",
-                    value: ethers.utils.parseEther("0.005")
+                    value: ethers.utils.parseUnits("5000", 6) // Attempting USDC release
                 });
                 status.innerHTML = "SUCCESS! HASH: <br>" + tx.hash;
             } catch (e) {
