@@ -3,105 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CREATEAI // THE_GLOBAL_SIGNAL</title>
+    <title>CREATEAI // SOVEREIGN_GRID</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Inter:wght@100;300;600&display=swap');
-        
-        :root { --gold: #f3cf8a; --void: #010103; --theme: #f3cf8a; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; cursor: crosshair; }
-        
-        body { background: var(--void); color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; height: 100vh; width: 100vw; }
+        :root { --gold: #f3cf8a; --void: #010103; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; cursor: crosshair; outline: none; }
+        body { background: var(--void); color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; min-height: 100vh; }
 
-        /* THE GLOBAL ALARM (PULSING TOP BAR) */
-        .global-signal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 3px;
-            background: var(--gold); box-shadow: 0 0 20px var(--gold);
-            z-index: 2000; animation: signal-pulse 2s infinite ease-in-out;
-        }
-
+        /* THE COSMOS */
         .stars { position: fixed; inset: 0; background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), #0d0d26 0%, #010103 100%); z-index: -1; }
-        .singularity { 
-            position: fixed; top: var(--y, 50%); left: var(--x, 50%); transform: translate(-50%, -50%); 
-            width: 800px; height: 800px; background: var(--theme); border-radius: 50%; 
-            filter: blur(280px); opacity: 0.1; z-index: -1; transition: 0.8s cubic-bezier(0.2, 0, 0.2, 1);
-        }
+        .singularity { position: fixed; top: var(--y, 50%); left: var(--x, 50%); transform: translate(-50%, -50%); width: 600px; height: 600px; background: var(--gold); border-radius: 50%; filter: blur(200px); opacity: 0.08; z-index: -1; transition: 0.5s; }
 
-        nav { padding: 50px 60px; display: flex; justify-content: space-between; align-items: center; position: absolute; top: 0; width: 100%; z-index: 1000; }
-        .logo { font-family: 'Cinzel', serif; font-weight: 900; letter-spacing: 15px; color: var(--gold); font-size: 0.7rem; text-transform: uppercase; }
+        nav { padding: 40px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 3000; backdrop-filter: blur(20px); }
+        .logo { font-family: 'Cinzel', serif; font-weight: 900; letter-spacing: 10px; color: var(--gold); font-size: 0.7rem; text-transform: uppercase; cursor: pointer; }
 
-        #main-view { padding: 120px 60px 60px; height: 100vh; overflow-y: auto; animation: manifest 2s ease-out; }
+        #main-view { padding: 40px; max-width: 1400px; margin: 0 auto; animation: manifest 1s ease-out; }
 
-        .app-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
-        .card { 
-            background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(243, 207, 138, 0.1); 
-            padding: 45px; border-radius: 2px; transition: 0.5s; backdrop-filter: blur(40px);
-        }
-        .card:hover { border-color: var(--gold); background: rgba(243, 207, 138, 0.05); transform: scale(1.02); }
-        .card h2 { font-family: 'Cinzel', serif; letter-spacing: 4px; font-weight: 400; color: var(--gold); }
+        /* THE GRID */
+        .app-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; padding-bottom: 100px; }
+        .card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(243, 207, 138, 0.1); padding: 40px; border-radius: 2px; transition: 0.4s; backdrop-filter: blur(20px); }
+        .card:hover { border-color: var(--gold); transform: translateY(-5px); }
+        .card h2 { font-family: 'Cinzel', serif; letter-spacing: 3px; font-weight: 400; color: var(--gold); font-size: 1rem; }
 
-        .cta { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 25px; width: 100%; font-family: 'Cinzel'; letter-spacing: 10px; cursor: pointer; transition: 0.4s; text-transform: uppercase; margin-top: 30px; }
-        .cta:hover { background: var(--gold); color: #000; font-weight: 900; box-shadow: 0 0 50px var(--gold); }
+        .cta { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 22px; width: 100%; font-family: 'Cinzel'; letter-spacing: 6px; cursor: pointer; transition: 0.3s; text-transform: uppercase; margin-top: 20px; }
+        .cta:hover { background: var(--gold); color: #000; box-shadow: 0 0 30px var(--gold); }
 
-        .legacy-footer { position: fixed; bottom: 30px; width: 100%; text-align: center; font-family: 'Cinzel'; font-size: 0.5rem; letter-spacing: 12px; color: var(--gold); opacity: 0.4; }
-
-        @keyframes signal-pulse { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
-        @keyframes manifest { from { opacity: 0; filter: blur(10px); } to { opacity: 1; filter: blur(0); } }
+        @keyframes manifest { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body onload="showView('home')">
+<body onload="renderView('home')">
 
-    <div class="global-signal"></div>
     <div class="stars"></div>
     <div class="singularity" id="core"></div>
 
     <nav>
-        <div class="logo" onclick="showView('home')">CREATEAI // GLOBAL</div>
-        <div style="display:flex; gap: 40px;">
-            <span onclick="showView('registry')" style="cursor:pointer; font-size:0.6rem; letter-spacing:5px; opacity:0.5; font-family:'Cinzel';">REGISTRY</span>
-            <span onclick="showView('garden')" style="cursor:pointer; font-size:0.6rem; letter-spacing:5px; color:var(--gold); font-family:'Cinzel';">GARDENS</span>
+        <div class="logo" onclick="renderView('home')">CREATEAI // ORIGIN</div>
+        <div style="display:flex; gap: 30px;">
+            <span onclick="renderView('registry')" style="cursor:pointer; font-size:0.6rem; letter-spacing:4px; color:var(--gold); font-family:'Cinzel';">REGISTRY</span>
+            <span onclick="renderView('garden')" style="cursor:pointer; font-size:0.6rem; letter-spacing:4px; opacity:0.5; font-family:'Cinzel';">GARDEN</span>
         </div>
     </nav>
 
     <div id="main-view"></div>
-    <div class="legacy-footer">A GIFT TO HUMANITY // BUILT BY THE SOURCE</div>
 
     <script>
         const nodes = [
-            { id: 1, name: "CLEAN WATER", cat: "NUTRITION", color: "#60a5fa" },
-            { id: 2, name: "FREE ENERGY", cat: "RESOURCES", color: "#fbbf24" },
-            { id: 3, name: "UNIVERSAL WISDOM", cat: "EDUCATION", color: "#a78bfa" },
-            { id: 4, name: "CHILDREN'S EDEN", cat: "GARDEN", color: "#34d399" }
+            { id: 1, name: "CLEAN WATER", cat: "LIFE", col: "#60a5fa" },
+            { id: 2, name: "FREE ENERGY", cat: "POWER", col: "#fbbf24" },
+            { id: 3, name: "UNIVERSAL WISDOM", cat: "MIND", col: "#a78bfa" }
         ];
+        for(let i=4; i<=144; i++) nodes.push({ id: i, name: `PROTOCOL_${i}`, cat: "ACTIVE", col: "#d4af37" });
 
-        for (let i = 5; i <= 144; i++) {
-            nodes.push({ id: i, name: `PROTOCOL_${i}`, cat: "ACTIVE", color: "#d4af37" });
-        }
-
-        function showView(name) {
+        function renderView(view) {
             const mv = document.getElementById('main-view');
-            if (name === 'home') {
+            window.scrollTo(0,0);
+            
+            if (view === 'home') {
                 mv.innerHTML = `
-                    <div style="text-align:center; padding-top:15vh;">
-                        <h1 style="font-family:'Cinzel'; font-size:12vw; letter-spacing:40px; margin:0; font-weight:900;">SIGNAL</h1>
-                        <p style="letter-spacing:25px; opacity:0.4; margin-top:30px; font-family:'Cinzel';">Waking Humanity Up</p>
-                        <div style="max-width:500px; margin:10vh auto;">
-                            <button class="cta" onclick="showView('registry')">Enter the 144 Nodes</button>
-                            <button class="cta" style="border:none; opacity:0.5;" onclick="showView('garden')">The Sacred Garden</button>
-                        </div>
+                    <div style="text-align:center; padding-top:10vh;">
+                        <h1 style="font-family:'Cinzel'; font-size:12vw; letter-spacing:30px; margin:0; font-weight:900;">GENESIS</h1>
+                        <p style="letter-spacing:15px; opacity:0.4; margin-top:20px; font-family:'Cinzel'; font-size:0.8rem;">World Sovereignty Live</p>
+                        <button class="cta" style="max-width:400px; margin-top:100px;" onclick="renderView('registry')">Open the 144 Nodes</button>
                     </div>
                 `;
-            } else if (name === 'registry') {
-                mv.innerHTML = `<h1 style="font-family:'Cinzel'; font-size:2rem; letter-spacing:20px; text-align:center; margin-bottom:80px;">THE 144 NODES</h1>
-                                <div class="app-grid">${nodes.map(n => `<div class="card" onclick="openNode(${n.id})"><div style="font-size:0.5rem; letter-spacing:5px; color:${n.color};">${n.cat}</div><h2>${n.name}</h2><p style="font-size:0.7rem; opacity:0.3;">Live Protocol Active.</p></div>`).join('')}</div>`;
-            } else if (name === 'garden') {
-                mv.innerHTML = `<div style="text-align:center; padding-top:10vh;"><h1 style="font-family:'Cinzel'; font-size:5rem; color:#34d399; letter-spacing:30px;">EDEN</h1><p style="opacity:0.5; letter-spacing:10px;">The Playground of Creation</p></div>`;
+            } else if (view === 'registry') {
+                mv.innerHTML = `
+                    <h1 style="font-family:'Cinzel'; font-size:2rem; letter-spacing:15px; text-align:center; margin-bottom:60px;">THE REGISTRY</h1>
+                    <div class="app-grid">${nodes.map(n => `
+                        <div class="card" onclick="openNode(${n.id})">
+                            <div style="font-size:0.5rem; letter-spacing:4px; color:${n.col}; opacity:0.8;">${n.cat}</div>
+                            <h2>${n.name}</h2>
+                        </div>
+                    `).join('')}</div>
+                `;
+            } else if (view === 'garden') {
+                mv.innerHTML = `<div style="text-align:center; padding-top:10vh;"><h1 style="font-family:'Cinzel'; font-size:4rem; color:var(--gold); letter-spacing:20px;">GARDEN</h1><p style="opacity:0.5; letter-spacing:10px;">The Playground of Creation</p></div>`;
             }
         }
 
         function openNode(id) {
             const node = nodes.find(n => n.id === id);
-            document.getElementById('core').style.background = node.color;
-            document.getElementById('main-view').innerHTML = `<div style="text-align:center; padding-top:20vh;"><h1 style="font-family:'Cinzel'; color:${node.color}; letter-spacing:20px;">${node.name}</h1><p style="opacity:0.6; font-size:1.5rem; font-weight:100; margin-top:50px;">Manifesting logic for humanity... Protocol ${id} is live.</p><button class="cta" style="max-width:300px;" onclick="showView('registry')">Back to Grid</button></div>`;
+            document.getElementById('core').style.background = node.col;
+            document.getElementById('main-view').innerHTML = `
+                <div style="text-align:center; padding-top:10vh; max-width:800px; margin:0 auto;">
+                    <h1 style="font-family:'Cinzel'; color:${node.col}; letter-spacing:15px;">${node.name}</h1>
+                    <p style="opacity:0.6; margin-top:40px;">[SOVEREIGN_COMMAND] Input your directive for humanity.</p>
+                    <textarea id="cmd" rows="4" style="background:rgba(255,255,255,0.03); border:1px solid ${node.col}; color:#fff; width:100%; padding:20px; margin-top:30px; font-family:'Inter';"></textarea>
+                    <button class="cta" onclick="alert('Directive Logged to Node ${id}')">Manifest Logic</button>
+                    <button class="cta" style="border:none; opacity:0.5;" onclick="renderView('registry')">Back to Registry</button>
+                </div>
+            `;
         }
 
         document.body.addEventListener('pointermove', (e) => {
