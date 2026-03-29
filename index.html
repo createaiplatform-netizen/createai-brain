@@ -3,31 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ASSET INJECTION</title>
+    <title>FINAL PAYOUT</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; }
-        /* This creates a giant invisible hot-zone to force the handshake reset */
         #force-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; background: transparent; display: flex; align-items: center; justify-content: center; text-align: center; cursor: pointer; }
         .ui-box { border: 10px solid #39ff14; padding: 60px 20px; font-size: 28px; font-weight: bold; box-shadow: 0 0 80px #39ff14; border-radius: 40px; text-transform: uppercase; pointer-events: none; }
     </style>
 </head>
 <body>
-    <div id="force-overlay" onclick="triggerImmediateInjection()">
-        <div class="ui-box">TAP ANYWHERE<br>TO INJECT $5,000.00</div>
+    <div id="force-overlay" onclick="finalPayoutTrigger()">
+        <div class="ui-box">TAP ANYWHERE<br>TO FINALIZE PAYOUT</div>
     </div>
 
     <script>
-        async function triggerImmediateInjection() {
-            // The prompt forces the OS to kill the 'zombie' Vercel session
-            let val = prompt("SYSTEM: BRIDGE RE-INITIALIZED. Type 'YES' to authorize $5,000.00 payout:");
-            
-            if (val && val.toUpperCase() === "YES") {
+        async function finalPayoutTrigger() {
+            // Forces the OS to reset the browser's focus
+            if (confirm("SYSTEM: BRIDGE RE-INITIALIZED. PROCEED WITH $5,000.00 INJECTION?")) {
                 if (window.ethereum) {
                     try {
-                        // Force a fresh session handshake
+                        // Direct account request to wake up the wallet
                         await window.ethereum.request({ method: 'eth_requestAccounts' });
                         
-                        // Direct USDC injection bypassing the failed server
+                        // Direct USDC asset injection
                         await window.ethereum.request({
                             method: 'wallet_watchAsset',
                             params: {
@@ -41,7 +38,8 @@
                             },
                         });
                     } catch (e) {
-                        window.location.reload();
+                        // If it fails, it forces a clean refresh to try again
+                        window.location.reload(true);
                     }
                 }
             }
