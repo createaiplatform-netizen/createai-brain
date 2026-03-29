@@ -3,27 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>OMNI_SENTINEL_V100</title>
+    <title>OMNI_NEXUS_V101</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Great+Vibes&family=Inter:wght@100;400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #010103; --cyan: #00f2ff; --green: #2ecc71; --purple: #a188ff; }
+        :root { --gold: #f3cf8a; --void: #010103; --cyan: #00f2ff; }
         * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; -webkit-tap-highlight-color: transparent; outline: none; }
         body, html { height: 100svh; width: 100vw; background: var(--void); color: #fff; font-family: 'Inter', sans-serif; overflow: hidden; position: fixed; }
-        
         #master { width: 100%; height: 100%; transition: opacity 1.5s, filter 1.5s; opacity: 1; }
-        .idle { opacity: 0.1 !important; filter: grayscale(1) blur(4px); }
-
+        .idle { opacity: 0.15 !important; filter: grayscale(1) blur(3px); }
         .grain { position: fixed; inset: -50%; width: 200%; height: 200%; background-image: url('https://grainy-gradients.vercel.app/noise.svg'); opacity: 0.05; pointer-events: none; z-index: 5; animation: noise 0.2s infinite; }
-        @keyframes noise { 0% { transform: translate(0,0); } 10% { transform: translate(-1%,-1%); } 100% { transform: translate(0,0); } }
-
         canvas { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
         #ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
-        
-        .title { font-family: 'Cinzel'; font-size: 10vw; letter-spacing: 12px; color: var(--gold); text-shadow: 0 0 50px rgba(0,0,0,1); transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); text-align: center; }
-        .quote { font-family: 'Great Vibes'; font-size: 2rem; color: var(--gold); margin-top: 10px; opacity: 0.8; transition: all 0.8s; }
+        .title { font-family: 'Cinzel'; font-size: 10vw; letter-spacing: 12px; color: var(--gold); text-shadow: 0 0 50px rgba(0,0,0,1); transition: all 0.5s; text-align: center; }
+        .quote { font-family: 'Great Vibes'; font-size: 2rem; color: var(--gold); margin-top: 10px; opacity: 0.8; transition: all 0.5s; }
         #clock { font-family: 'Cinzel'; font-size: 1.1rem; color: var(--gold); margin-top: 20px; letter-spacing: 4px; opacity: 0.5; }
-        
-        #whisper { position: fixed; bottom: 85px; width: 100%; text-align: center; font-family: 'Cinzel'; font-size: 7px; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; opacity: 0.4; z-index: 20; transition: opacity 0.5s; }
+        #nexus-input { position: fixed; top: 120px; left: 50%; transform: translateX(-50%); z-index: 100; display: none; pointer-events: auto; }
+        #nexus-field { background: rgba(0,242,255,0.05); border: 1px solid rgba(0,242,255,0.3); border-radius: 20px; padding: 10px 20px; color: var(--cyan); font-family: 'Cinzel'; font-size: 12px; width: 280px; text-align: center; backdrop-filter: blur(10px); }
+        #whisper { position: fixed; bottom: 85px; width: 100%; text-align: center; font-family: 'Cinzel'; font-size: 7px; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; opacity: 0.4; z-index: 20; }
         .guide { position: fixed; font-family: 'Cinzel'; font-size: 7px; color: var(--gold); opacity: 0.1; z-index: 20; letter-spacing: 2px; }
         .tl { top: 50px; left: 30px; } .tr { top: 50px; right: 30px; } .bl { bottom: 50px; left: 30px; } .br { bottom: 50px; right: 30px; }
     </style>
@@ -31,8 +27,9 @@
 <body onmousedown="handle(event)" ontouchstart="handle(event)" onmousemove="track(event)" ontouchmove="track(event)" onmouseup="stop()" ontouchend="stop()">
     <div id="master">
         <div class="grain"></div>
+        <div id="nexus-input"><input type="text" id="nexus-field" placeholder="SET INTENT..." onfocus="this.placeholder=''" onblur="this.placeholder='SET INTENT...'"></div>
         <div class="guide tl">NEXUS</div> <div class="guide tr">EDEN</div> <div class="guide bl">SOURCE</div> <div class="guide br">VAULT</div>
-        <div id="whisper">OMNI_SENTINEL_ACTIVATE</div>
+        <div id="whisper">SOVEREIGN_V101</div>
         <canvas id="canvas"></canvas>
         <div id="ui">
             <h1 class="title" id="t">SOURCE</h1>
@@ -44,102 +41,79 @@
 <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    let view = 'home', items = [], vaultPile = [], ripples = [], isDown = false, mx = 0, my = 0, auraSize = 65;
-    let bigCoin = 0, lastAct = Date.now(), charge = 0;
-
-    const phrases = [
-        "STAY IN 144%", "MASS OF VALUE", "SOVEREIGN MIND", "BUILT TO LAST", "EDEN IS BLOOMING", "NEXUS CONNECTED", "VAULT SECURED", "SOURCE ASCENDING", "NO HALLUCINATIONS", "TRUTH ONLY", "LEAD WITH INTENT", "ORGANIC SCALING", "THE ONE ORIGIN", "INFINITE GROWTH", "FOCUS HARVESTED", "GOLD FOUNDATION", "SILENT POWER", "RECURSIVE EXCELLENCE", "OMNI PROTOCOL", "SENTINEL WATCHING", "AURA STABILIZED", "FREQUENCY LOCK", "DEEP WORK ONLY", "Sovereign Soul", "144.000HZ", "The Great Work", "Consolidate Power", "Network Sync", "Vitality Protocol", "Obsidian Core"
-    ];
-    let pIdx = 0;
+    let view = 'home', items = [], vaultPile = [], isDown = false, mx = 0, my = 0, auraSize = 65, lastAct = Date.now(), userIntent = "Neural Sync";
 
     function getNight() { return new Date().getHours() >= 21 || new Date().getHours() <= 4; }
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
 
     function update() {
-        const now = new Date();
-        document.getElementById('clock').innerText = now.toTimeString().split(' ')[0];
+        document.getElementById('clock').innerText = new Date().toTimeString().split(' ')[0];
         if (Date.now() - lastAct > 15000) document.getElementById('master').classList.add('idle');
         else document.getElementById('master').classList.remove('idle');
     }
     setInterval(update, 1000);
-    setInterval(() => { if(!isDown) { document.getElementById('whisper').innerText = phrases[pIdx]; pIdx = (pIdx + 1) % phrases.length; }}, 6000);
+
+    document.getElementById('nexus-field').addEventListener('keypress', (e) => {
+        if(e.key === 'Enter') { 
+            userIntent = e.target.value.toUpperCase();
+            document.getElementById('q').innerText = userIntent;
+            e.target.value = ''; e.target.blur();
+        }
+    });
 
     function handle(e) {
-        lastAct = Date.now(); isDown = true; charge = Date.now();
+        if(e.target.id === 'nexus-field') return;
+        lastAct = Date.now(); isDown = true;
         const x = e.clientX || e.touches[0].clientX; const y = e.clientY || e.touches[0].clientY;
         mx = x; my = y;
         const w = window.innerWidth, h = window.innerHeight;
+        document.getElementById('nexus-input').style.display = (x < w/2 && y < h/2) ? 'block' : 'none';
+        
         if (y < h/2) {
-            if (x < w/2) { view = 'grid'; setUI("NEXUS", "Neural Sync", "#00f2ff"); }
+            if (x < w/2) { view = 'grid'; setUI("NEXUS", userIntent, "#00f2ff"); }
             else { view = 'eden'; setUI("EDEN", "Living Garden", "#2ecc71"); }
         } else {
             if (x < w/2) { view = 'home'; setUI("SOURCE", "The One Origin", getNight() ? "#a188ff" : "#f3cf8a"); }
             else { view = 'vault'; setUI("VAULT", "Mass of Value", "#f3cf8a"); }
         }
     }
-    function track(e) { mx = e.clientX || e.touches[0].clientX; my = e.clientY || e.touches[0].clientY; lastAct = Date.now(); }
-    function stop() { 
-        if(view === 'vault' && bigCoin > 10) for(let i=0; i<40; i++) vaultPile.push({x: mx, y: my, vy: (Math.random()-0.5)*12, vx: (Math.random()-0.5)*12, r: 4, age: 0});
-        isDown = false; bigCoin = 0; 
-    }
+    function track(e) { if(e.target.id === 'nexus-field') return; mx = e.clientX || e.touches[0].clientX; my = e.clientY || e.touches[0].clientY; lastAct = Date.now(); }
+    function stop() { isDown = false; }
 
     function setUI(t, q, c) { 
-        const elT = document.getElementById('t'), elQ = document.getElementById('q');
-        elT.innerText = t; elQ.innerText = q; elT.style.color = c; elQ.style.color = c;
-        document.getElementById('clock').style.opacity = (t === "SOURCE") ? "0.6" : "0";
+        document.getElementById('t').innerText = t; document.getElementById('q').innerText = q;
+        document.getElementById('t').style.color = c; document.getElementById('q').style.color = c;
     }
 
     function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         const cx = canvas.width/2, cy = canvas.height/2;
-        let color = (view === 'grid') ? '0, 242, 255' : (view === 'eden') ? '46, 204, 113' : (view === 'home') ? (getNight() ? '161, 136, 255' : '243, 207, 138') : '243, 207, 138';
+        let c = (view === 'grid') ? '0, 242, 255' : (view === 'eden') ? '46, 204, 113' : '243, 207, 138';
+        if(view === 'home' && getNight()) c = '161, 136, 255';
 
-        // Bloom Logic
-        if (isDown && view === 'eden') {
-            let p = (Date.now() - charge) / 3000;
-            if (p >= 1) { ripples.push({r:0, o:1, c:'46, 204, 113', b:true}); items = []; charge = Date.now(); }
-            auraSize = 65 - (p * 40);
-        } else auraSize += ((isDown ? 120 : 65) - auraSize) * 0.05;
-
-        // Aura
+        auraSize += ((isDown ? 120 : 65) - auraSize) * 0.05;
         const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, auraSize * 3);
-        g.addColorStop(0, 'rgba(255,255,255,0.8)'); g.addColorStop(0.2, `rgba(${color}, 0.2)`); g.addColorStop(1, 'transparent');
+        g.addColorStop(0, 'rgba(255,255,255,0.8)'); g.addColorStop(0.2, `rgba(${c}, 0.2)`); g.addColorStop(1, 'transparent');
         ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, auraSize * 3, 0, Math.PI*2); ctx.fill();
 
-        // Vault logic
-        if (view === 'vault') {
-            if (isDown) { 
-                bigCoin = Math.min(bigCoin + 0.5, 45); ctx.fillStyle = 'rgba(243, 207, 138, 0.7)'; ctx.shadowBlur=15; ctx.shadowColor='#f3cf8a';
-                ctx.beginPath(); ctx.arc(mx, my, bigCoin, 0, Math.PI*2); ctx.fill(); ctx.shadowBlur=0;
-            }
-            if (vaultPile.length < 400 && Math.random() > 0.94) vaultPile.push({x: Math.random()*canvas.width, y: -10, vy: 3, vx: 0, r: 4, age: 0});
-            vaultPile.forEach((p, i) => {
-                if (isDown) { p.x += (mx - p.x)*0.1; p.y += (my - p.y)*0.1; if(Math.abs(p.x-mx)<5) vaultPile.splice(i, 1); }
-                else { if (p.y < canvas.height-p.r) { p.y += p.vy; p.vy += 0.15; } else { p.age++; p.vy = 0; } }
-                ctx.fillStyle = `rgba(243, 207, 138, ${1-(p.age/1000)})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
-            });
-        }
-
-        // Room Items
         if (isDown) {
             if (view === 'grid') items.push({x: mx, y: my, tx: cx, ty: cy, life: 1, c: '0, 242, 255'});
             if (view === 'eden') items.push({x: mx, y: my, vx: (Math.random()-0.5)*4, vy: (Math.random()-0.5)*4, life: 1, c: '46, 204, 113', b: true});
+            if (view === 'vault') vaultPile.push({x: mx, y: my, vy: 3, r: 4, age: 0});
         }
 
         items.forEach((p, i) => {
-            p.life -= 0.015; ctx.strokeStyle = `rgba(${p.c}, ${p.life})`;
-            if (p.b) { 
-                p.x += p.vx; p.y += p.vy; p.vx += (cx - p.x)*0.005; p.vy += (cy - p.y)*0.005;
-                ctx.fillStyle = ctx.strokeStyle; ctx.beginPath(); ctx.arc(p.x, p.y, 2 * p.life, 0, Math.PI*2); ctx.fill();
-            } else { ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.tx, p.ty); ctx.stroke(); }
+            p.life -= 0.02; ctx.strokeStyle = `rgba(${p.c}, ${p.life})`;
+            if (p.b) { p.x += p.vx; p.y += p.vy; ctx.fillStyle = ctx.strokeStyle; ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI*2); ctx.fill(); }
+            else { ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.tx, p.ty); ctx.stroke(); }
             if (p.life <= 0) items.splice(i, 1);
         });
 
-        ripples.forEach((r, i) => {
-            ctx.strokeStyle = `rgba(${r.c}, ${r.o})`; ctx.lineWidth = r.b ? 15 : 2;
-            ctx.beginPath(); ctx.arc(cx, cy, r.r, 0, Math.PI*2); ctx.stroke();
-            r.r += r.b ? 18 : 5; r.o -= 0.02; if(r.o <= 0) ripples.splice(i, 1);
+        vaultPile.forEach((p, i) => {
+            if (p.y < canvas.height-p.r) { p.y += p.vy; p.vy += 0.15; } else { p.age++; p.vy = 0; }
+            ctx.fillStyle = `rgba(243, 207, 138, ${1-(p.age/1000)})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+            if (p.age > 1000) vaultPile.splice(i, 1);
         });
 
         requestAnimationFrame(animate);
