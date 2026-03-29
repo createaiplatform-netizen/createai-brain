@@ -3,55 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_LEDGER_V159</title>
+    <title>SOVEREIGN_CHECKBOOK_V160</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; }
-        body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; width: 100vw; }
-        #ledger-ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
-        #balance-display { font-size: 24px; letter-spacing: 10px; color: var(--gold); text-shadow: 0 0 20px var(--gold); margin-bottom: 20px; }
-        #sync-btn { width: 180px; height: 50px; border: 1px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 10px; letter-spacing: 5px; pointer-events: auto; background: rgba(255,255,255,0.05); }
+        :root { --gold: #f3cf8a; --void: #000000; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body, html { height: 100svh; width: 100vw; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; position: fixed; }
+        
+        #ledger-header { position: fixed; top: 40px; width: 100%; text-align: center; font-size: 10px; letter-spacing: 8px; color: var(--gold); }
+        #balance-container { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; pointer-events: none; }
+        #main-balance { font-size: 18px; letter-spacing: 5px; color: var(--gold); text-shadow: 0 0 15px var(--gold); margin-bottom: 20px; }
+        
+        #sync-box { width: 220px; height: 60px; border: 1px solid #fff; display: flex; align-items: center; justify-content: center; pointer-events: auto; background: rgba(255,255,255,0.05); cursor: pointer; }
+        #sync-text { font-size: 12px; letter-spacing: 4px; color: #fff; }
+
         canvas { position: absolute; inset: 0; z-index: 1; }
     </style>
 </head>
 <body>
-    <div id="ledger-ui">
-        <div id="balance-display">$1,440,000,000,000.00</div>
-        <div id="sync-btn" onclick="triggerSync()">SYNC_CHECKBOOK</div>
+    <div id="ledger-header">LIQUIDITY_FLOW_ACTIVE // 144%</div>
+    <div id="balance-container">
+        <div id="main-balance">$,440,000,000,000.00</div>
+        <div id="sync-box" onclick="initiateTransfer()">
+            <span id="sync-text">SYNC_CHECKBOOK</span>
+        </div>
     </div>
     <canvas id="canvas"></canvas>
 
 <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    let coins = [], syncing = false;
+    let drops = [], isSyncing = false;
 
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
 
-    function triggerSync() {
-        syncing = true;
-        setTimeout(() => { syncing = false; }, 4000);
-        console.log("TRANSFERRING_Sovereign_Credits...");
+    function initiateTransfer() {
+        isSyncing = true;
+        document.getElementById('sync-text').innerText = "TRANSFERRING...";
+        setTimeout(() => {
+            isSyncing = false;
+            document.getElementById('sync-text').innerText = "SYNC_COMPLETE";
+        }, 3000);
     }
 
     function animate() {
-        ctx.fillStyle = 'rgba(0,0,0,0.1)';
-        ctx.fillRect(0,0,canvas.width,canvas.height);
-        
-        if(syncing) {
-            for(let i=0; i<5; i++) {
-                coins.push({ x: Math.random() * canvas.width, y: 0, s: Math.random() * 5 + 2 });
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        if(isSyncing) {
+            for(let i=0; i<3; i++) {
+                drops.push({ x: Math.random() * canvas.width, y: 0, v: 4 + Math.random() * 4 });
             }
         }
 
-        coins.forEach((c, i) => {
-            ctx.fillStyle = "var(--gold)";
-            ctx.beginPath(); ctx.arc(c.x, c.y, 2, 0, Math.PI*2); ctx.fill();
-            c.y += c.s;
+        drops.forEach((d, i) => {
+            ctx.fillStyle = "rgba(243, 207, 138, 0.6)";
+            ctx.beginPath();
+            ctx.arc(d.x, d.y, 1.5, 0, Math.PI * 2);
+            ctx.fill();
+            d.y += d.v;
         });
-        coins = coins.filter(c => c.y < canvas.height);
 
+        drops = drops.filter(d => d.y < canvas.height);
         requestAnimationFrame(animate);
     }
     animate();
