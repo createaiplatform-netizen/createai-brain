@@ -3,55 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_OVERDRIVE_V135</title>
+    <title>SOVEREIGN_OMEGA_V136</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Great+Vibes&family=Inter:wght@100;400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #010103; --white: #ffffff; --tri: #ff3e3e; }
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Inter:wght@900&display=swap');
+        :root { --gold: #f3cf8a; --void: #000000; --white: #ffffff; }
         * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; outline: none; -webkit-tap-highlight-color: transparent; }
         body, html { height: 100svh; width: 100vw; background: var(--void); color: #fff; font-family: 'Inter', sans-serif; overflow: hidden; position: fixed; }
         
-        #ticker { position: fixed; top: 0; width: 100%; height: 38px; background: rgba(0,0,0,0.98); backdrop-filter: blur(30px); z-index: 100; display: flex; align-items: center; border-bottom: 2px solid var(--gold); overflow: hidden; }
-        #ticker-text { white-space: nowrap; font-family: 'Cinzel'; font-size: 10px; letter-spacing: 5px; color: var(--gold); animation: scroll 12s linear infinite; font-weight: 900; }
+        #omega-ticker { position: fixed; top: 0; width: 100%; height: 40px; background: rgba(0,0,0,1); z-index: 100; display: flex; align-items: center; border-bottom: 3px solid var(--white); overflow: hidden; }
+        #omega-text { white-space: nowrap; font-family: 'Cinzel'; font-size: 12px; letter-spacing: 8px; color: var(--white); animation: scroll 10s linear infinite; font-weight: 900; }
         @keyframes scroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
         canvas { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
-        #ui { position: absolute; inset: 0; z-index: 15; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; text-align: center; }
-        .title { font-family: 'Cinzel'; font-size: 12vw; letter-spacing: 15px; color: var(--gold); text-shadow: 0 0 50px rgba(243, 207, 138, 0.5); }
+        #ui { position: absolute; inset: 0; z-index: 15; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+        .omega-title { font-family: 'Cinzel'; font-size: 15vw; letter-spacing: 30px; color: var(--white); text-shadow: 0 0 50px var(--white); animation: shake 0.2s infinite; opacity: 0.9; }
+        @keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } 100% { transform: translate(1px, -1px); } }
         
-        #stats-bar { position: fixed; bottom: 8%; width: 100%; display: flex; justify-content: space-around; font-family: 'Cinzel'; color: var(--gold); font-size: 11px; letter-spacing: 2px; z-index: 20; background: rgba(0,0,0,0.95); padding: 25px 0; border-top: 1px solid var(--gold); }
-        .velocity { color: #fff; font-weight: 900; filter: blur(0.5px); }
+        #stats-bar { position: fixed; bottom: 8%; width: 100%; display: flex; justify-content: space-around; font-family: 'Cinzel'; color: var(--white); font-size: 12px; letter-spacing: 5px; z-index: 20; background: #000; padding: 30px 0; border-top: 2px solid var(--white); }
+        .glitch { animation: glitch 1s infinite; }
+        @keyframes glitch { 0% { transform: skew(0deg); } 20% { transform: skew(10deg); } 40% { transform: skew(-10deg); } 100% { transform: skew(0deg); } }
     </style>
 </head>
 <body onmousedown="handle(event)" ontouchstart="handle(event)" onmousemove="track(event)" ontouchmove="track(event)" onmouseup="stop()" ontouchend="stop()">
     <div id="master">
-        <div id="ticker"><div id="ticker-text">OVERWRITING FINANCE... OVERWRITING MEDIA... OVERWRITING INFRASTRUCTURE... TRINITY PROTOCOL ENGAGED...</div></div>
+        <div id="omega-ticker"><div id="omega-text">SINGULARITY REACHED... REALITY OVERWRITTEN... VALUE = Ω... WELCOME TO THE END OF THE BEGINNING...</div></div>
         <div id="stats-bar">
-            <span>TARGET: THE TRINITY</span>
-            <span style="color:var(--gold)">VELOCITY: <span class="velocity" id="v-val">MAX</span></span>
-            <span>CAPITAL: <span id="c-val">$1.44T</span></span>
+            <span>UNITS: 144_ALL</span>
+            <span class="glitch">STATUS: OMEGA</span>
+            <span>VALUE: Ω</span>
         </div>
         <canvas id="canvas"></canvas>
         <div id="ui">
-            <h1 class="title">OVERDRIVE</h1>
-            <p style="font-family:'Great Vibes'; font-size: 2.2rem; color: var(--gold);">The Triple Overwrite</p>
+            <h1 class="omega-title">OMEGA</h1>
         </div>
     </div>
 
 <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    let agents = [], isDown = false, mx = 0, my = 0, angle = 0;
+    let agents = [], isDown = false, mx = 0, my = 0;
 
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
 
-    agents.push({ x: canvas.width/2, y: canvas.height/2, vx: 0, vy: 0, a: 0, dist: 60, isAethel: true, history: [] });
+    // The Omega Core
+    agents.push({ x: canvas.width/2, y: canvas.height/2, vx: 0, vy: 0, a: 0, dist: 0, isCore: true, history: [] });
+    // The 144 Refractors
     for(let i=0; i<144; i++) {
         agents.push({
             x: Math.random() * canvas.width, y: Math.random() * canvas.height,
             vx: 0, vy: 0, a: Math.random() * Math.PI * 2,
-            dist: 100 + Math.random() * 250,
-            speed: 0.03 + Math.random() * 0.05,
+            dist: 120 + Math.random() * 400,
+            speed: 0.05 + Math.random() * 0.1,
             history: []
         });
     }
@@ -61,50 +64,40 @@
     function stop() { isDown = false; }
 
     function animate() {
-        ctx.fillStyle = 'rgba(1, 1, 3, 0.3)';
+        ctx.fillStyle = isDown ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.3)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         const cx = canvas.width/2, cy = canvas.height/2;
-        angle += 0.02;
-
-        if (isDown) {
-            // Triple Beam Targeter
-            ctx.lineWidth = 1;
-            for(let i=0; i<3; i++) {
-                let r = angle + (i * (Math.PI * 2 / 3));
-                ctx.strokeStyle = `rgba(243, 207, 138, 0.6)`;
-                ctx.beginPath();
-                ctx.moveTo(cx, cy);
-                ctx.lineTo(cx + Math.cos(r) * 1000, cy + Math.sin(r) * 1000);
-                ctx.stroke();
-            }
-        }
 
         agents.forEach((a, i) => {
             if (isDown) {
-                // Focus Swarm
                 let dX = mx - a.x; let dY = my - a.y;
                 let d = Math.hypot(dX, dY);
-                a.vx += dX/d * (a.isAethel ? 3 : 2.5);
-                a.vy += dY/d * (a.isAethel ? 3 : 2.5);
+                a.vx += dX/d * (a.isCore ? 5 : 8);
+                a.vy += dY/d * (a.isCore ? 5 : 8);
             } else {
-                a.a += a.isAethel ? 0.002 : a.speed;
+                a.a += a.speed || 0.02;
                 let tx = cx + Math.cos(a.a) * a.dist;
                 let ty = cy + Math.sin(a.a) * a.dist;
                 a.vx += (tx - a.x) * 0.1; a.vy += (ty - a.y) * 0.1;
             }
-            a.vx *= 0.88; a.vy *= 0.88; a.x += a.vx; a.y += a.vy;
+            a.vx *= 0.85; a.vy *= 0.85; a.x += a.vx; a.y += a.vy;
 
             a.history.push({x: a.x, y: a.y});
-            if (a.history.length > 12) a.history.shift();
+            if (a.history.length > (isDown ? 50 : 15)) a.history.shift();
 
-            let color = a.isAethel ? `hsla(${(Date.now()/10)%360}, 100%, 85%, 1)` : 'rgba(243, 207, 138, 0.8)';
-            ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = a.isAethel ? 6 : 2;
+            let color = a.isCore ? '#fff' : (isDown ? '#fff' : 'var(--gold)');
+            ctx.beginPath(); ctx.strokeStyle = color; 
+            ctx.lineWidth = a.isCore ? 10 : 2;
             a.history.forEach(p => ctx.lineTo(p.x, p.y)); ctx.stroke();
-            ctx.fillStyle = color; ctx.beginPath(); ctx.arc(a.x, a.y, a.isAethel ? 18 : 3, 0, Math.PI * 2); ctx.fill();
+            
+            ctx.fillStyle = color; ctx.beginPath(); 
+            ctx.arc(a.x, a.y, a.isCore ? 30 : 2, 0, Math.PI * 2); ctx.fill();
+            
+            if (isDown && !a.isCore) {
+                ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+                ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(mx, my); ctx.stroke();
+            }
         });
-
-        // Velocity Blur on Capital
-        document.getElementById('c-val').innerText = "$" + (1.44 + Math.random() * 0.1).toFixed(2) + "T";
         requestAnimationFrame(animate);
     }
     animate();
