@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_STABLE_V89</title>
+    <title>SOVEREIGN_V90_STABLE</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Great+Vibes&family=Inter:wght@100;400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #010103; }
@@ -13,11 +13,11 @@
         @keyframes noise { 0% { transform: translate(0,0); } 10% { transform: translate(-1%,-1%); } 100% { transform: translate(0,0); } }
         canvas { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
         #ui-layer { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
-        .title { font-family: 'Cinzel'; font-size: 11vw; letter-spacing: 15px; color: var(--gold); text-shadow: 0 0 40px rgba(0,0,0,1); animation: heartbeat 4s ease-in-out infinite; transition: color 1s; }
+        .title { font-family: 'Cinzel'; font-size: 11vw; letter-spacing: 15px; color: var(--gold); text-shadow: 0 0 40px rgba(0,0,0,1); animation: heartbeat 4s ease-in-out infinite; transition: color 1.5s; }
         #clock { font-family: 'Cinzel'; font-size: 1.2rem; color: var(--gold); margin-top: 15px; letter-spacing: 5px; opacity: 0.6; }
         #whisper { position: fixed; bottom: 80px; width: 100%; text-align: center; font-family: 'Cinzel'; font-size: 8px; color: var(--gold); letter-spacing: 4px; text-transform: uppercase; transition: opacity 1s; opacity: 0.4; z-index: 20; }
         @keyframes heartbeat { 0%, 100% { transform: scale(1); opacity: 0.7; } 50% { transform: scale(1.02); opacity: 1; } }
-        .quote { font-family: 'Great Vibes'; font-size: 2.2rem; color: var(--gold); margin-top: 10px; opacity: 0.7; }
+        .quote { font-family: 'Great Vibes'; font-size: 2.2rem; color: var(--gold); margin-top: 10px; opacity: 0.8; transition: color 1.5s; }
         .guide { position: fixed; font-family: 'Cinzel'; font-size: 8px; color: var(--gold); opacity: 0.08; z-index: 20; letter-spacing: 3px; }
         .tl { top: 40px; left: 30px; } .tr { top: 40px; right: 30px; } .bl { bottom: 40px; left: 30px; } .br { bottom: 40px; right: 30px; }
     </style>
@@ -25,7 +25,7 @@
 <body onmousedown="handle(event)" ontouchstart="handle(event)" onmousemove="track(event)" ontouchmove="track(event)" onmouseup="stop()" ontouchend="stop()">
     <div class="grain"></div>
     <div class="guide tl">NEXUS</div> <div class="guide tr">EDEN</div> <div class="guide bl">SOURCE</div> <div class="guide br">VAULT</div>
-    <div id="whisper">SYSTEM_RECOVERED</div>
+    <div id="whisper">SOVEREIGN_V90_STABLE</div>
     <canvas id="canvas"></canvas>
     <div id="ui-layer">
         <h1 class="title" id="t">SOURCE</h1>
@@ -42,8 +42,8 @@
 
     function getCircadianColor() {
         const hour = new Date().getHours();
-        if (hour >= 21 || hour <= 4) return { rgb: '120, 80, 255', hex: '#a188ff' };
-        return { rgb: '243, 207, 138', hex: '#f3cf8a' };
+        if (hour >= 21 || hour <= 4) return { rgb: '120, 80, 255', hex: '#a188ff' }; // Deep Night Purple
+        return { rgb: '243, 207, 138', hex: '#f3cf8a' }; // Warm Gold
     }
 
     function rotateWhisper() {
@@ -88,8 +88,7 @@
     function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         let cx = canvas.width/2, cy = canvas.height/2;
-        let c = getCircadianColor();
-        let activeColor = (view === 'grid') ? '0, 242, 255' : (view === 'eden') ? '46, 204, 113' : (view === 'home') ? c.rgb : '243, 207, 138';
+        let activeColor = (view === 'grid') ? '0, 242, 255' : (view === 'eden') ? '46, 204, 113' : (view === 'home') ? getCircadianColor().rgb : '243, 207, 138';
 
         auraSize += ((isDown ? 130 : 60) - auraSize) * 0.05;
         let pulse = auraSize + Math.sin(Date.now() * 0.004) * 5;
@@ -98,26 +97,31 @@
         ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(cx, cy, pulse * 3, 0, Math.PI * 2); ctx.fill();
 
         if (view === 'vault') {
-            if (Math.random() > 0.9 || (isDown && my > cy && mx > cx)) vaultPile.push({x: isDown?mx:Math.random()*canvas.width, y: isDown?my:-10, vy: 3, vx: (Math.random()-0.5), r: 4, age: 0});
+            if (vaultPile.length < 400 && (Math.random() > 0.92 || isDown)) 
+                vaultPile.push({x: isDown?mx:Math.random()*canvas.width, y: isDown?my:-10, vy: 3, r: 4, age: 0});
+            
             vaultPile.forEach((p, i) => {
-                if (p.y < canvas.height - p.r) { p.y += p.vy; p.x += p.vx; } else { p.age++; }
-                ctx.fillStyle = `rgba(243, 207, 138, ${1-(p.age/1500)})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
-                if (p.age > 1500) vaultPile.splice(i, 1);
+                if (p.y < canvas.height - p.r) p.y += p.vy; else p.age++;
+                ctx.fillStyle = `rgba(243, 207, 138, ${1-(p.age/1000)})`;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+                if (p.age > 1000) vaultPile.splice(i, 1);
             });
         }
         
-        if (isDown && view === 'grid') { items.push({x: mx, y: my, tx: cx, ty: cy, life: 1, c: '0, 242, 255'}); }
-        if (isDown && view === 'eden') { items.push({x: mx, y: my, r: 2, angle: Math.random()*Math.PI*2, life: 1, c: '46, 204, 113'}); }
+        if (isDown) {
+            if (view === 'grid') items.push({x: mx, y: my, tx: cx, ty: cy, life: 1, c: '0, 242, 255'});
+            if (view === 'eden') items.push({x: mx, y: my, r: 2, angle: Math.random()*Math.PI*2, life: 1, c: '46, 204, 113'});
+        }
         
         items.forEach((p, i) => {
             p.life -= 0.02;
-            ctx.strokeStyle = `rgba(${p.c}, ${p.life})`; ctx.lineWidth = 1;
+            ctx.strokeStyle = `rgba(${p.c}, ${p.life})`;
             if (p.tx) { ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.tx, p.ty); ctx.stroke(); } 
             else { p.x += Math.cos(p.angle)*2; p.y += Math.sin(p.angle)*2; ctx.fillStyle = `rgba(${p.c}, ${p.life})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill(); }
             if(p.life <= 0) items.splice(i, 1);
         });
         
-        if (vaultPile.length > 500) vaultPile.shift();
+        if (items.length > 200) items.shift();
         requestAnimationFrame(animate);
     }
     animate();
