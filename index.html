@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Sovereign Release Terminal</title>
-    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <title>Heritage Trust Release</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 </head>
 <body style="background:#000; color:#0f0; font-family:monospace; padding:30px; text-align:center;">
     <h1 style="color:#fff; border-bottom:1px solid #0f0; padding-bottom:10px;">ESTATE RELEASE TERMINAL</h1>
@@ -17,7 +17,7 @@
     </button>
 
     <div id="status" style="margin-top:30px; padding:20px; color:#fff; background:#222; min-height:50px;">
-        SYSTEM STATUS: READY. ENTER KEY IN CODE TO INITIALIZE.
+        SYSTEM STATUS: Ready. Please enter Sovereign Key in code.
     </div>
 
     <script>
@@ -30,7 +30,7 @@
 
             try {
                 if (typeof ethers === "undefined") {
-                    status.innerText = "ENGINE STILL LOADING... WAIT 10 SECONDS AND TAP AGAIN.";
+                    status.innerText = "ENGINE LOADING... WAIT 10 SECONDS AND TAP AGAIN.";
                     return;
                 }
                 status.innerText = "INITIALIZING LATTICE BRIDGE...";
