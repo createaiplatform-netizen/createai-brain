@@ -3,67 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_OBSIDIAN_V85.2</title>
+    <title>SOVEREIGN_INTELLIGENCE_V86</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Great+Vibes&family=Inter:wght@100;400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #010103; }
         * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; }
-        
-        body, html { 
-            height: 100svh; width: 100vw; 
-            background: var(--void); color: #fff; 
-            font-family: 'Inter', sans-serif; 
-            overflow: hidden; position: fixed;
-        }
+        body, html { height: 100svh; width: 100vw; background: var(--void); color: #fff; font-family: 'Inter', sans-serif; overflow: hidden; position: fixed; }
 
-        /* The Grain Overlay for "Physical" Depth */
-        .grain {
-            position: fixed; inset: -50%; width: 200%; height: 200%;
-            background-image: url('https://grainy-gradients.vercel.app/noise.svg');
-            opacity: 0.04; pointer-events: none; z-index: 2;
-            animation: noise 0.2s infinite;
-        }
-        @keyframes noise {
-            0% { transform: translate(0,0); }
-            10% { transform: translate(-1%,-1%); }
-            20% { transform: translate(1%,1%); }
-            100% { transform: translate(0,0); }
-        }
+        .grain { position: fixed; inset: -50%; width: 200%; height: 200%; background-image: url('https://grainy-gradients.vercel.app/noise.svg'); opacity: 0.04; pointer-events: none; z-index: 2; animation: noise 0.2s infinite; }
+        @keyframes noise { 0% { transform: translate(0,0); } 10% { transform: translate(-1%,-1%); } 100% { transform: translate(0,0); } }
 
         canvas { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+        #ui-layer { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
         
-        #ui-layer { 
-            position: absolute; inset: 0; z-index: 10; 
-            display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; 
-            pointer-events: none; 
-        }
-        
-        .title { 
-            font-family: 'Cinzel'; font-size: 11vw; letter-spacing: 15px; color: var(--gold); 
-            text-shadow: 0 0 40px rgba(0,0,0,1); 
-            animation: heartbeat 4s ease-in-out infinite;
-        }
-        
-        #clock { 
-            font-family: 'Cinzel'; font-size: 1.5rem; color: var(--gold); 
-            margin-top: 20px; letter-spacing: 5px; 
-            animation: heartbeat 4s ease-in-out infinite;
+        .title { font-family: 'Cinzel'; font-size: 11vw; letter-spacing: 15px; color: var(--gold); text-shadow: 0 0 40px rgba(0,0,0,1); animation: heartbeat 4s ease-in-out infinite; }
+        #clock { font-family: 'Cinzel'; font-size: 1.2rem; color: var(--gold); margin-top: 15px; letter-spacing: 5px; animation: heartbeat 4s ease-in-out infinite; opacity: 0.6; }
+
+        /* The Whisper Engine */
+        #whisper {
+            position: fixed; bottom: 80px; width: 100%; text-align: center;
+            font-family: 'Cinzel'; font-size: 9px; color: var(--gold);
+            letter-spacing: 4px; text-transform: uppercase;
+            transition: opacity 2s ease-in-out, transform 2s ease-in-out;
+            opacity: 0; z-index: 20;
         }
 
-        @keyframes heartbeat { 
-            0%, 100% { transform: scale(1); opacity: 0.6; filter: blur(0px); } 
-            50% { transform: scale(1.02); opacity: 1; filter: blur(0.5px); } 
-        }
-
+        @keyframes heartbeat { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.02); opacity: 1; } }
         .quote { font-family: 'Great Vibes'; font-size: 2.2rem; color: var(--gold); margin-top: 10px; opacity: 0.7; }
-        .guide { position: fixed; font-family: 'Cinzel'; font-size: 9px; color: var(--gold); opacity: 0.1; z-index: 20; letter-spacing: 3px; }
+        .guide { position: fixed; font-family: 'Cinzel'; font-size: 8px; color: var(--gold); opacity: 0.08; z-index: 20; letter-spacing: 3px; }
         .tl { top: 40px; left: 30px; } .tr { top: 40px; right: 30px; } .bl { bottom: 40px; left: 30px; } .br { bottom: 40px; right: 30px; }
     </style>
 </head>
 <body onmousedown="handle(event)" ontouchstart="handle(event)" onmousemove="track(event)" ontouchmove="track(event)" onmouseup="stop()" ontouchend="stop()">
     <div class="grain"></div>
     <div class="guide tl">NEXUS</div> <div class="guide tr">EDEN</div> <div class="guide bl">SOURCE</div> <div class="guide br">VAULT</div>
+    <div id="whisper">MANIFESTING INTENT</div>
     <canvas id="canvas"></canvas>
     <div id="ui-layer">
         <h1 class="title" id="t">SOURCE</h1>
@@ -75,16 +49,30 @@
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     let view = 'home', items = [], vaultPile = [], isDown = false, mx = 0, my = 0, auraSize = 50;
+    
+    // Core Values List
+    const values = ["STAY IN 144%", "SOVEREIGN MIND", "INFINITE GROWTH", "BUILT TO LAST", "MASS OF VALUE", "THE ONE ORIGIN"];
+    let valIdx = 0;
+
+    function rotateWhisper() {
+        const w = document.getElementById('whisper');
+        w.style.opacity = 0;
+        w.style.transform = "translateY(5px)";
+        setTimeout(() => {
+            w.innerText = values[valIdx];
+            w.style.opacity = isDown ? 0.8 : 0.3;
+            w.style.transform = "translateY(0px)";
+            valIdx = (valIdx + 1) % values.length;
+        }, 2000);
+    }
+    setInterval(rotateWhisper, 8000); rotateWhisper();
 
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
 
     function updateClock() {
         const now = new Date();
-        const timeStr = now.getHours().toString().padStart(2, '0') + ":" + 
-                        now.getMinutes().toString().padStart(2, '0') + ":" + 
-                        now.getSeconds().toString().padStart(2, '0');
-        document.getElementById('clock').innerText = timeStr;
+        document.getElementById('clock').innerText = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0') + ":" + now.getSeconds().toString().padStart(2, '0');
     }
     setInterval(updateClock, 1000); updateClock();
 
@@ -94,7 +82,7 @@
         const y = e.clientY || (e.touches ? e.touches[0].clientY : 0);
         mx = x; my = y;
         const w = window.innerWidth, h = window.innerHeight;
-
+        let lastView = view;
         if (y < h/2) {
             if (x < w/2) { view = 'grid'; render("NEXUS", "Network Sync", "#00f2ff"); }
             else { view = 'eden'; render("EDEN", "Infinite Growth", "#2ecc71"); }
@@ -103,10 +91,11 @@
             else { view = 'vault'; render("VAULT", "Mass of Value", "#f3cf8a"); }
         }
         if(view !== 'vault') items = []; 
+        document.getElementById('whisper').style.opacity = 0.8;
     }
     
     function track(e) { mx = e.clientX || (e.touches ? e.touches[0].clientX : mx); my = e.clientY || (e.touches ? e.touches[0].clientY : my); }
-    function stop() { isDown = false; }
+    function stop() { isDown = false; document.getElementById('whisper').style.opacity = 0.3; }
 
     function render(title, quote, color) { 
         const t = document.getElementById('t'); const q = document.getElementById('q');
@@ -118,18 +107,13 @@
     function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         let cx = canvas.width/2, cy = canvas.height/2;
-
         let targetSize = isDown ? 130 : 55;
         auraSize += (targetSize - auraSize) * 0.05;
         let pulse = auraSize + Math.sin(Date.now() * 0.004) * 5;
         let colorMain = (view === 'grid') ? '0, 242, 255' : (view === 'eden') ? '46, 204, 113' : '243, 207, 138';
 
-        // High-Fidelity Double Aura
         const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, pulse * 2.8);
-        grad.addColorStop(0, 'rgba(255,255,255,0.9)');
-        grad.addColorStop(0.2, `rgba(${colorMain}, 0.3)`);
-        grad.addColorStop(1, 'transparent');
-        
+        grad.addColorStop(0, 'rgba(255,255,255,0.9)'); grad.addColorStop(0.2, `rgba(${colorMain}, 0.3)`); grad.addColorStop(1, 'transparent');
         ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(cx, cy, pulse * 2.8, 0, Math.PI * 2); ctx.fill();
 
         if (view === 'vault') {
@@ -138,27 +122,16 @@
         }
         
         vaultPile.forEach((p) => {
-            if (p.active) {
-                p.vy += 0.22; p.y += p.vy; p.x += p.vx;
-                if (p.y > canvas.height - p.r) { p.y = canvas.height - p.r; p.vy = 0; p.vx *= 0.5; if (Math.abs(p.vx) < 0.1) p.active = false; }
-            }
-            if (view === 'vault') {
-                ctx.fillStyle = '#f3cf8a'; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
-            }
+            if (p.active) { p.vy += 0.22; p.y += p.vy; p.x += p.vx; if (p.y > canvas.height - p.r) { p.y = canvas.height - p.r; p.vy = 0; p.vx *= 0.5; if (Math.abs(p.vx) < 0.1) p.active = false; } }
+            if (view === 'vault') { ctx.fillStyle = '#f3cf8a'; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill(); }
         });
 
         if (view === 'grid' && isDown && my < cy && mx < cx) items.push({type:'neural', x: mx, y: my, tx: cx, ty: cy, life: 1});
         else if (view === 'eden' && isDown && my < cy && mx > cx) items.push({type:'vine', x: mx, y: my, r: 2, angle: Math.random()*Math.PI*2, life: 1});
 
         items.forEach((p, i) => {
-            if (p.type === 'neural') {
-                ctx.strokeStyle = `rgba(0, 242, 255, ${p.life})`; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.tx, p.ty); ctx.stroke();
-                p.life -= 0.02; if(p.life <= 0) items.splice(i, 1);
-            } else if (p.type === 'vine') {
-                p.x += Math.cos(p.angle)*2.5; p.y += Math.sin(p.angle)*2.5; p.life -= 0.01;
-                ctx.fillStyle = `rgba(46, 204, 113, ${p.life})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
-                if(p.life <= 0) items.splice(i, 1);
-            }
+            if (p.type === 'neural') { ctx.strokeStyle = `rgba(0, 242, 255, ${p.life})`; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.tx, p.ty); ctx.stroke(); p.life -= 0.02; if(p.life <= 0) items.splice(i, 1); }
+            else if (p.type === 'vine') { p.x += Math.cos(p.angle)*2.5; p.y += Math.sin(p.angle)*2.5; p.life -= 0.01; ctx.fillStyle = `rgba(46, 204, 113, ${p.life})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill(); if(p.life <= 0) items.splice(i, 1); }
         });
 
         if (vaultPile.length > 600) vaultPile.shift();
