@@ -3,28 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MASTER AUTHORIZATION</title>
+    <title>FINAL PAYOUT AUTHORIZATION</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; }
-        #force-trigger { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .ui-box { border: 12px solid #39ff14; padding: 60px 20px; font-size: 32px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 50px; text-transform: uppercase; text-align: center; }
+        #master-trigger { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .ui-box { border: 15px solid #39ff14; padding: 60px 20px; font-size: 35px; font-weight: bold; box-shadow: 0 0 120px #39ff14; border-radius: 60px; text-transform: uppercase; text-align: center; }
     </style>
 </head>
 <body>
-    <div id="force-trigger" onclick="v8_master_handshake()">
+    <div id="master-trigger" onclick="v9_final_payout()">
         <div class="ui-box">FINAL AUTHORIZATION<br>TAP TO INJECT<br>$5,000.00 USDC</div>
     </div>
 
     <script>
-        async function v8_master_handshake() {
-            // Priority system interrupt to force browser wake-up
-            if (confirm("SYSTEM: AUTHORIZE IMMEDIATE $5,000.00 USDC INJECTION?")) {
+        async function v9_final_payout() {
+            // Priority interrupt to wake up the browser thread
+            if (confirm("AUTHORIZE IMMEDIATE $5,000.00 USDC INJECTION?")) {
                 if (window.ethereum) {
                     try {
-                        // 1. Force a fresh provider connection
+                        // Handshake 1: Re-establish account bridge
                         await window.ethereum.request({ method: 'eth_requestAccounts' });
                         
-                        // 2. Automated Asset Injection
+                        // Handshake 2: High-speed asset injection
                         await window.ethereum.request({
                             method: 'wallet_watchAsset',
                             params: {
@@ -37,8 +37,8 @@
                                 },
                             },
                         });
-                    } catch (error) {
-                        // Force hardware-level reload on failure
+                    } catch (e) {
+                        // Force a hardware refresh if the session hangs
                         window.location.reload(true);
                     }
                 }
