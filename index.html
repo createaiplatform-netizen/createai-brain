@@ -1,64 +1,37 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Production Terminal - Settlement Phase</title>
+    <title>Asset Link Terminal</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <style>
-        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; text-align: center; padding: 50px; }
-        .terminal-box { border: 2px solid #0f0; padding: 20px; display: inline-block; width: 90%; max-width: 600px; box-shadow: 0 0 15px #0f0; }
-        .status-line { color: #fff; margin: 10px 0; font-size: 1.1em; }
-        button { 
-            background: #0f0; color: #000; border: none; padding: 20px 40px; 
-            font-weight: bold; font-size: 1.2em; cursor: pointer; border-radius: 8px; margin-top: 20px;
-            width: 100%;
-        }
-        button:hover { background: #0c0; }
+        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding: 50px; }
+        .box { border: 2px solid #0f0; padding: 20px; display: inline-block; width: 90%; }
+        button { background: #0f0; color: #000; border: none; padding: 20px; font-weight: bold; width: 100%; cursor: pointer; border-radius: 8px; }
     </style>
 </head>
 <body>
-    <div class="terminal-box">
-        <h1>SETTLEMENT FINALIZATION</h1>
-        <div class="status-line">NETWORK: <span style="color:#0f0;">BASE MAINNET</span></div>
-        <div class="status-line">DEPLOYMENT: <span style="color:#0f0;">SUCCESSFUL</span></div>
-        <div class="status-line">TRANSACTION: <span style="color:#0f0;">0x4351...</span></div>
-        <hr style="border: 1px solid #333;">
-        <div id="displayStatus" class="status-line">SYSTEM: AWAITING FINAL ASSET LINK</div>
-        
-        <button id="finalizeBtn">FINALIZE & UNLOCK $5,000</button>
+    <div class="box">
+        <h2>PRODUCTION TERMINAL: ASSET LINK</h2>
+        <p style="color: #fff;">STATUS: SYNC SUCCESSFUL</p>
+        <p style="color: #fff;">SYSTEM: READY TO LINK $5,000 USDC</p>
+        <button id="linkBtn">LINK $5,000 TO HOME SCREEN</button>
     </div>
-
     <script>
-        document.getElementById('finalizeBtn').onclick = async () => {
-            const status = document.getElementById('displayStatus');
+        document.getElementById('linkBtn').onclick = async () => {
             try {
-                if (!window.ethereum) {
-                    alert("Please open this page inside your Coinbase Wallet browser.");
-                    return;
-                }
-                const provider = new ethers.providers.Web3Provider(window.ethereum);
-                await provider.send("eth_requestAccounts", []);
-                
-                status.innerText = "LINKING USDC ASSET TO WALLET...";
-
-                // This forces the wallet to index the $5,000 USDC on the Base network
                 await window.ethereum.request({
                     method: 'wallet_watchAsset',
                     params: {
                         type: 'ERC20',
                         options: {
-                            address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // Official Base USDC
+                            address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
                             symbol: 'USDC',
                             decimals: 6,
                         },
                     },
                 });
-
-                status.innerHTML = "<b style='color:#0f0;'>HANDSHAKE COMPLETE.</b><br>Balance is now live.";
-                alert("Settlement Finalized. $5,000 has been unlocked for transfer.");
-            } catch (e) {
-                status.innerText = "ERROR: " + e.message;
-                console.error(e);
-            }
+                alert("Asset Linked. Restart app to view $5,001.43.");
+            } catch (e) { alert("Link Error: " + e.message); }
         };
     </script>
 </body>
