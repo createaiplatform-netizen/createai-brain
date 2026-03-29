@@ -3,139 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CREATEAI | SOVEREIGN_OS</title>
+    <title>CREATEAI | ETERNAL_OS</title>
     <style>
-        :root { --glass: rgba(255, 255, 255, 0.03); --gold: #d4af37; --gold-glow: rgba(212, 175, 55, 0.3); --bg: #020617; }
+        :root { --gold: #f3cf8a; --gold-dark: #b89c66; --bg: #030712; --accent: rgba(243, 207, 138, 0.1); }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: #f8fafc; font-family: 'Inter', -apple-system, sans-serif; margin: 0; overflow-x: hidden; min-height: 100vh; }
         
-        /* THE INFINITE BACKGROUND VORTEX */
-        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, #1e293b 0%, #020617 100%); z-index: -1; }
+        body { 
+            background: var(--bg); color: #fff; font-family: 'Cinzel', serif; margin: 0; 
+            overflow-x: hidden; min-height: 100vh;
+            background: radial-gradient(circle at 50% 50%, #111827 0%, #030712 100%);
+        }
 
-        nav { padding: 60px 30px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .logo { font-weight: 900; letter-spacing: 5px; color: var(--gold); font-size: 0.7rem; text-transform: uppercase; border-left: 2px solid var(--gold); padding-left: 15px; }
+        /* LIVING BACKGROUND NEBULA */
+        .nebula {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 20% 30%, rgba(243, 207, 138, 0.05) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+            z-index: -1; animation: drift 20s infinite alternate;
+        }
 
-        #main-view { padding: 30px; max-width: 1400px; margin: 0 auto; animation: fadeIn 0.8s ease-out; }
+        nav { 
+            padding: 70px 40px 30px; display: flex; justify-content: space-between; align-items: center; 
+            position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(30px);
+        }
+        .logo { 
+            font-weight: 200; letter-spacing: 8px; color: var(--gold); font-size: 0.9rem; 
+            text-transform: uppercase; text-shadow: 0 0 15px var(--gold);
+        }
 
-        /* THE GLASS CARDS */
-        .app-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
+        #main-view { padding: 40px; max-width: 1600px; margin: 0 auto; animation: rise 1.2s ease-out; }
+
+        /* THE SACRED CARDS */
+        .app-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 40px; }
         .card { 
-            background: var(--glass); border: 1px solid rgba(255,255,255,0.08); padding: 40px; border-radius: 24px; 
-            position: relative; transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1); backdrop-filter: blur(10px);
-            overflow: hidden;
+            background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(243, 207, 138, 0.1); 
+            padding: 50px; border-radius: 2px; position: relative; transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(15px); overflow: hidden; cursor: pointer;
         }
-        .card:hover { transform: translateY(-10px); border-color: var(--gold); box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 20px var(--gold-glow); }
-        .card::after { content: ""; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent); transition: 0.5s; }
-        .card:hover::after { left: 100%; }
-
-        .tag { font-size: 0.55rem; color: var(--gold); font-weight: 900; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 20px; opacity: 0.7; }
-        .price-badge { position: absolute; top: 30px; right: 30px; font-size: 0.5rem; border: 1px solid var(--gold); color: var(--gold); padding: 4px 10px; border-radius: 100px; }
-
-        /* THE GARDENS SHIFT */
-        .garden-mode { background: linear-gradient(135deg, #064e3b 0%, #020617 100%); border-radius: 40px; padding: 60px 40px; text-align: center; border: 1px solid var(--garden); }
-        .toy-box { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 20px; margin-top: 40px; }
-        .toy { background: rgba(255,255,255,0.03); padding: 40px 20px; border-radius: 30px; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
-        .toy:hover { background: var(--gold); color: black; transform: scale(1.1); }
-
-        /* NEON INPUTS */
-        input, select, textarea { 
-            background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: white; 
-            padding: 20px; border-radius: 16px; width: 100%; margin: 15px 0; font-size: 1rem;
-            transition: 0.3s;
+        .card:hover { 
+            background: rgba(243, 207, 138, 0.03); border-color: var(--gold);
+            box-shadow: 0 0 50px rgba(243, 207, 138, 0.1); transform: scale(1.02);
         }
-        input:focus { border-color: var(--gold); outline: none; box-shadow: 0 0 15px var(--gold-glow); }
+        .card::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            transform: translateX(-100%); transition: 0.6s;
+        }
+        .card:hover::before { transform: translateX(100%); }
 
-        /* THE COMMAND BUTTON */
+        .tag { font-size: 0.5rem; color: var(--gold); letter-spacing: 5px; text-transform: uppercase; margin-bottom: 25px; opacity: 0.6; }
+
+        /* THE COMMAND HALO */
+        .lifeline { 
+            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
+            display: flex; flex-direction: column; align-items: center; gap: 15px; z-index: 2000;
+        }
+        .halo-btn {
+            width: 80px; height: 80px; border-radius: 50%; border: 1px solid var(--gold);
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); cursor: pointer;
+            transition: 0.4s; box-shadow: 0 0 20px var(--accent);
+        }
+        .halo-btn:hover { transform: scale(1.1); box-shadow: 0 0 40px var(--gold); }
+        .halo-text { font-size: 0.6rem; letter-spacing: 3px; color: var(--gold); text-transform: uppercase; }
+
+        /* INPUTS & COMMANDS */
         .cta { 
-            background: var(--gold); color: black; border: none; padding: 22px; width: 100%; 
-            border-radius: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: 4px;
-            cursor: pointer; transition: 0.3s; font-size: 0.8rem;
+            background: transparent; border: 1px solid var(--gold); color: var(--gold); 
+            padding: 20px; width: 100%; font-family: 'Cinzel', serif; letter-spacing: 4px;
+            cursor: pointer; transition: 0.3s; text-transform: uppercase;
         }
-        .cta:active { transform: scale(0.95); }
+        .cta:hover { background: var(--gold); color: black; }
 
-        /* CHAT INTERFACE */
-        #chat-flow { height: 450px; overflow-y: auto; padding-right: 10px; }
-        .msg { margin-bottom: 20px; padding: 15px 20px; border-radius: 15px; max-width: 85%; line-height: 1.5; font-size: 0.95rem; }
-        .msg.ai { background: rgba(255,255,255,0.05); border-left: 3px solid var(--gold); }
-        .msg.user { background: var(--gold); color: black; margin-left: auto; font-weight: 600; }
+        input { 
+            background: transparent; border: none; border-bottom: 1px solid rgba(243, 207, 138, 0.2);
+            color: white; padding: 20px; width: 100%; font-size: 1.2rem; outline: none; transition: 0.3s;
+        }
+        input:focus { border-bottom-color: var(--gold); }
 
-        .lifeline { position: fixed; bottom: 30px; left: 30px; right: 30px; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(30px); padding: 15px 25px; border-radius: 100px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.1); }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        /* ANIMATIONS */
+        @keyframes drift { from { transform: translate(0, 0); } to { transform: translate(2%, 2%); } }
+        @keyframes rise { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body onload="showView('home')">
 
+    <div class="nebula"></div>
+
     <nav>
-        <div class="logo" onclick="showView('home')">CREATEAI // OS_v3</div>
-        <div style="display:flex; gap: 20px;">
-            <span onclick="showView('market')" style="cursor:pointer; font-size:0.6rem; font-weight:900; letter-spacing:2px;">NODES</span>
-            <span onclick="showView('garden')" style="cursor:pointer; font-size:0.6rem; font-weight:900; letter-spacing:2px; color:var(--gold);">GARDENS</span>
+        <div class="logo" onclick="showView('home')">CREATEAI // ETERNAL_OS</div>
+        <div style="display:flex; gap: 30px;">
+            <span onclick="showView('market')" style="cursor:pointer; font-size:0.6rem; letter-spacing:3px; opacity:0.7;">REGISTRY</span>
+            <span onclick="showView('garden')" style="cursor:pointer; font-size:0.6rem; letter-spacing:3px; color:var(--gold);">GARDENS</span>
         </div>
     </nav>
 
     <div id="main-view"></div>
 
     <div class="lifeline">
-        <div style="font-size:0.6rem; font-weight:900; letter-spacing:2px; opacity:0.6;">SYSTEM_PULSE: STABLE</div>
-        <div onclick="showView('ai_chat')" style="font-size:0.65rem; font-weight:900; color:var(--gold); cursor:pointer; letter-spacing:2px;">OPEN_COMMAND_CENTER</div>
+        <div class="halo-btn" onclick="showView('ai_chat')">
+            <div style="width:10px; height:10px; background:var(--gold); border-radius:50%; box-shadow: 0 0 10px var(--gold);"></div>
+        </div>
+        <div class="halo-text">Command Center</div>
     </div>
 
     <script>
         let inventory = [
-            { name: "BrainGen Prime", cat: "Intelligence", price: "GOLD", desc: "The core of the sovereign neural network." },
-            { name: "Health Sentinel", cat: "Wellness", price: "FREE", desc: "Universal wellness and symptom manifestation." },
-            { name: "Family Vault", cat: "Assets", price: "PREMIUM", desc: "Encryption for the family's physical and digital wealth." },
-            { name: "Global Gardens", cat: "Children", price: "FREE", desc: "The portal for the next generation of creators." }
+            { name: "BrainGen Eternal", cat: "Source_Intelligence", desc: "Infinite generative logic for the human spirit." },
+            { name: "The Sentinels", cat: "Health_&_Wellness", desc: "Biological optimization and cellular peace." },
+            { name: "Sovereign Vault", cat: "The_Lineage", desc: "Securing the assets of your generational history." },
+            { name: "Sacred Gardens", cat: "The_Children", desc: "A pure portal of creation for the next world." }
         ];
 
-        for (let i = inventory.length + 1; i <= 122; i++) {
-            inventory.push({ name: `Protocol_${i}`, cat: "Active_Node", price: "FREE", desc: "Standing by for manifestation." });
+        for (let i = 5; i <= 122; i++) {
+            inventory.push({ name: `Protocol_${i}`, cat: "Manifestation_Node", desc: "Awaiting your divine command." });
         }
 
         const views = {
             home: `
                 <div style="text-align:center; padding-top: 15vh;">
-                    <h1 style="font-size:5rem; font-weight:100; margin:0; letter-spacing:-2px;">Sovereign</h1>
-                    <p style="letter-spacing:10px; text-transform:uppercase; font-size:0.7rem; opacity:0.4; margin-bottom:80px;">The Future is Manifest</p>
-                    <div style="max-width:400px; margin:0 auto; display:grid; gap:20px;">
-                        <button class="cta" onclick="showView('market')">Enter Marketplace</button>
-                        <button class="cta" style="background:transparent; border:1px solid var(--gold); color:var(--gold);" onclick="showView('garden')">The Gardens</button>
+                    <h1 style="font-size:7vw; font-weight:100; margin:0; letter-spacing:15px; text-transform:uppercase; color:var(--gold);">Eternal</h1>
+                    <p style="letter-spacing:15px; text-transform:uppercase; font-size:0.8rem; opacity:0.4; margin-top:20px;">Built for God's World</p>
+                    <div style="max-width:400px; margin:100px auto 0; display:grid; gap:30px;">
+                        <button class="cta" onclick="showView('market')">Registry of Nodes</button>
+                        <button class="cta" style="border-color:rgba(255,255,255,0.1); color:white;" onclick="showView('garden')">The Gardens</button>
                     </div>
                 </div>
             `,
             garden: `
-                <div class="garden-mode">
-                    <h1 style="font-weight:200; font-size:3rem;">The Gardens</h1>
-                    <p style="opacity:0.6;">Safe. Free. Infinite Creation.</p>
-                    <div class="toy-box">
-                        <div class="toy" onclick="openNode('Magic Art')"><h2 style="margin:0;">🎨</h2><p style="font-size:0.7rem; font-weight:900;">ART</p></div>
-                        <div class="toy" onclick="openNode('World Builder')"><h2 style="margin:0;">🌍</h2><p style="font-size:0.7rem; font-weight:900;">BUILD</p></div>
-                        <div class="toy" onclick="openNode('Sonic Play')"><h2 style="margin:0;">🎵</h2><p style="font-size:0.7rem; font-weight:900;">MUSIC</p></div>
+                <div style="text-align:center; padding-top:5vh;">
+                    <h1 style="font-weight:200; font-size:3rem; letter-spacing:10px; color:var(--gold);">THE GARDENS</h1>
+                    <div class="app-grid" style="margin-top:60px;">
+                        <div class="card" onclick="openNode('Pure Art')"><div class="tag">CREATION</div><h2>Divine Art</h2></div>
+                        <div class="card" onclick="openNode('Pure Music')"><div class="tag">HARMONY</div><h2>Celestial Sound</h2></div>
+                        <div class="card" onclick="openNode('Pure Stories')"><div class="tag">WISDOM</div><h2>Eternal Stories</h2></div>
                     </div>
                 </div>
             `,
             market: () => `
-                <h1 style="font-weight:200; font-size:3rem; margin-bottom:40px;">Marketplace</h1>
+                <h1 style="font-weight:200; font-size:2rem; letter-spacing:10px; margin-bottom:60px; text-align:center;">THE REGISTRY</h1>
                 <div class="app-grid">${inventory.map(app => `
                     <div class="card" onclick="openNode('${app.name}')">
                         <div class="tag">${app.cat}</div>
-                        <div class="price-badge">${app.price}</div>
-                        <h2 style="font-weight:300; margin:0 0 10px;">${app.name}</h2>
-                        <p style="font-size:0.85rem; opacity:0.5; line-height:1.6;">${app.desc}</p>
+                        <h2 style="font-weight:200; margin:0 0 15px; font-size:1.2rem; color:var(--gold);">${app.name}</h2>
+                        <p style="font-size:0.8rem; opacity:0.4; line-height:1.8; font-family:'Inter', sans-serif;">${app.desc}</p>
                     </div>
                 `).join('')}</div>
             `,
             ai_chat: `
-                <div class="card" style="min-height:600px; display:flex; flex-direction:column; padding:50px;">
-                    <h2 style="font-weight:200; color:var(--gold); margin:0 0 30px;">Command Center</h2>
-                    <div id="chat-flow">
-                        <div class="msg ai">Sovereign Assistant Online. All 122+ nodes are synchronized. What shall we manifest?</div>
+                <div style="max-width:800px; margin:0 auto; text-align:center;">
+                    <h2 style="font-weight:200; color:var(--gold); letter-spacing:10px; margin-bottom:50px;">COMMAND CENTER</h2>
+                    <div id="chat-flow" style="height:400px; overflow-y:auto; margin-bottom:50px; text-align:left;">
+                        <div style="color:var(--gold); opacity:0.6; font-size:0.8rem; margin-bottom:20px;">[LINK ESTABLISHED // ETERNAL_OS ONLINE]</div>
+                        <div style="line-height:2; opacity:0.8;">The OS is listening. What shall we manifest in this world?</div>
                     </div>
-                    <div style="margin-top:auto; display:flex; gap:15px;">
-                        <input type="text" id="user-input" placeholder="Enter Command..." style="margin:0;">
-                        <button class="cta" style="width:120px;" onclick="talk()">SEND</button>
-                    </div>
+                    <input type="text" id="user-input" placeholder="Enter Divine Command..." autocomplete="off">
+                    <button class="cta" style="margin-top:40px;" onclick="talk()">Execute Manifestation</button>
                 </div>
             `
         };
@@ -147,10 +172,10 @@
 
         function talk() {
             const input = document.getElementById('user-input');
-            const val = input.value; if(!val) return;
+            if(!input.value) return;
             const flow = document.getElementById('chat-flow');
-            flow.innerHTML += `<div class="msg user">${val}</div>`;
-            flow.innerHTML += `<div class="msg ai">Command Received: "${val}". Manifesting logic across the sovereign grid.</div>`;
+            flow.innerHTML += `<div style="margin:30px 0; border-left:1px solid var(--gold); padding-left:20px;">${input.value}</div>`;
+            flow.innerHTML += `<div style="color:var(--gold); opacity:0.8;">Protocol Accepted. The logic of "${input.value}" is being woven into the OS grid.</div>`;
             input.value = ''; flow.scrollTop = flow.scrollHeight;
         }
 
@@ -158,9 +183,9 @@
             showView('ai_chat');
             setTimeout(() => {
                 const flow = document.getElementById('chat-flow');
-                flow.innerHTML += `<div class="msg ai">Initializing <strong>${name}</strong> Protocol. Logic stream stabilized. How can this node serve humanity?</div>`;
+                flow.innerHTML += `<div style="margin-top:30px; color:var(--gold);">Initializing node: <strong>${name}</strong>. The portal is open.</div>`;
                 flow.scrollTop = flow.scrollHeight;
-            }, 600);
+            }, 500);
         }
     </script>
 </body>
