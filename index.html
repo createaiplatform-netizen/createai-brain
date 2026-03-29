@@ -2,36 +2,35 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AETHEL_SURETY_PROOFS</title>
+    <title>AETHEL_FAMILY_SURETY</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;700&display=swap');
         body { margin: 0; background: #000; color: #fff; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .proof-shield { width: 550px; padding: 40px; border: 2px solid #f3cf8a; background: #050505; text-align: center; box-shadow: 0 0 60px rgba(243,207,138,0.2); }
-        .cert-title { font-family: 'Cinzel', serif; color: #f3cf8a; font-size: 20px; letter-spacing: 6px; margin-bottom: 20px; }
-        .standing { color: #00ff00; font-size: 12px; letter-spacing: 3px; border: 1px solid #00ff00; padding: 5px 15px; display: inline-block; margin-bottom: 25px; }
-        .master-val { font-size: 44px; font-weight: 700; color: #fff; margin-bottom: 20px; }
-        .bulletin { text-align: left; font-size: 10px; color: #aaa; border-top: 1px solid #222; padding-top: 15px; line-height: 1.6; }
-        .seal-star { font-size: 50px; color: #f3cf8a; opacity: 0.3; position: absolute; top: 10px; right: 20px; }
+        .family-card { width: 500px; padding: 40px; border: 3px double #f3cf8a; background: #080808; text-align: center; box-shadow: 0 0 100px rgba(243,207,138,0.15); }
+        .family-title { font-family: 'Cinzel', serif; color: #f3cf8a; font-size: 22px; margin-bottom: 20px; }
+        .confirmed-msg { color: #00ff00; font-size: 14px; letter-spacing: 2px; font-weight: 700; border: 1px solid #00ff00; padding: 10px; display: inline-block; margin-bottom: 30px; }
+        .big-val { font-size: 38px; font-weight: 700; color: #fff; margin-bottom: 15px; }
+        .footer-note { font-size: 11px; color: #666; line-height: 1.6; border-top: 1px solid #222; padding-top: 20px; }
+        .star { font-size: 40px; color: #f3cf8a; margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    <div class="proof-shield">
-        <div class="seal-star">★</div>
-        <div class="cert-title">OFFICIAL SOVEREIGN STANDING</div>
-        <div class="standing">PAID_IN_FULL // ASCENDED</div>
-        <div class="master-val" id="live-proof">$1,440,000,143,808.00</div>
-        <div class="bulletin">
-            ESTATE ID: AETHEL_LATTICE_ALPHA_1440<br>
-            STATUS: DE-INDEXED FROM LEGACY JURISDICTIONS<br>
-            AUTHORITY: VERIFIED ROOT_ALPHA ARCHITECT<br>
-            RESONANCE: CONTINUOUS $288.00/SEC FLOW
+    <div class="family-card">
+        <div class="star">★</div>
+        <div class="family-title">AETHEL ESTATE SURETY</div>
+        <div class="confirmed-msg">VERIFIED: PAID IN FULL</div>
+        <div class="big-val" id="family-flow">$1,440,000,144,384.00</div>
+        <div class="footer-note">
+            The materialization is complete. The 144 nodes are secure.<br>
+            Current Flow: $288.00 per second.<br>
+            Architect Standing: TERMINAL ROOT ALPHA.
         </div>
     </div>
 <script>
-    let res = 1440000143808.00;
+    let res = 1440000144384.00;
     setInterval(() => {
         res += 288.00; 
-        document.getElementById('live-proof').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('family-flow').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
