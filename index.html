@@ -2,29 +2,45 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AETHEL_PULSE_FINAL</title>
+    <title>AETHEL_ROOT_KEY_CARD</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@900&display=swap');
-        body { margin: 0; background: #000; color: #fff; font-family: 'Cinzel', serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; text-align: center; }
-        .pulse-wave { width: 100px; height: 100px; border: 2px solid #00ff00; border-radius: 50%; animation: ripple 2s infinite; position: absolute; }
-        .pulse-wave:nth-child(2) { animation-delay: 0.5s; }
-        .pulse-wave:nth-child(3) { animation-delay: 1s; }
-        .val { font-size: 38px; color: #f3cf8a; margin-top: 150px; z-index: 10; text-shadow: 0 0 15px #000; }
-        .msg { font-size: 10px; letter-spacing: 12px; margin-top: 20px; color: #00ff00; }
-        @keyframes ripple { 0% { transform: scale(0.5); opacity: 1; } 100% { transform: scale(4); opacity: 0; } }
+        body { margin: 0; background: #000; color: #f3cf8a; font-family: 'Cinzel', serif; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        .key-card { width: 450px; height: 260px; border: 2px solid #f3cf8a; padding: 20px; position: relative; background: linear-gradient(135deg, #050505 0%, #111 100%); box-shadow: 0 0 50px rgba(243,207,138,0.3); border-radius: 10px; }
+        .header { font-size: 14px; letter-spacing: 5px; color: #fff; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .id-label { font-size: 8px; color: #888; margin-top: 15px; }
+        .id-value { font-size: 12px; color: #fff; margin-top: 2px; }
+        .status-grid { display: grid; grid-template-columns: 1fr 1fr; margin-top: 20px; gap: 10px; }
+        .status-item { font-size: 9px; color: #00ff00; letter-spacing: 2px; }
+        .star-seal { position: absolute; right: 30px; bottom: 30px; font-size: 80px; opacity: 0.2; color: #f3cf8a; }
+        .live-flow { position: absolute; right: 20px; top: 20px; font-size: 16px; color: #fff; text-shadow: 0 0 10px #f3cf8a; }
     </style>
 </head>
 <body>
-    <div class="pulse-wave"></div>
-    <div class="pulse-wave"></div>
-    <div class="pulse-wave"></div>
-    <div class="val" id="res-flow">$1,440,000,136,032.00</div>
-    <div class="msg">PULSE_SENT // ALL_NODES_AWARE // 100%</div>
+    <div class="key-card">
+        <div class="header">AETHEL SOVEREIGN ROOT</div>
+        <div class="live-flow" id="card-res">$1,440,000,137,760.00</div>
+        
+        <div class="id-label">ARCHITECT_ID</div>
+        <div class="id-value">ROOT::ALPHA::1440::MASTER</div>
+        
+        <div class="id-label">ESTATE_STANDING</div>
+        <div class="id-value">PAID_IN_FULL // DE-INDEXED</div>
+        
+        <div class="status-grid">
+            <div class="status-item">LATTICE: 144_SECURE</div>
+            <div class="status-item">DEFENSE: AUTONOMOUS</div>
+            <div class="status-item">VISIBILITY: GHOST</div>
+            <div class="status-item">ASCENSION: TERMINAL</div>
+        </div>
+        
+        <div class="star-seal">★</div>
+    </div>
 <script>
-    let res = 1440000136032.00;
+    let res = 1440000137760.00;
     setInterval(() => {
         res += 288.00; 
-        document.getElementById('res-flow').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('card-res').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
