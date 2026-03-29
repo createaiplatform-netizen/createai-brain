@@ -3,44 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AETHEL_NET_V265</title>
+    <title>SOVEREIGN_FLEET_V266</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --net: #bc13fe; --node: #00f2ff; }
+        :root { --gold: #f3cf8a; --void: #000; --fleet: #00d4ff; --trail: rgba(0, 212, 255, 0.3); }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #net-hud { flex-grow: 1; margin: 15px; border: 2px solid var(--net); padding: 40px; display: flex; flex-direction: column; background: radial-gradient(circle at top, rgba(188, 19, 254, 0.1) 0%, transparent 100%); box-shadow: 0 0 250px rgba(188, 19, 254, 0.2); position: relative; }
-        .header { text-align: center; border-bottom: 2px solid var(--gold); padding-bottom: 20px; }
-        .title { font-size: 26px; letter-spacing: 20px; color: var(--net); text-shadow: 0 0 30px var(--net); }
+        #fleet-hud { flex-grow: 1; margin: 15px; border: 2px solid var(--fleet); padding: 40px; display: flex; flex-direction: column; background: radial-gradient(circle at bottom, rgba(0, 212, 255, 0.1) 0%, transparent 100%); box-shadow: 0 0 250px rgba(0, 212, 255, 0.15); position: relative; }
+        .header { text-align: center; border-bottom: 1px solid var(--gold); padding-bottom: 20px; }
+        .title { font-size: 26px; letter-spacing: 15px; color: var(--fleet); text-shadow: 0 0 30px var(--fleet); }
         
-        #mesh-visual { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
-        .mesh-line { position: absolute; width: 80%; height: 2px; background: linear-gradient(90deg, transparent, var(--node), transparent); animation: pulse-line 3s infinite ease-in-out; }
-        .global-node { width: 100px; height: 100px; border: 1px solid var(--node); border-radius: 50%; box-shadow: 0 0 40px var(--node); animation: node-glow 4s infinite alternate; }
+        #navigation-visual { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+        .vessel { width: 60px; height: 20px; background: var(--gold); clip-path: polygon(0% 50%, 20% 0%, 100% 50%, 20% 100%); position: absolute; animation: fly 4s infinite linear; }
+        .vessel-trail { position: absolute; width: 100px; height: 2px; background: linear-gradient(90deg, var(--trail), transparent); transform: translateX(-80px); }
         
-        @keyframes pulse-line { 0%, 100% { opacity: 0.1; } 50% { opacity: 0.8; } }
-        @keyframes node-glow { from { transform: scale(0.9); box-shadow: 0 0 20px var(--node); } to { transform: scale(1.1); box-shadow: 0 0 60px var(--net); } }
+        @keyframes fly { 
+            0% { transform: translate(-300px, -50px) rotate(5deg); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translate(300px, 50px) rotate(5deg); opacity: 0; }
+        }
 
         #ledger-display { text-align: center; border-top: 1px solid var(--gold); padding-top: 25px; font-size: 46px; color: var(--gold); text-shadow: 0 0 40px var(--gold); }
     </style>
 </head>
 <body>
-    <div id="net-hud">
+    <div id="fleet-hud">
         <div class="header">
-            <div class="title">AETHEL_NET // ESTABLISHED</div>
-            <div style="font-size: 10px; margin-top: 10px; color: var(--node); letter-spacing: 12px;">STATUS: NEURAL_MESH_SYNC // 0_MS_LATENCY</div>
+            <div class="title">SOVEREIGN_FLEET // MATERIALIZING</div>
+            <div style="font-size: 10px; margin-top: 10px; color: var(--fleet); letter-spacing: 12px;">STATUS: SLIPSTREAM_ACTIVE // SYNC: 1440%</div>
         </div>
 
-        <div id="mesh-visual">
-            <div class="mesh-line" style="transform: rotate(45deg);"></div>
-            <div class="mesh-line" style="transform: rotate(-45deg);"></div>
-            <div class="global-node"></div>
-            <div style="font-size: 14px; color: var(--gold); letter-spacing: 15px; position: absolute; bottom: 5%;">THE_THOUGHT_OF_THE_STAR</div>
+        <div id="navigation-visual">
+            <div class="vessel"><div class="vessel-trail"></div></div>
+            <div style="font-size: 14px; color: var(--gold); letter-spacing: 15px; position: absolute; bottom: 10%;">BEYOND_TERRESTRIAL_LIMITS</div>
         </div>
 
-        <div id="ledger-display">$1,440,000,039,024.00</div>
+        <div id="ledger-display">$1,440,000,039,456.00</div>
     </div>
 <script>
-    let res = 1440000039024.00;
+    let res = 1440000039456.00;
     setInterval(() => {
         res += 144.00;
         document.getElementById('ledger-display').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
