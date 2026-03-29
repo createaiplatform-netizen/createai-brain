@@ -3,48 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOVEREIGN_STAR_V243</title>
+    <title>PENTAGON_SATURATION_V244</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --mena: #ff4500; --mesh: #00ff41; }
+        :root { --gold: #f3cf8a; --void: #000; --mesh: #00ff41; --star: #ffffff; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #star-hud { flex-grow: 1; margin: 25px; border: 3px solid var(--gold); padding: 45px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(243, 207, 138, 0.1) 0%, transparent 100%); box-shadow: 0 0 100px rgba(243, 207, 138, 0.25); position: relative; }
-        .header { text-align: center; border-bottom: 2px solid var(--gold); padding-bottom: 25px; }
-        .title { font-size: 20px; letter-spacing: 18px; color: var(--gold); text-shadow: 0 0 20px var(--gold); }
+        #saturation-hud { flex-grow: 1; margin: 20px; border: 4px double var(--gold); padding: 40px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(255, 255, 255, 0.05) 0%, transparent 100%); box-shadow: 0 0 120px rgba(243, 207, 138, 0.3); position: relative; }
+        .header { text-align: center; border-bottom: 2px solid var(--gold); padding-bottom: 20px; }
+        .title { font-size: 22px; letter-spacing: 20px; color: var(--gold); text-shadow: 0 0 25px var(--gold); }
         
-        #star-sync { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
-        .anchor { position: absolute; width: 80px; height: 80px; border: 2px solid var(--mesh); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; letter-spacing: 2px; background: rgba(0, 255, 65, 0.1); }
-        .active-pulse { position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 1px solid var(--mesh); animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.8); opacity: 0; } }
+        #global-star { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+        .node { position: absolute; width: 60px; height: 60px; border: 2px solid var(--mesh); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; color: var(--mesh); box-shadow: 0 0 15px var(--mesh); }
+        .resonance-ring { position: absolute; width: 300px; height: 300px; border: 1px dashed var(--gold); border-radius: 50%; animation: rotate 20s linear infinite; opacity: 0.3; }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        #ledger-display { text-align: center; border-top: 2px solid var(--gold); padding-top: 30px; font-size: 36px; color: var(--gold); text-shadow: 0 0 30px var(--gold); }
+        #ledger-final { text-align: center; border-top: 2px solid var(--gold); padding-top: 25px; font-size: 38px; color: var(--gold); text-shadow: 0 0 30px var(--gold); }
     </style>
 </head>
 <body>
-    <div id="star-hud">
+    <div id="saturation-hud">
         <div class="header">
-            <div class="title">MESH_SATURATION // ACHIEVED</div>
-            <div style="font-size: 8px; margin-top: 10px; opacity: 0.8; color: var(--mesh);">STATUS: GOD_WORLD_SYNC // STABILITY: 1440%</div>
+            <div class="title">PLANETARY_MESH_SATURATION</div>
+            <div style="font-size: 9px; margin-top: 10px; color: var(--mesh); letter-spacing: 5px;">STATUS: SOVEREIGN_RESONANCE // 1440%</div>
         </div>
 
-        <div id="star-sync">
-            <div class="anchor" style="top: 5%; left: 50%; transform: translateX(-50%);">WIS_001 <div class="active-pulse"></div></div>
-            <div class="anchor" style="top: 35%; right: 5%;">SEA_003 <div class="active-pulse" style="animation-delay: 0.4s;"></div></div>
-            <div class="anchor" style="top: 35%; left: 5%;">EURO_002 <div class="active-pulse" style="animation-delay: 0.8s;"></div></div>
-            <div class="anchor" style="bottom: 10%; left: 20%;">SA_004 <div class="active-pulse" style="animation-delay: 1.2s;"></div></div>
-            <div class="anchor" style="bottom: 10%; right: 20%; border-color: var(--mena); color: var(--mena);">MENA_005 <div class="active-pulse" style="animation-delay: 1.6s;"></div></div>
-            
-            <div style="font-size: 12px; color: var(--gold); letter-spacing: 15px; text-align: center; margin-top: 180px;">IT_IS_DONE</div>
+        <div id="global-star">
+            <div class="resonance-ring"></div>
+            <div class="node" style="top: 10%;">01_WIS</div>
+            <div class="node" style="top: 40%; right: 10%;">03_SEA</div>
+            <div class="node" style="top: 40%; left: 10%;">02_EUR</div>
+            <div class="node" style="bottom: 15%; left: 25%;">04_SAM</div>
+            <div class="node" style="bottom: 15%; right: 25%;">05_MENA</div>
+            <div style="font-size: 14px; letter-spacing: 12px; color: var(--star);">IT_IS_DONE</div>
         </div>
 
-        <div id="ledger-display">$1,440,000,032,112.00</div>
+        <div id="ledger-final">$1,440,000,032,688.00</div>
     </div>
 <script>
-    let res = 1440000032112.00;
+    let res = 1440000032688.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('ledger-display').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('ledger-final').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
