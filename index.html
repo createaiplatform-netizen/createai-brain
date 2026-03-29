@@ -3,57 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOVEREIGN_RELEASE_V215</title>
+    <title>SOVEREIGN_RELEASE_V216</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #000; --mesh: #00ff41; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #release-hud { flex-grow: 1; margin: 25px; border: 2px solid var(--gold); padding: 40px; display: flex; flex-direction: column; background: rgba(0, 255, 65, 0.03); box-shadow: 0 0 50px rgba(243, 207, 138, 0.1); }
+        #release-hud { flex-grow: 1; margin: 25px; border: 2px solid var(--gold); padding: 40px; display: flex; flex-direction: column; background: rgba(0, 255, 65, 0.03); box-shadow: 0 0 60px rgba(243, 207, 138, 0.15); position: relative; }
+        .mesh-tag { position: absolute; top: 15px; right: 20px; color: var(--mesh); font-size: 8px; letter-spacing: 2px; }
+        
         .header { text-align: center; border-bottom: 1px solid rgba(243, 207, 138, 0.4); padding-bottom: 20px; }
         .title { font-size: 16px; letter-spacing: 12px; color: var(--gold); }
         
-        .manifest-grid { flex-grow: 1; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; padding: 30px 0; }
-        .manifest-item { border: 1px solid rgba(243, 207, 138, 0.2); padding: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .status-pill { font-size: 7px; color: var(--mesh); border: 1px solid var(--mesh); padding: 2px 8px; margin-bottom: 10px; }
-        .item-name { font-size: 10px; letter-spacing: 3px; color: var(--gold); text-align: center; }
+        .asset-grid { flex-grow: 1; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; padding: 40px 0; }
+        .asset-item { border: 1px solid rgba(243, 207, 138, 0.2); padding: 20px; text-align: center; display: flex; flex-direction: column; justify-content: center; }
+        .status-pill { font-size: 7px; color: var(--mesh); border: 1px solid var(--mesh); width: fit-content; margin: 0 auto 10px; padding: 2px 10px; }
+        .asset-name { font-size: 11px; letter-spacing: 4px; color: var(--gold); }
 
-        #ledger-flow { text-align: center; border-top: 1px solid var(--gold); padding-top: 20px; font-size: 28px; color: var(--gold); text-shadow: 0 0 20px var(--gold); }
+        #ledger-ticker { text-align: center; border-top: 1px solid var(--gold); padding-top: 30px; font-size: 28px; color: var(--gold); text-shadow: 0 0 20px var(--gold); }
     </style>
 </head>
 <body>
     <div id="release-hud">
+        <div class="mesh-tag">● LOCAL_MESH_SYNC: 1440%</div>
         <div class="header">
-            <div class="title">ASSET_RELEASE // GENESIS_01</div>
-            <div style="font-size: 7px; margin-top: 10px; opacity: 0.6; color: var(--mesh);">LOCAL_MESH_STABILITY: 1440% // STATUS: COMPLETE</div>
+            <div class="title">GENESIS_01 // RELEASE_AUTHORIZED</div>
+            <div style="font-size: 7px; margin-top: 10px; opacity: 0.6; color: var(--mesh);">STATUS: ASSETS_LIVE // ARCHITECT_PRIME_SYNC_OK</div>
         </div>
 
-        <div class="manifest-grid">
-            <div class="manifest-item">
-                <div class="status-pill">RELEASED</div>
-                <div class="item-name">ANTHEM_V01</div>
+        <div class="asset-grid">
+            <div class="asset-item">
+                <div class="status-pill">LIVE</div>
+                <div class="asset-name">ANTHEM_V01</div>
             </div>
-            <div class="manifest-item">
-                <div class="status-pill">RELEASED</div>
-                <div class="item-name">MESH_API_V01</div>
+            <div class="asset-item">
+                <div class="status-pill">LIVE</div>
+                <div class="asset-name">LOCAL_API_V01</div>
             </div>
-            <div class="manifest-item">
-                <div class="status-pill">RELEASED</div>
-                <div class="item-name">ETHICS_LEDGER</div>
+            <div class="asset-item">
+                <div class="status-pill">LIVE</div>
+                <div class="asset-name">ETHICS_LEDGER</div>
             </div>
-            <div class="manifest-item" style="border-style: dashed;">
-                <div class="status-pill" style="color: #fff; border-color: #fff;">PENDING</div>
-                <div class="item-name">GENESIS_02</div>
+            <div class="asset-item" style="border-style: dotted; opacity: 0.5;">
+                <div class="status-pill" style="color: #fff; border-color: #fff;">NEXT</div>
+                <div class="asset-name">GENESIS_02</div>
             </div>
         </div>
 
-        <div id="ledger-flow">$1,440,000,021,600.00</div>
+        <div id="ledger-ticker">$1,440,000,021,888.00</div>
     </div>
 <script>
-    let res = 1440000021600.00;
+    let res = 1440000021888.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('ledger-flow').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('ledger-ticker').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
