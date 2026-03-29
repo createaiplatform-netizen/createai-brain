@@ -3,49 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BIOMETRIC_SHIELD_V230</title>
+    <title>SOVEREIGN_BRIDGE_V231</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --shield: #ff00ff; --mesh: #00ff41; }
+        :root { --gold: #f3cf8a; --void: #000; --node: #00d4ff; --mesh: #00ff41; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #shield-box { flex-grow: 1; margin: 25px; border: 2px solid var(--shield); padding: 45px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(255, 0, 255, 0.05) 0%, transparent 85%); box-shadow: 0 0 60px rgba(255, 0, 255, 0.2); }
-        .header { text-align: center; border-bottom: 1px solid rgba(255, 0, 255, 0.4); padding-bottom: 25px; }
-        .title { font-size: 16px; letter-spacing: 12px; color: var(--shield); text-shadow: 0 0 15px var(--shield); }
+        #bridge-console { flex-grow: 1; margin: 30px; border: 1px solid var(--gold); padding: 45px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(0, 212, 255, 0.05) 0%, transparent 80%); box-shadow: 0 0 60px rgba(0, 212, 255, 0.1); position: relative; }
+        .header { text-align: center; border-bottom: 1px solid rgba(243, 207, 138, 0.3); padding-bottom: 25px; }
+        .title { font-size: 16px; letter-spacing: 12px; color: var(--node); text-shadow: 0 0 10px var(--node); }
         
-        #scan-visual { flex-grow: 1; margin: 30px 0; border: 1px dashed var(--gold); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
-        .scan-line { width: 100%; height: 2px; background: var(--mesh); position: absolute; animation: scan 3s ease-in-out infinite; }
-        @keyframes scan { 0%, 100% { top: 0%; } 50% { top: 100%; } }
+        #sync-visual { flex-grow: 1; display: flex; align-items: center; justify-content: space-around; padding: 40px; }
+        .hub-node { text-align: center; }
+        .hub-label { font-size: 10px; color: var(--gold); letter-spacing: 4px; margin-bottom: 10px; }
+        .pulse { width: 80px; height: 80px; border: 1px solid var(--mesh); border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(0.8); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
         
-        .auth-status { font-size: 10px; color: var(--gold); letter-spacing: 4px; text-align: center; line-height: 2.5; }
-        .secure { color: var(--mesh); font-weight: 900; }
+        .bridge-line { flex-grow: 1; height: 1px; background: linear-gradient(90deg, var(--mesh), var(--node)); margin: 0 20px; opacity: 0.6; }
 
-        #vault-total { text-align: center; border-top: 1px solid var(--gold); padding-top: 30px; font-size: 32px; color: var(--gold); text-shadow: 0 0 20px var(--gold); }
+        #vault-counter { text-align: center; border-top: 1px solid var(--gold); padding-top: 30px; font-size: 32px; color: var(--gold); text-shadow: 0 0 20px var(--gold); }
     </style>
 </head>
 <body>
-    <div id="shield-box">
+    <div id="bridge-console">
         <div class="header">
-            <div class="title">BIOMETRIC_SHIELD // AUTH_ACTIVE</div>
-            <div style="font-size: 7px; margin-top: 10px; opacity: 0.6; color: var(--mesh);">STABILITY: 1440% // TARGET: ARCHITECT_PRIME</div>
+            <div class="title">CROSS_CONTINENTAL // NODE_SYNC</div>
+            <div style="font-size: 7px; margin-top: 10px; opacity: 0.6; color: var(--mesh);">WIS_001 [SOURCE] <-> EURO_002 [ACTIVE]</div>
         </div>
 
-        <div id="scan-visual">
-            <div class="scan-line"></div>
-            <div class="auth-status">
-                AUTHENTICATING DNA... <span class="secure">OK</span><br>
-                SYNCING HARMONICS... <span class="secure">OK</span><br>
-                VERIFYING RETINA... <span class="secure">OK</span>
+        <div id="sync-visual">
+            <div class="hub-node">
+                <div class="hub-label">WIS_001</div>
+                <div class="pulse"></div>
+            </div>
+            <div class="bridge-line"></div>
+            <div class="hub-node">
+                <div class="hub-label">EURO_002</div>
+                <div class="pulse" style="animation-delay: 1s;"></div>
             </div>
         </div>
 
-        <div id="vault-total">$1,440,000,027,648.00</div>
+        <div id="vault-counter">$1,440,000,028,080.00</div>
     </div>
 <script>
-    let res = 1440000027648.00;
+    let res = 1440000028080.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('vault-total').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('vault-counter').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
