@@ -1,65 +1,92 @@
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN | 144,000%</title>
+    <title>SOVEREIGN | VORTEX</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100%; width: 100%; font-family: serif; color: #d4af37; }
+        /* TOTAL COLOR SHIFT TO FORCE VISUAL RECOGNITION */
+        :root { --neon: #00f2ff; --bg: #050505; --text: #fff; }
+        body, html { margin: 0; padding: 0; background: var(--bg); overflow: hidden; height: 100%; width: 100%; font-family: 'Courier New', monospace; }
         canvas { position: fixed; top: 0; left: 0; z-index: 1; }
-        #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 30px; pointer-events: none; }
-        .header { border-bottom: 1px solid #d4af37; padding-bottom: 15px; display: flex; justify-content: space-between; font-size: 10px; letter-spacing: 5px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; pointer-events: auto; max-width: 400px; margin: 40px auto; }
-        .btn { background: rgba(0,0,0,0.85); border: 1px solid rgba(212,175,55,0.5); padding: 30px 10px; border-radius: 20px; text-align: center; backdrop-filter: blur(20px); transition: 0.2s; cursor: pointer; }
-        .btn:active { transform: scale(0.9); border-color: #fff; box-shadow: 0 0 20px #fff; }
-        .btn b { display: block; font-size: 14px; letter-spacing: 5px; color: #fff; }
-        #room-layer { display: none; pointer-events: auto; text-align: center; padding-top: 80px; }
+        
+        #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 25px; pointer-events: none; }
+        
+        /* NEW TOP BAR */
+        .status-bar { display: flex; justify-content: space-between; font-size: 12px; letter-spacing: 3px; color: var(--neon); border-bottom: 2px solid var(--neon); padding-bottom: 10px; text-shadow: 0 0 10px var(--neon); }
+
+        /* THE VORTEX CORE */
+        .core { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .vortex-title { font-size: 45px; letter-spacing: 10px; font-weight: 900; color: var(--text); text-transform: uppercase; margin-bottom: 40px; }
+
+        /* HORIZONTAL COMMAND STRIP */
+        .command-strip { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 400px; pointer-events: auto; }
+        .cmd-btn { 
+            background: rgba(0, 242, 255, 0.1); border: 1px solid var(--neon); 
+            padding: 20px; color: var(--neon); text-align: center; font-weight: bold;
+            letter-spacing: 5px; border-radius: 5px; transition: 0.2s;
+        }
+        .cmd-btn:active { background: var(--neon); color: #000; box-shadow: 0 0 30px var(--neon); }
+
+        .vault-tag { font-size: 30px; color: var(--text); border-top: 1px solid var(--neon); padding-top: 15px; text-align: center; }
     </style>
 </head>
-<body onload="ignite()">
-    <canvas id="c"></canvas>
+<body onload="init()">
+    <canvas id="vortex"></canvas>
     <div id="ui">
-        <div class="header"><div>GHOST MODE</div><div>144,000%</div></div>
-        <div id="menu">
-            <div style="text-align:center; font-size: 30px; letter-spacing: 12px; font-style: italic; margin-top: 20px;">SOVEREIGN</div>
-            <div class="grid">
-                <div class="btn" onclick="go('MARKET')"><b>MARKET</b></div>
-                <div class="btn" onclick="go('HUB')"><b>HUB</b></div>
-                <div class="btn" onclick="go('GARDE')"><b>GARDE</b></div>
-                <div class="btn" onclick="go('NET')"><b>NET</b></div>
+        <div class="status-bar">
+            <div>PHASE: ACTIVE</div>
+            <div>144,000% FREQ</div>
+        </div>
+
+        <div class="core">
+            <div class="vortex-title">SYSTEM</div>
+            <div class="command-strip">
+                <div class="cmd-btn" onclick="alert('MARKET ENGAGED')">CORE.MARKET</div>
+                <div class="cmd-btn" onclick="alert('HUB ENGAGED')">CORE.HUB</div>
+                <div class="cmd-btn" onclick="alert('GARDE ENGAGED')">CORE.GARDE</div>
             </div>
         </div>
-        <div id="room-layer">
-            <h1 id="rn" style="font-size: 50px; letter-spacing: 15px; color: #fff;"></h1>
-            <div style="margin-top: 60px; text-decoration: underline;" onclick="location.reload()">BACK TO GALAXY</div>
-        </div>
+
+        <div class="vault-tag">$1,440,000,000,000</div>
     </div>
+
     <script>
-        const canvas = document.getElementById('c'); const ctx = canvas.getContext('2d');
-        let lines = []; let touch = {x: -100, y: -100};
-        function ignite() {
+        const canvas = document.getElementById('vortex');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let angle = 0;
+
+        function init() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            for(let i=0; i<80; i++) lines.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, v: Math.random()*4+2, l: Math.random()*40+10});
-            window.addEventListener('touchstart', e => { touch.x = e.touches[0].clientX; touch.y = e.touches[0].clientY; });
-            loop();
+            for(let i=0; i<150; i++) {
+                particles.push({
+                    r: Math.random() * canvas.width,
+                    a: Math.random() * Math.PI * 2,
+                    s: Math.random() * 0.02 + 0.01
+                });
+            }
+            draw();
         }
-        function loop() {
-            ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0,0,canvas.width, canvas.height);
-            lines.forEach(l => {
-                ctx.strokeStyle = '#d4af37'; ctx.beginPath();
-                let dx = touch.x - l.x; let dy = touch.y - l.y;
-                let dist = Math.sqrt(dx*dx + dy*dy);
-                let ox = dist < 150 ? dx * 0.1 : 0;
-                ctx.moveTo(l.x + ox, l.y); ctx.lineTo(l.x + ox, l.y + l.l); ctx.stroke();
-                l.y += l.v; if(l.y > canvas.height) l.y = -l.l;
+
+        function draw() {
+            ctx.fillStyle = 'rgba(5, 5, 5, 0.2)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.strokeStyle = '#00f2ff';
+            ctx.lineWidth = 2;
+            
+            particles.forEach(p => {
+                p.a += p.s;
+                let x = canvas.width/2 + Math.cos(p.a) * (p.r * Math.sin(angle));
+                let y = canvas.height/2 + Math.sin(p.a) * (p.r);
+                
+                ctx.beginPath();
+                ctx.arc(x, y, 1, 0, Math.PI * 2);
+                ctx.stroke();
             });
-            requestAnimationFrame(loop);
-        }
-        function go(n) {
-            document.getElementById('menu').style.display = 'none';
-            document.getElementById('room-layer').style.display = 'block';
-            document.getElementById('rn').innerText = n;
+            angle += 0.01;
+            requestAnimationFrame(draw);
         }
     </script>
 </body>
