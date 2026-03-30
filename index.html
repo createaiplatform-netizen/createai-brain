@@ -3,90 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN | VORTEX</title>
+    <title>SOVEREIGN | EVOLUTION</title>
     <style>
-        /* TOTAL COLOR SHIFT TO FORCE VISUAL RECOGNITION */
-        :root { --neon: #00f2ff; --bg: #050505; --text: #fff; }
-        body, html { margin: 0; padding: 0; background: var(--bg); overflow: hidden; height: 100%; width: 100%; font-family: 'Courier New', monospace; }
-        canvas { position: fixed; top: 0; left: 0; z-index: 1; }
+        :root { --gold: #d4af37; --cyan: #00f2ff; --red: #ff3131; --white: #fff; }
+        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100%; width: 100%; font-family: serif; }
+        canvas { position: fixed; top: 0; left: 0; z-index: 1; transition: filter 1s; }
         
-        #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 25px; pointer-events: none; }
+        #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 30px; pointer-events: none; }
+        .header { border-bottom: 1px solid var(--gold); padding-bottom: 15px; display: flex; justify-content: space-between; font-size: 10px; letter-spacing: 5px; color: var(--gold); }
         
-        /* NEW TOP BAR */
-        .status-bar { display: flex; justify-content: space-between; font-size: 12px; letter-spacing: 3px; color: var(--neon); border-bottom: 2px solid var(--neon); padding-bottom: 10px; text-shadow: 0 0 10px var(--neon); }
+        /* NAVIGATION */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; pointer-events: auto; max-width: 400px; margin: 40px auto; }
+        .btn { background: rgba(0,0,0,0.8); border: 1px solid rgba(212,175,55,0.4); padding: 25px 10px; border-radius: 15px; text-align: center; backdrop-filter: blur(10px); color: var(--gold); cursor: pointer; }
+        .btn b { display: block; font-size: 14px; letter-spacing: 4px; color: #fff; }
+        
+        /* THE STAGE */
+        #stage { display: none; pointer-events: auto; text-align: center; color: #fff; flex-grow: 1; padding-top: 50px; }
+        #stage h1 { font-size: 50px; letter-spacing: 20px; font-style: italic; margin-bottom: 10px; }
+        .back { margin-top: 40px; font-size: 10px; text-decoration: underline; color: var(--gold); letter-spacing: 3px; }
 
-        /* THE VORTEX CORE */
-        .core { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .vortex-title { font-size: 45px; letter-spacing: 10px; font-weight: 900; color: var(--text); text-transform: uppercase; margin-bottom: 40px; }
-
-        /* HORIZONTAL COMMAND STRIP */
-        .command-strip { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 400px; pointer-events: auto; }
-        .cmd-btn { 
-            background: rgba(0, 242, 255, 0.1); border: 1px solid var(--neon); 
-            padding: 20px; color: var(--neon); text-align: center; font-weight: bold;
-            letter-spacing: 5px; border-radius: 5px; transition: 0.2s;
-        }
-        .cmd-btn:active { background: var(--neon); color: #000; box-shadow: 0 0 30px var(--neon); }
-
-        .vault-tag { font-size: 30px; color: var(--text); border-top: 1px solid var(--neon); padding-top: 15px; text-align: center; }
+        .footer { border: 1px solid var(--gold); border-radius: 40px; padding: 20px; text-align: center; background: rgba(0,0,0,0.9); pointer-events: auto; }
     </style>
 </head>
 <body onload="init()">
-    <canvas id="vortex"></canvas>
+    <canvas id="c"></canvas>
     <div id="ui">
-        <div class="status-bar">
-            <div>PHASE: ACTIVE</div>
-            <div>144,000% FREQ</div>
-        </div>
-
-        <div class="core">
-            <div class="vortex-title">SYSTEM</div>
-            <div class="command-strip">
-                <div class="cmd-btn" onclick="alert('MARKET ENGAGED')">CORE.MARKET</div>
-                <div class="cmd-btn" onclick="alert('HUB ENGAGED')">CORE.HUB</div>
-                <div class="cmd-btn" onclick="alert('GARDE ENGAGED')">CORE.GARDE</div>
+        <div class="header"><div>GHOST MODE</div><div id="freq">144,000%</div></div>
+        
+        <div id="menu">
+            <div style="text-align:center; font-size: 30px; letter-spacing: 15px; color: var(--gold); margin-top: 20px;">SOVEREIGN</div>
+            <div class="grid">
+                <div class="btn" onclick="morph('MARKET', 'CYAN')"><b>MARKET</b><span>$1.44T</span></div>
+                <div class="btn" onclick="morph('HUB', 'GOLD')"><b>HUB</b><span>MIRROR</span></div>
+                <div class="btn" onclick="morph('GARDE', 'WHITE')"><b>GARDE</b><span>FAMILY</span></div>
+                <div class="btn" onclick="morph('PULSE', 'RED')"><b>PULSE</b><span>HEALTH</span></div>
             </div>
         </div>
 
-        <div class="vault-tag">$1,440,000,000,000</div>
+        <div id="stage">
+            <h1 id="cur-name">ROOM</h1>
+            <p id="cur-status" style="letter-spacing: 5px; font-size: 10px;"></p>
+            <div class="back" onclick="location.reload()">CLOSE PORTAL</div>
+        </div>
+
+        <div class="footer"><div style="font-size: 22px; color: #fff; font-weight: bold;">$1,440,000,000,000</div></div>
     </div>
 
     <script>
-        const canvas = document.getElementById('vortex');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-        let angle = 0;
+        const canvas = document.getElementById('c'); const ctx = canvas.getContext('2d');
+        let parts = []; let mode = 'GOLD'; let touch = {x:-100, y:-100};
 
         function init() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            for(let i=0; i<150; i++) {
-                particles.push({
-                    r: Math.random() * canvas.width,
-                    a: Math.random() * Math.PI * 2,
-                    s: Math.random() * 0.02 + 0.01
-                });
-            }
-            draw();
+            for(let i=0; i<100; i++) parts.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, v: Math.random()*3+2, l: Math.random()*40});
+            window.addEventListener('touchstart', e => { touch.x = e.touches[0].clientX; touch.y = e.touches[0].clientY; });
+            update();
         }
 
-        function draw() {
-            ctx.fillStyle = 'rgba(5, 5, 5, 0.2)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            ctx.strokeStyle = '#00f2ff';
-            ctx.lineWidth = 2;
-            
-            particles.forEach(p => {
-                p.a += p.s;
-                let x = canvas.width/2 + Math.cos(p.a) * (p.r * Math.sin(angle));
-                let y = canvas.height/2 + Math.sin(p.a) * (p.r);
+        function morph(name, colorMode) {
+            mode = colorMode;
+            document.getElementById('menu').style.display = 'none';
+            document.getElementById('stage').style.display = 'block';
+            document.getElementById('cur-name').innerText = name;
+            document.getElementById('cur-name').style.color = (colorMode === 'CYAN') ? '#00f2ff' : (colorMode === 'RED') ? '#ff3131' : (colorMode === 'GOLD') ? '#d4af37' : '#fff';
+            canvas.style.filter = "hue-rotate(90deg) brightness(2)"; // Force a visual "POP"
+        }
+
+        function update() {
+            ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0,0,canvas.width, canvas.height);
+            parts.forEach(p => {
+                ctx.lineWidth = 2;
+                if(mode === 'GOLD') { ctx.strokeStyle = '#d4af37'; p.y += p.v; }
+                if(mode === 'CYAN') { ctx.strokeStyle = '#00f2ff'; p.x += p.v; } // Moves sideways
+                if(mode === 'RED') { ctx.strokeStyle = '#ff3131'; p.y -= p.v; } // Moves UP
+                if(mode === 'WHITE') { ctx.strokeStyle = '#fff'; ctx.lineWidth = 4; p.y += p.v*2; } // Thick & Fast
                 
-                ctx.beginPath();
-                ctx.arc(x, y, 1, 0, Math.PI * 2);
-                ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x, p.y + p.l); ctx.stroke();
+                if(p.y > canvas.height) p.y = -p.l; if(p.y < -p.l) p.y = canvas.height;
+                if(p.x > canvas.width) p.x = 0;
             });
-            angle += 0.01;
-            requestAnimationFrame(draw);
+            requestAnimationFrame(update);
         }
     </script>
 </body>
