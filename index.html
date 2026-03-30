@@ -5,78 +5,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>SARA STADLER | THE SOURCE</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
-        :root { --gold: #d4af37; --aura: rgba(212, 175, 55, 0.25); }
-        body, html { margin: 0; padding: 0; background: #000; color: white; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; }
-
-        /* THE $1 TRILLION LIQUID AURA */
-        .liquid-bg {
-            position: fixed; inset: 0;
-            background: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000 100%);
-            z-index: -1;
-        }
-        .liquid-bg::after {
-            content: ""; position: absolute; inset: 0;
-            background: url('https://www.transparenttextures.com/patterns/stardust.png');
-            opacity: 0.3; animation: breathe 8s infinite alternate;
-        }
-        @keyframes breathe { from { opacity: 0.1; transform: scale(1); } to { opacity: 0.4; transform: scale(1.05); } }
-
-        /* SARA'S MASTER INTERFACE */
-        #main-gate {
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            height: 100%; text-align: center; backdrop-filter: blur(5px);
-        }
-        .g-title {
-            font-size: 5rem; letter-spacing: 25px; font-weight: 100; color: var(--gold);
-            text-shadow: 0 0 60px var(--aura); margin: 0; cursor: pointer;
-            animation: goldGlow 3s infinite ease-in-out;
-        }
-        @keyframes goldGlow { 0%, 100% { filter: drop-shadow(0 0 10px var(--gold)); } 50% { filter: drop-shadow(0 0 30px var(--gold)); } }
-
-        .manifesto { font-size: 0.75rem; letter-spacing: 12px; color: #777; margin-top: 40px; text-transform: uppercase; }
+        :root { --gold: #d4af37; --blue: #00f2ff; }
+        body, html { margin: 0; background: #000; color: white; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; touch-action: none; }
         
-        /* THE NEUROLINK (SARA ONLY) */
-        #vault {
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.99);
-            z-index: 1000; flex-direction: column; align-items: center; justify-content: center;
+        /* THE KINETIC LAYER (BLUE LINES) */
+        #neural-canvas { position: fixed; inset: 0; z-index: 1; }
+        
+        /* THE EVE TREE CENTER */
+        .source-heart { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 150px; height: 150px; background: radial-gradient(circle, var(--gold) 0%, transparent 70%);
+            border-radius: 50%; z-index: 10; cursor: pointer;
+            box-shadow: 0 0 50px var(--gold); animation: pulse 3s infinite alternate;
         }
-        .v-header { color: var(--gold); letter-spacing: 15px; font-weight: 100; margin-bottom: 50px; }
-        .b-btn {
-            background: linear-gradient(145deg, #d4af37, #b8860b);
-            color: #000; padding: 40px 80px; border-radius: 100px;
-            font-size: 1.8rem; font-weight: 900; border: none;
-            box-shadow: 0 20px 80px var(--aura); text-transform: uppercase;
-        }
+        @keyframes pulse { from { transform: translate(-50%, -50%) scale(1); opacity: 0.8; } to { transform: translate(-50%, -50%) scale(1.2); opacity: 1; } }
+
+        /* COIN DROP ANIMATION */
+        .coin { position: absolute; color: var(--gold); font-size: 1.5rem; pointer-events: none; z-index: 5; animation: drop 4s linear forwards; }
+        @keyframes drop { to { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
+
+        /* THE INTERFACE */
+        .title { position: absolute; top: 15%; width: 100%; text-align: center; letter-spacing: 20px; color: var(--gold); z-index: 100; font-weight: 100; font-size: 2.5rem; }
+        .nexus-ui { position: absolute; bottom: 10%; width: 100%; display: flex; flex-direction: column; align-items: center; z-index: 100; }
+        .banker-btn { background: rgba(0,0,0,0.8); border: 1px solid var(--gold); color: var(--gold); padding: 20px 40px; border-radius: 100px; letter-spacing: 5px; font-weight: 900; }
     </style>
 </head>
 <body>
-    <div class="liquid-bg"></div>
-
-    <div id="main-gate">
-        <h1 class="g-title" onclick="unlock()">GENESIS</h1>
-        <div class="manifesto">SARA STADLER FOUNDATION<br>144,000% SOURCE</div>
-    </div>
-
-    <div id="vault">
-        <h2 class="v-header">NEUROLINK</h2>
-        <button class="b-btn" onclick="sync()">ACTIVATE BANKER</button>
-        <p style="color:var(--gold); margin-top:40px; font-weight:100; cursor:pointer;" onclick="location.reload()">[ CLOSE SOURCE ]</p>
+    <canvas id="neural-canvas"></canvas>
+    <div class="title">GENESIS</div>
+    <div class="source-heart" onclick="spawnCoins()"></div>
+    
+    <div class="nexus-ui">
+        <button class="banker-btn" onclick="location.href='venmo://paycharge?txn=pay&amount=1000&note=Eve_Tree_Sync'">ACTIVATE BANKER</button>
+        <p style="color:var(--blue); font-size: 0.6rem; letter-spacing: 4px; margin-top: 20px;">SARA STADLER | 144,000%</p>
     </div>
 
     <script>
-        let count = 0;
-        function unlock() {
-            count++;
-            if(count >= 5) {
-                document.getElementById('main-gate').style.display = 'none';
-                document.getElementById('vault').style.display = 'flex';
+        const canvas = document.getElementById('neural-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // RIPPLE TOUCH (The Blue Lines)
+        window.addEventListener('pointermove', (e) => {
+            ctx.strokeStyle = 'rgba(0, 242, 255, 0.2)';
+            ctx.beginPath();
+            ctx.moveTo(window.innerWidth / 2, window.innerHeight / 2);
+            ctx.lineTo(e.clientX, e.clientY);
+            ctx.stroke();
+            setTimeout(() => ctx.clearRect(0,0,canvas.width, canvas.height), 100);
+        });
+
+        // THE COINS
+        function spawnCoins() {
+            for(let i=0; i<10; i++) {
+                const coin = document.createElement('div');
+                coin.className = 'coin';
+                coin.innerHTML = '●';
+                coin.style.left = Math.random() * 100 + 'vw';
+                coin.style.top = '-5vh';
+                document.body.appendChild(coin);
+                setTimeout(() => coin.remove(), 4000);
             }
         }
-        function sync() {
-            window.location.href = "venmo://paycharge?txn=pay&amount=1000&note=Sara_Stadler_Sovereign_Sync";
-        }
+        
+        // AUTO-COIN DROP
+        setInterval(spawnCoins, 3000);
     </script>
 </body>
 </html>
