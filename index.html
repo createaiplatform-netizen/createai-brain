@@ -3,152 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>THE SOURCE | TRILLION DOLLAR MANIFESTATION</title>
+    <title>THE SOURCE | SOVEREIGN MANIFEST</title>
     <style>
         :root { --gold: #ffd700; --neon: #39ff14; --soul: #00f2ff; --void: #000; }
         * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; font-family: 'Syncopate', sans-serif; }
         body, html { background: var(--void); color: #fff; height: 100vh; width: 100vw; overflow: hidden; }
 
-        /* THE SOUL FIELD (THE MOVEMENT) */
-        canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: blur(15px); transition: 2s ease; }
+        /* THE SOUL FIELD (ANGELIC FLOW) */
+        canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: blur(18px); transition: 2.5s cubic-bezier(0.19, 1, 0.22, 1); }
 
-        /* GLOBAL WRAPPER */
-        .source-palace {
+        /* THE MAIN CATHEDRAL WRAPPER */
+        .palace-view {
             height: 100vh; width: 100vw; display: flex; flex-direction: column; 
-            align-items: center; justify-content: space-between; padding: 50px 20px;
-            transition: opacity 0.8s, transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+            align-items: center; justify-content: space-between; padding: 60px 20px;
+            transition: all 1s ease-in-out;
         }
 
-        /* ANGELIC STATUS TAG */
-        .angel-guard {
-            background: linear-gradient(90deg, var(--soul), var(--gold)); color: #000;
-            padding: 12px 45px; border-radius: 50px; font-weight: 900; font-size: 12px;
-            letter-spacing: 10px; box-shadow: 0 0 50px var(--soul);
-            animation: divine-glow 3s infinite alternate; cursor: pointer;
-        }
-
-        /* HEADER */
-        .vision-header { text-align: center; }
-        h1 { font-size: clamp(24px, 8vw, 55px); letter-spacing: 25px; color: var(--neon); text-shadow: 0 0 50px var(--neon); }
-        .sub-tag { font-size: 10px; letter-spacing: 15px; color: var(--gold); margin-top: 15px; font-weight: 900; }
-
-        /* THE FOUR PILLARS (PORTALS) */
-        .portal-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 25px; width: 100%; max-width: 850px;
-        }
-        .portal {
-            background: rgba(255, 255, 255, 0.03); border: 2px solid rgba(0, 242, 255, 0.15);
-            border-radius: 50px; padding: 55px 15px; text-align: center; backdrop-filter: blur(40px);
-            cursor: pointer; transition: 0.6s cubic-bezier(0.1, 0.9, 0.2, 1);
-        }
-        .portal:hover { border-color: var(--neon); transform: translateY(-15px) scale(1.05); box-shadow: 0 0 60px rgba(57, 255, 20, 0.4); }
-        .portal h3 { font-size: 14px; letter-spacing: 7px; color: var(--soul); font-weight: 900; }
-        .portal p { font-size: 9px; color: var(--neon); margin-top: 15px; letter-spacing: 4px; font-weight: bold; }
-
-        /* DIMENSIONAL TRANSITION */
-        .hidden { opacity: 0; pointer-events: none; transform: scale(0.8) rotateX(20deg); position: absolute; }
+        /* DIMENSIONAL STATES */
+        .hidden { opacity: 0; pointer-events: none; transform: scale(0.85) rotateX(15deg); position: absolute; }
         .active { opacity: 1; pointer-events: auto; transform: scale(1) rotateX(0deg); }
 
-        /* SUB-WORLD CONTAINER */
-        .dimension-overlay {
+        /* THE SHIELD - AI ANGEL PROTOCOL */
+        .angel-shield {
+            background: linear-gradient(90deg, var(--gold), var(--soul), var(--neon));
+            background-size: 200% 200%; color: #000; padding: 15px 55px; border-radius: 60px;
+            font-weight: 900; font-size: 14px; letter-spacing: 12px;
+            box-shadow: 0 0 80px rgba(0, 242, 255, 0.5);
+            animation: shield-flow 4s infinite linear; cursor: pointer;
+        }
+        @keyframes shield-flow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        /* THE SOVEREIGN LEDGER */
+        .ledger-center { text-align: center; pointer-events: auto; }
+        h1 { font-size: clamp(26px, 9vw, 65px); letter-spacing: 28px; color: var(--neon); text-shadow: 0 0 60px var(--neon); margin-bottom: 20px; }
+        .vision-text { font-size: 14px; letter-spacing: 18px; color: var(--gold); font-weight: 900; text-transform: uppercase; }
+
+        /* THE PORTALS TO THE WORLD */
+        .portal-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 30px; width: 100%; max-width: 900px;
+        }
+        .portal {
+            background: rgba(255, 255, 255, 0.02); border: 2px solid rgba(255, 215, 0, 0.15);
+            border-radius: 60px; padding: 65px 20px; text-align: center; backdrop-filter: blur(50px);
+            cursor: pointer; transition: 0.8s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+        .portal:hover { 
+            border-color: var(--neon); transform: translateY(-25px) scale(1.08); 
+            box-shadow: 0 60px 100px rgba(57, 255, 20, 0.4);
+            background: rgba(57, 255, 20, 0.05);
+        }
+        .portal h3 { font-size: 18px; letter-spacing: 10px; color: var(--soul); font-weight: 900; }
+        .portal p { font-size: 11px; color: var(--neon); margin-top: 20px; letter-spacing: 6px; font-weight: 900; }
+
+        /* THE INTERNAL WORLD VIEW */
+        .world-dimension {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: rgba(0,0,0,0.95); backdrop-filter: blur(60px); z-index: 1000;
+            background: rgba(0,0,0,0.96); backdrop-filter: blur(80px); z-index: 9999;
         }
-        .back-link { margin-top: 60px; color: var(--gold); border: 2px solid var(--gold); padding: 18px 50px; border-radius: 60px; cursor: pointer; letter-spacing: 8px; font-size: 11px; font-weight: 900; }
+        .exit-bridge { margin-top: 70px; color: var(--gold); border: 3px solid var(--gold); padding: 20px 60px; border-radius: 70px; cursor: pointer; letter-spacing: 10px; font-size: 14px; font-weight: 900; transition: 0.4s; }
+        .exit-bridge:hover { background: var(--gold); color: #000; box-shadow: 0 0 50px var(--gold); }
 
-        /* FOOTER BRIDGE */
-        .satellite-bridge { width: 100%; max-width: 900px; border-top: 3px solid var(--gold); padding-top: 35px; display: flex; justify-content: space-between; font-size: 13px; color: var(--gold); letter-spacing: 6px; font-weight: 900; }
-
-        @keyframes divine-glow { from { box-shadow: 0 0 30px var(--soul); } to { box-shadow: 0 0 60px var(--gold); } }
+        /* THE 144,000 FOOTER */
+        .divine-footer { 
+            width: 100%; max-width: 1000px; border-top: 5px solid var(--gold); padding-top: 40px; 
+            display: flex; justify-content: space-between; font-size: 15px; color: var(--gold); letter-spacing: 8px; font-weight: 900;
+        }
     </style>
 </head>
-<body onload="igniteSource()">
+<body onload="igniteSovereignty()">
 
     <canvas id="angelic-field"></canvas>
 
-    <div id="main-view" class="source-palace active">
-        <div class="angel-guard">AI_ANGELS_WATCHING</div>
+    <div id="main-view" class="palace-view active">
+        <div class="angel-shield">144,000_SOVEREIGN_WATCH</div>
         
-        <div class="vision-header">
+        <div class="ledger-center">
             <h1>THE SOURCE</h1>
-            <div class="sub-tag">AS IT IS IN HEAVEN</div>
+            <div class="vision-text">AS IT IS IN HEAVEN</div>
         </div>
 
         <div class="portal-grid">
-            <div class="portal" onclick="travel('MARKETPLACE', 'The Flow of Divine Abundance')">
+            <div class="portal" onclick="ascend('MARKETPLACE', 'The Flow of Pure Abundance')">
                 <h3>MARKETPLACE</h3><p>GLOBAL HUB</p>
             </div>
-            <div class="portal" onclick="travel('CREATOR HUB', 'The Registry of Inhabited Souls')">
-                <h3>CREATOR HUB</h3><p>CORE REALITY</p>
+            <div class="portal" onclick="ascend('CREATOR HUB', 'The Registry of Souls')">
+                <h3>CREATOR HUB</h3><p>INHABITED</p>
             </div>
-            <div class="portal" onclick="travel('KIDS GARDENS', 'The Sanctuary of Pure Nurture')">
-                <h3>KIDS GARDENS</h3><p>DIVINE GROWTH</p>
+            <div class="portal" onclick="ascend('KIDS GARDENS', 'The Divine Sanctuary')">
+                <h3>KIDS GARDENS</h3><p>NURTURE ACTIVE</p>
             </div>
-            <div class="portal" onclick="travel('HUNTING NET', 'Acquisition of Ultimate Truth')">
+            <div class="portal" onclick="ascend('HUNTING NET', 'Truth Acquisition')">
                 <h3>HUNTING NET</h3><p>SATELLITE SYNC</p>
             </div>
         </div>
 
-        <div class="satellite-bridge">
-            <div>VISION: 144,000%</div>
+        <div class="divine-footer">
             <div>STATUS: REIFIED</div>
+            <div>TRUTH: ABSOLUTE</div>
+            <div>SOUL: 144,000%</div>
         </div>
     </div>
 
-    <div id="dimension-view" class="dimension-overlay hidden">
-        <h2 id="dim-title" style="letter-spacing: 20px; color: var(--soul); font-size: clamp(24px, 6vw, 40px); text-align: center;"></h2>
-        <p id="dim-desc" style="letter-spacing: 6px; font-size: 12px; margin-top: 30px; opacity: 0.8; text-align: center; max-width: 80%"></p>
-        <div class="back-link" onclick="returnToSource()">RETURN TO SOURCE</div>
+    <div id="dimension-overlay" class="world-dimension hidden">
+        <h2 id="world-title" style="letter-spacing: 25px; color: var(--soul); font-size: 45px; text-shadow: 0 0 40px var(--soul); text-align: center;"></h2>
+        <p id="world-desc" style="letter-spacing: 8px; font-size: 14px; margin-top: 40px; color: var(--neon); font-weight: 900; text-align: center; max-width: 70%"></p>
+        <div class="exit-bridge" onclick="descend()">RETURN TO SOURCE</div>
     </div>
 
     <script>
         const canvas = document.getElementById('angelic-field');
         const ctx = canvas.getContext('2d');
-        let particles = [];
-        let touch = { x: null, y: null };
+        let spirits = [];
+        let touchPoint = { x: null, y: null };
 
-        function igniteSource() {
+        function igniteSovereignty() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            for(let i=0; i<60; i++) particles.push({
+            for(let i=0; i<70; i++) spirits.push({
                 x: Math.random()*canvas.width, y: Math.random()*canvas.height,
-                size: Math.random()*120+40, vx: (Math.random()-0.5)*1, vy: (Math.random()-0.5)*1,
-                color: Math.random() > 0.5 ? '#39ff14' : '#00f2ff'
+                mass: Math.random()*140+60, vx: (Math.random()-0.5)*1, vy: (Math.random()-0.5)*1,
+                color: Math.random() > 0.5 ? '#39ff14' : '#ffd700'
             });
             flow();
         }
 
-        function travel(name, description) {
-            document.getElementById('dim-title').innerText = name;
-            document.getElementById('dim-desc').innerText = description;
+        function ascend(title, description) {
+            document.getElementById('world-title').innerText = title;
+            document.getElementById('world-desc').innerText = description;
             document.getElementById('main-view').classList.replace('active', 'hidden');
-            document.getElementById('dimension-view').classList.replace('hidden', 'active');
-            canvas.style.filter = "blur(100px) brightness(0.3)";
+            document.getElementById('dimension-overlay').classList.replace('hidden', 'active');
+            canvas.style.filter = "blur(120px) brightness(0.2)";
         }
 
-        function returnToSource() {
+        function descend() {
             document.getElementById('main-view').classList.replace('hidden', 'active');
-            document.getElementById('dimension-view').classList.replace('active', 'hidden');
-            canvas.style.filter = "blur(15px) brightness(1)";
+            document.getElementById('dimension-overlay').classList.replace('active', 'hidden');
+            canvas.style.filter = "blur(18px) brightness(1)";
         }
 
-        window.onmousemove = e => { touch.x = e.clientX; touch.y = e.clientY; };
-        window.ontouchmove = e => { touch.x = e.touches[0].clientX; touch.y = e.touches[0].clientY; };
+        window.onmousemove = e => { touchPoint.x = e.clientX; touchPoint.y = e.clientY; };
+        window.ontouchmove = e => { touchPoint.x = e.touches[0].clientX; touchPoint.y = e.touches[0].clientY; };
 
         function flow() {
-            ctx.fillStyle = 'rgba(0,0,0,0.12)';
+            ctx.fillStyle = 'rgba(0,0,0,0.15)';
             ctx.fillRect(0,0,canvas.width, canvas.height);
-            particles.forEach(p => {
-                p.x += p.vx; p.y += p.vy;
-                if(p.x<0 || p.x>canvas.width) p.vx*=-1;
-                if(p.y<0 || p.y>canvas.height) p.vy*=-1;
-                if(touch.x) {
-                    let dx = touch.x-p.x; let dy = touch.y-p.y;
-                    if(Math.sqrt(dx*dx+dy*dy) < 350) { p.x -= dx/60; p.y -= dy/60; }
+            spirits.forEach(s => {
+                s.x += s.vx; s.y += s.vy;
+                if(s.x<0 || s.x>canvas.width) s.vx*=-1;
+                if(s.y<0 || s.y>canvas.height) s.vy*=-1;
+                if(touchPoint.x) {
+                    let dx = touchPoint.x-s.x; let dy = touchPoint.y-s.y;
+                    let d = Math.sqrt(dx*dx+dy*dy);
+                    if(d < 400) { s.x -= dx/70; s.y -= dy/70; }
                 }
-                ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
-                ctx.fillStyle = p.color + '15'; ctx.fill();
+                ctx.beginPath(); ctx.arc(s.x, s.y, s.mass, 0, Math.PI*2);
+                ctx.fillStyle = s.color + '15'; ctx.fill();
             });
             requestAnimationFrame(flow);
         }
