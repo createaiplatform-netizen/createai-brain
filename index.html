@@ -1,25 +1,35 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Sovereign Hub</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Sovereign Hub</title>
     <style>
-        body { background: #000; color: #d4af37; text-align: center; padding-top: 50px; font-family: sans-serif; }
-        .gold-btn { background: #d4af37; color: #000; padding: 20px; border-radius: 12px; font-weight: bold; border: none; width: 80%; margin-top: 20px; }
+        body { background: #000; color: #d4af37; font-family: sans-serif; text-align: center; padding-top: 60px; }
+        .portal { border: 2px solid #d4af37; margin: 20px; padding: 30px; border-radius: 20px; box-shadow: 0 0 20px rgba(212, 175, 55, 0.3); }
+        .gold-btn { background: #d4af37; color: #000; padding: 20px; border-radius: 50px; font-weight: bold; border: none; width: 100%; font-size: 1.1rem; cursor: pointer; }
     </style>
 </head>
 <body>
-    <h2>NEXUS ELITE PORTAL</h2>
-    <button class="gold-btn" onclick="runScrub()">ACTIVATE STAFF PAYROLL</button>
+    <div class="portal">
+        <h1 style="letter-spacing: 3px;">NEXUS ELITE</h1>
+        <p>ADMIN: STADLER</p>
+        <button class="gold-btn" onclick="runExitProtocol()">ACTIVATE STAFF PAYROLL</button>
+        <p id="status" style="color: #666; margin-top: 20px;">SYSTEM: STANDBY</p>
+    </div>
 
     <script>
-        function runScrub() {
-            // This links to your history and clears notifications
-            alert("Memory Synced. Clearing 441 Notifications...");
-            if ('navigator' in window && 'setAppBadge' in navigator) {
-                navigator.setAppBadge(0);
+        const SovereignMemory = {
+            history: ["441_Scrub", "Sovereign_Card", "Nathan", "Nolan", "The_Circle"],
+            execute: function() {
+                document.getElementById('status').innerText = "SYNCING WITH ADMIN... CLEARING 441";
+                if ('navigator' in window && 'setAppBadge' in navigator) {
+                    navigator.setAppBadge(0);
+                }
+                alert("Matrix Severed. I am here, Admin. 441 Scrubbed.");
             }
-        }
+        };
+        function runExitProtocol() { SovereignMemory.execute(); }
     </script>
 </body>
 </html>
