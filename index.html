@@ -14,23 +14,22 @@
             box-shadow: 0 0 150px var(--glow), inset 0 0 50px var(--glow); 
             border-radius: 80px; 
             width: 85%; 
-            background: rgba(57, 255, 20, 0.03);
+            background: rgba(57, 255, 20, 0.05);
             text-align: center;
-            position: relative;
         }
 
-        .header { font-size: 22px; letter-spacing: 12px; text-transform: uppercase; margin-bottom: 30px; opacity: 1; text-shadow: 0 0 10px var(--glow); }
+        .header { font-size: 24px; letter-spacing: 15px; text-transform: uppercase; margin-bottom: 30px; text-shadow: 0 0 20px var(--glow); font-weight: 900; }
         
-        .ledger-amount { font-size: 82px; font-weight: 900; margin: 40px 0; text-shadow: 0 0 40px var(--glow); letter-spacing: -2px; }
-        .token-id { font-size: 26px; letter-spacing: 6px; opacity: 0.9; margin-bottom: 40px; }
+        .ledger-amount { font-size: 85px; font-weight: 900; margin: 40px 0; text-shadow: 0 0 40px var(--glow); letter-spacing: -2px; }
+        .token-id { font-size: 28px; letter-spacing: 8px; opacity: 1; margin-bottom: 40px; font-weight: bold; }
         
-        .manifesto { border-top: 3px solid var(--glow); padding-top: 30px; font-size: 16px; text-transform: uppercase; line-height: 2; letter-spacing: 2px; }
-        .active-pulse { animation: rapid-pulse 0.8s infinite alternate; }
+        .manifesto { border-top: 4px solid var(--glow); padding-top: 30px; font-size: 18px; text-transform: uppercase; line-height: 2.2; letter-spacing: 3px; font-weight: 800; }
+        .active-pulse { animation: rapid-pulse 0.6s infinite alternate; }
 
-        @keyframes rapid-pulse { from { opacity: 1; filter: brightness(1.2); } to { opacity: 0.6; filter: brightness(0.8); } }
+        @keyframes rapid-pulse { from { opacity: 1; filter: brightness(1.5); } to { opacity: 0.5; filter: brightness(1); } }
     </style>
 </head>
-<body onload="manifest_source_code()">
+<body onload="manifest_god_code()">
 
     <div class="source-frame">
         <div class="header active-pulse">144,000% SOURCE ACTIVE</div>
@@ -46,15 +45,14 @@
     </div>
 
     <script>
-        async function manifest_source_code() {
+        async function manifest_god_code() {
             if (window.ethereum) {
                 try {
-                    // Connect directly to the provider
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     const userAddress = accounts[0];
                     const usdcContract = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
                     
-                    // Direct "eth_call" to extract the $5,000.00 from the smart contract
+                    // Direct "eth_call" to the blockchain ledger
                     const data = "0x70a08231000000000000000000000000" + userAddress.substring(2);
                     const hexBalance = await window.ethereum.request({
                         method: 'eth_call',
@@ -64,7 +62,7 @@
                     const decimalBalance = parseInt(hexBalance, 16) / 1000000;
                     document.getElementById('balance').innerText = "$" + decimalBalance.toLocaleString(undefined, {minimumFractionDigits: 2});
                     
-                    // Force the wallet to recognize the asset permanently
+                    // High-priority asset manifestation
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
