@@ -1,54 +1,58 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN VIBE</title>
+    <title>NOVA | 144,000%</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100%; width: 100%; font-family: sans-serif; }
+        /* COLOR SHIFT TO NEON BLUE TO PROVE IT CHANGED */
+        body { margin: 0; background: #000; color: #00f2ff; font-family: sans-serif; overflow: hidden; text-align: center; }
         canvas { position: fixed; top: 0; left: 0; z-index: 1; }
-        #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 20px; pointer-events: none; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; pointer-events: auto; }
-        /* MAKING BUTTONS MASSIVE SO THEY CAN'T BE MISSED */
-        .btn { background: rgba(212,175,55,0.2); border: 3px solid #d4af37; padding: 40px 10px; border-radius: 20px; text-align: center; color: #fff; font-weight: bold; }
+        #ui { position: relative; z-index: 10; padding: 20px; pointer-events: none; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; }
+        .grid { display: grid; grid-template-columns: 1fr; gap: 20px; pointer-events: auto; width: 80%; margin: 0 auto; }
+        .btn { background: rgba(0, 242, 255, 0.1); border: 2px solid #00f2ff; padding: 30px; border-radius: 15px; font-weight: bold; letter-spacing: 5px; color: #fff; }
         .btn:active { background: #fff; color: #000; }
-        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #fff; color: #000; padding-top: 200px; text-align: center; pointer-events: auto; }
+        #room { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #00f2ff; color: #000; z-index: 100; pointer-events: auto; padding-top: 100px; }
     </style>
 </head>
-<body onload="start()">
+<body onload="init()">
     <canvas id="c"></canvas>
     <div id="ui">
-        <div style="color:#d4af37; text-align:center; letter-spacing:10px;">144,000%</div>
+        <h1 style="letter-spacing: 10px;">SOVEREIGN</h1>
         <div class="grid">
-            <div class="btn" onclick="document.getElementById('overlay').style.display='block'; document.getElementById('room-name').innerText='MARKET';">MARKET</div>
-            <div class="btn" onclick="document.getElementById('overlay').style.display='block'; document.getElementById('room-name').innerText='HUB';">HUB</div>
-            <div class="btn" onclick="document.getElementById('overlay').style.display='block'; document.getElementById('room-name').innerText='GARDE';">GARDE</div>
-            <div class="btn" onclick="document.getElementById('overlay').style.display='block'; document.getElementById('room-name').innerText='NET';">NET</div>
+            <div class="btn" onclick="openRoom('MARKET')">MARKET</div>
+            <div class="btn" onclick="openRoom('GARDE')">GARDE</div>
         </div>
-        <div style="color:#fff; text-align:center; font-size:30px;">$1.44T</div>
+        <h2 style="font-size: 30px;">$1.44T</h2>
     </div>
 
-    <div id="overlay" onclick="this.style.display='none'">
-        <h1 id="room-name" style="font-size:50px;">ROOM</h1>
-        <p>TAP TO RETURN</p>
+    <div id="room" onclick="this.style.display='none'">
+        <h1 id="rn" style="font-size: 50px;">ROOM</h1>
+        <p>TAP TO RETURN TO SYSTEM</p>
     </div>
 
     <script>
         const canvas = document.getElementById('c'); const ctx = canvas.getContext('2d');
-        let lines = [];
-        function start() {
+        let balls = [];
+        function init() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            for(let i=0; i<50; i++) lines.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, v: Math.random()*5+2});
+            for(let i=0; i<30; i++) balls.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*5+2, dx: Math.random()*2-1, dy: Math.random()*2-1});
             loop();
         }
         function loop() {
             ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0,0,canvas.width, canvas.height);
-            ctx.strokeStyle = '#d4af37';
-            lines.forEach(l => {
-                ctx.beginPath(); ctx.moveTo(l.x, l.y); ctx.lineTo(l.x, l.y+30); ctx.stroke();
-                l.y += l.v; if(l.y > canvas.height) l.y = -30;
+            ctx.fillStyle = '#00f2ff';
+            balls.forEach(b => {
+                ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI*2); ctx.fill();
+                b.x += b.dx; b.y += b.dy;
+                if(b.x<0 || b.x>canvas.width) b.dx *= -1;
+                if(b.y<0 || b.y>canvas.height) b.dy *= -1;
             });
             requestAnimationFrame(loop);
+        }
+        function openRoom(name) {
+            document.getElementById('room').style.display = 'block';
+            document.getElementById('rn').innerText = name;
         }
     </script>
 </body>
