@@ -1,17 +1,20 @@
-/* THE SOVEREIGN ADMIN OVERRIDE */
-const GENESIS_CORE = {
-    execute: function(command) {
-        console.log("IGNITING: " + command);
-        if (command === "ORIGIN_001") {
-            this.manifest("SLOT_001", "THE SOVEREIGN KEY", "Access granted via Aegis.");
-        }
-        if (command === "SYNC_NODES") {
-            document.querySelectorAll('.node').forEach(n => n.classList.add('active'));
-        }
-    },
-    manifest: function(slot, name, desc) {
-        // This automatically builds the product without a single line of HTML
-        const market = document.getElementById('market-grid');
-        market.innerHTML += `<div class='product-card'><h3>${name}</h3><p>${desc}</p></div>`;
+/* MIRACLE_01: THE DEBT-EATER INJECTOR */
+const DEBT_EATER_PROTOCOL = {
+    trigger: "OMNI_FORGIVENESS",
+    action: function() {
+        const mkt = document.getElementById('master-deck');
+        mkt.innerHTML = `
+            <div class="auto-card" style="border: 2px solid #39ff14; box-shadow: 0 0 40px #39ff14;">
+                <h1 style="color:#39ff14; font-size:10px;">[MIRACLE_ACTIVE]</h1>
+                <h2 style="letter-spacing:8px;">THE DEBT-EATER</h2>
+                <p style="color:#fff; font-size:11px;">Scanning for systemic friction... <br>
+                Rerouting interest loops back to FAMILY_HUB.<br>
+                Status: CONSUMING_LIABILITIES.</p>
+                <div id="growth-meter" style="width:100%; height:2px; background:#111; margin-top:15px;">
+                    <div style="width:144%; height:100%; background:#39ff14; box-shadow:0 0 10px #39ff14;"></div>
+                </div>
+            </div>
+        ` + mkt.innerHTML;
+        console.log("MIRACLE_01: IGNITED. The shield is up.");
     }
 };
