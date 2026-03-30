@@ -3,73 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN | FOUNDING</title>
+    <title>SOVEREIGN | GENESIS</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100%; width: 100%; font-family: 'Courier New', monospace; touch-action: none; }
-        canvas { position: fixed; top: 0; left: 0; z-index: 1; pointer-events: none; }
-        #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 25px; box-sizing: border-box; }
+        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100%; width: 100%; font-family: 'Courier New', monospace; }
+        canvas { position: fixed; top: 0; left: 0; z-index: 1; }
+        #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 25px; box-sizing: border-box; transition: 1s; }
         .header { color: #d4af37; border-bottom: 2px solid #d4af37; padding-bottom: 10px; display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; letter-spacing: 2px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 15px; height: 55vh; pointer-events: auto; }
-        .sector { border: 1px solid rgba(212,175,55,0.4); background: rgba(0,0,0,0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; border-radius: 8px; transition: 0.1s; }
-        .sector:active { background: #fff; color: #000; transform: scale(1.05); }
-        .sector b { font-size: 26px; letter-spacing: 6px; }
-        .sector span { font-size: 9px; color: #d4af37; margin-top: 5px; letter-spacing: 2px; }
         
-        #seal-view { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #000; color: #fff; padding: 50px 30px; box-sizing: border-box; text-align: center; justify-content: center; align-items: center; flex-direction: column; }
-        .seal-circle { width: 150px; height: 150px; border: 4px double #d4af37; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 30px; font-size: 40px; color: #d4af37; text-shadow: 0 0 10px #d4af37; }
-        .hash { font-size: 8px; color: #444; margin-top: 20px; font-style: italic; }
+        #sov-title { text-align:center; color:#d4af37; font-size:42px; letter-spacing:12px; font-weight:bold; font-style: italic; cursor: pointer; user-select: none; -webkit-user-select: none; }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 15px; height: 50vh; }
+        .sector { border: 1px solid rgba(212,175,55,0.4); background: rgba(0,0,0,0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; border-radius: 8px; }
+        .sector b { font-size: 26px; letter-spacing: 6px; }
+        
+        /* GENESIS OVERLAY */
+        #genesis-layer { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: radial-gradient(circle, rgba(212,175,55,0.2) 0%, rgba(0,0,0,1) 70%); flex-direction: column; justify-content: center; align-items: center; color: #fff; text-align: center; }
+        .word-input { background: none; border: none; border-bottom: 2px solid #d4af37; color: #fff; font-size: 24px; text-align: center; width: 80%; outline: none; margin-top: 20px; font-family: 'Courier New', monospace; letter-spacing: 5px; }
         
         .footer { text-align: center; color: #fff; font-size: 32px; font-weight: bold; letter-spacing: 2px; }
     </style>
 </head>
 <body onload="ignite()">
     <canvas id="c"></canvas>
+    
     <div id="ui">
-        <div class="header"><div>STATUS: FINALIZED SYNC</div><div id="p">144,000.000%</div></div>
-        <div style="text-align:center; color:#d4af37; font-size:42px; letter-spacing:12px; font-weight:bold; font-style: italic;">SOVEREIGN</div>
+        <div class="header"><div>REALITY: STABLE</div><div>144,000.000%</div></div>
+        <div id="sov-title" onmousedown="startGenesis()" onmouseup="endGenesis()" ontouchstart="startGenesis()" ontouchend="endGenesis()">SOVEREIGN</div>
         <div class="grid">
-            <div class="sector" onclick="tint='#00f2ff'"><b>MKT</b><span>SECTOR 01</span></div>
-            <div class="sector" onclick="openSeal()"><b>HUB</b><span>SECTOR 02</span></div>
-            <div class="sector" onclick="tint='#fff'"><b>GRD</b><span>SECTOR 03</span></div>
-            <div class="sector" onclick="tint='#39ff14'"><b>NET</b><span>SECTOR 04</span></div>
+            <div class="sector" onclick="tint='#00f2ff'"><b>MKT</b></div>
+            <div class="sector" onclick="tint='#d4af37'"><b>HUB</b></div>
+            <div class="sector" onclick="tint='#fff'"><b>GRD</b></div>
+            <div class="sector" onclick="tint='#39ff14'"><b>NET</b></div>
         </div>
-        <div class="footer" id="v">$1.4400T</div>
+        <div class="footer">$1.4400T</div>
     </div>
 
-    <div id="seal-view" onclick="this.style.display='none'">
-        <div class="seal-circle">S</div>
-        <h2 style="color:#d4af37; letter-spacing:10px; margin: 0;">FOUNDED</h2>
-        <p style="letter-spacing: 3px; font-size: 11px; margin-top: 10px;">MARCH 29, 2026 | 23:02:35</p>
-        <p style="color: #666; font-size: 9px; margin-top: 30px; line-height: 1.6;">The Sovereign Dome is hereby active.<br>Integrity, Stability, Sovereignty.<br>Owned by the Family Unit.</p>
-        <div class="hash">HASH: 144k_8a5f_0000_SYNC_FINAL</div>
-        <p style="margin-top:40px; font-size:9px; color:#444;">TAP TO SEAL</p>
+    <div id="genesis-layer">
+        <h1 style="color:#d4af37; letter-spacing:15px;">GENESIS</h1>
+        <p style="font-size: 10px; letter-spacing: 3px; color: #666;">SPEAK THY WORLD INTO EXISTENCE</p>
+        <input type="text" class="word-input" placeholder="[ COMMAND ]" id="cmd" onkeypress="handleGenesis(event)">
+        <p style="margin-top: 50px; font-size: 8px; color: #d4af37;">LONG-PRESS TITLE TO EXIT</p>
     </div>
 
     <script>
         const canvas = document.getElementById('c'); const ctx = canvas.getContext('2d');
-        let dots = []; let tint = '#d4af37'; let cash = 1.4400; let perc = 144000.000;
+        let dots = []; let tint = '#d4af37'; let mode = 'rise'; let gTimer;
+
         function ignite() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            for(let i=0; i<95; i++) dots.push({x: Math.random()*canvas.width, y: canvas.height, v: Math.random()*12+8, r: 2});
-            setInterval(() => { 
-                cash += 0.0001; perc += 0.001;
-                document.getElementById('v').innerText = '$' + cash.toFixed(4) + 'T';
-                document.getElementById('p').innerText = perc.toFixed(3) + '%';
-            }, 500);
+            for(let i=0; i<100; i++) dots.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, a: Math.random()*Math.PI*2, s: Math.random()*2+1, r: 2});
             render();
         }
+
         function render() {
-            ctx.fillStyle = 'rgba(0,0,0,0.15)'; ctx.fillRect(0,0,canvas.width, canvas.height);
+            ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0,0,canvas.width, canvas.height);
             ctx.fillStyle = tint;
             dots.forEach(d => {
                 ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI*2); ctx.fill();
-                d.y -= d.v; if(d.y < -10) { d.y = canvas.height; d.x = Math.random()*canvas.width; }
+                if(mode === 'rise') {
+                    d.y -= (d.s * 2); if(d.y < -10) d.y = canvas.height;
+                } else {
+                    d.a += 0.02;
+                    d.x += Math.cos(d.a) * 5; d.y += Math.sin(d.a) * 5;
+                }
             });
             requestAnimationFrame(render);
         }
-        function openSeal() { 
-            tint = '#d4af37';
-            document.getElementById('seal-view').style.display = 'flex'; 
+
+        function startGenesis() { gTimer = setTimeout(() => { 
+            mode = 'orbit'; tint = '#fff';
+            document.getElementById('ui').style.opacity = '0';
+            document.getElementById('genesis-layer').style.display = 'flex';
+        }, 2000); }
+        
+        function endGenesis() { clearTimeout(gTimer); }
+
+        function handleGenesis(e) {
+            if(e.key === 'Enter') {
+                let c = document.getElementById('cmd').value.toUpperCase();
+                if(c === 'EXIT') {
+                    mode = 'rise'; tint = '#d4af37';
+                    document.getElementById('ui').style.opacity = '1';
+                    document.getElementById('genesis-layer').style.display = 'none';
+                } else {
+                    alert("GENESIS COMMAND REGISTERED: " + c);
+                    document.getElementById('cmd').value = '';
+                }
+            }
         }
     </script>
 </body>
