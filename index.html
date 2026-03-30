@@ -3,94 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN | OUTDOORS</title>
+    <title>SOVEREIGN | OMNI</title>
     <style>
-        /* ORGANIC & FUN COLOR SHIFT */
-        :root { --forest: #1A3E31; --sky: #4A90E2; --leaf: #2ecc71; --stone: #fff; }
-        body, html { margin: 0; padding: 0; background: var(--forest); overflow: hidden; height: 100%; width: 100%; font-family: 'Montserrat', sans-serif; }
-        canvas { position: fixed; top: 0; left: 0; z-index: 1; }
+        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100%; width: 100%; font-family: 'Times New Roman', serif; }
+        canvas { position: fixed; top: 0; left: 0; z-index: 1; pointer-events: none; }
         
-        #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 30px; pointer-events: none; }
-        .header { display: flex; justify-content: space-between; font-size: 14px; color: var(--stone); letter-spacing: 2px; }
+        #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 30px; box-sizing: border-box; pointer-events: none; }
+        .header { border-bottom: 1px solid #d4af37; padding-bottom: 15px; display: flex; justify-content: space-between; font-size: 10px; letter-spacing: 5px; color: #d4af37; }
+        .title { text-align: center; font-size: 45px; letter-spacing: 15px; color: #d4af37; font-style: italic; margin-top: 20px; text-shadow: 0 0 20px rgba(212,175,55,0.6); }
 
-        /* THE TITLE - More Rugged/Fun */
-        .title { text-align: center; font-size: 50px; letter-spacing: 5px; font-weight: 900; color: var(--stone); margin-top: 20px; text-transform: uppercase; text-shadow: 0 0 10px rgba(74, 144, 226, 0.5); }
-
-        /* OUTDOOR PILLARS GRID */
-        .grid { display: grid; grid-template-columns: 1fr; gap: 15px; pointer-events: auto; max-width: 300px; margin: 0 auto; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; pointer-events: auto; max-width: 400px; margin: 0 auto; }
         .btn { 
-            background: rgba(255, 255, 255, 0.05); border: 2px solid var(--sky); padding: 25px; 
-            border-radius: 50px; text-align: center; color: var(--stone); font-size: 18px; font-weight: bold; 
-            letter-spacing: 3px; backdrop-filter: blur(10px); transition: 0.2s;
+            background: rgba(0,0,0,0.85); border: 1px solid #d4af37; padding: 35px 10px; 
+            border-radius: 15px; text-align: center; color: #fff; cursor: pointer;
+            transition: 0.1s; -webkit-tap-highlight-color: transparent; backdrop-filter: blur(10px);
         }
-        .btn:active { background: var(--leaf); transform: scale(0.9); border-color: #fff; }
+        .btn:active { background: #fff; color: #000; transform: scale(1.1); }
+        .btn b { display: block; font-size: 14px; letter-spacing: 5px; }
 
-        /* NATURE-THEMED CONTENT LAYER */
-        #room-layer { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: var(--sky); color: var(--stone); padding-top: 100px; text-align: center; pointer-events: auto; }
+        /* MULTI-ENGINE OVERLAYS */
+        #portal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: rgba(0,0,0,0.92); text-align: center; justify-content: center; align-items: center; flex-direction: column; pointer-events: auto; }
+        .age-grid { display: none; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; }
+        .age-btn { border: 1px solid #fff; padding: 15px; color: #fff; border-radius: 10px; font-size: 10px; }
         
-        .footer { font-size: 35px; color: var(--stone); text-align: center; font-weight: bold; padding-top: 15px; border-top: 1px solid var(--sky); }
+        .footer { text-align: center; font-size: 32px; font-weight: bold; color: #fff; letter-spacing: 2px; }
     </style>
 </head>
 <body onload="ignite()">
-    <canvas id="skyline"></canvas>
+    <canvas id="c"></canvas>
     
     <div id="ui">
-        <div class="header"><div>TERRAIN: ONLINE</div><div>FREQ: 144k%</div></div>
-        <div class="title">OUTDOORS</div>
-        
+        <div class="header"><div>SYSTEM: OMNI</div><div>144,000%</div></div>
+        <div class="title">SOVEREIGN</div>
         <div class="grid">
-            <div class="btn" onclick="flip('CAMPFIRE', 'rgba(230,126,34,0.9)')">HUB.TALK</div>
-            <div class="btn" onclick="flip('TRAIL', 'rgba(46,204,113,0.9)')">GARDE.WALK</div>
-            <div class="btn" onclick="flip('RIVER', 'rgba(52,152,219,0.9)')">MARKET.FLOW</div>
+            <div class="btn" onclick="fire('MARKET', '#00f2ff', 'LIQUIDITY FLOW')"><b>MARKET</b></div>
+            <div class="btn" onclick="fire('HUB', '#d4af37', 'SOUL MIRROR')"><b>HUB</b></div>
+            <div class="btn" onclick="fire('GARDE', '#fff', 'FAMILY ACCESS')"><b>GARDE</b></div>
+            <div class="btn" onclick="fire('NET', '#39ff14', 'TRUTH FEED')"><b>NET</b></div>
         </div>
-
-        <div class="footer">$1.44T</div>
+        <div class="footer">$1,440,000,000,000</div>
     </div>
 
-    <div id="room-layer" onclick="this.style.display='none'">
-        <h1 id="room-name" style="font-size: 60px; letter-spacing: 5px;">HUB</h1>
-        <p>TAP TO RETURN TO TERRITORY</p>
+    <div id="portal">
+        <h1 id="rn" style="font-size: 50px; letter-spacing: 15px; margin: 0;"></h1>
+        <p id="rs" style="color: #d4af37; letter-spacing: 5px; margin-bottom: 30px;"></p>
+        
+        <div id="age-gates" class="age-grid">
+            <div class="age-btn" onclick="tune(25)">3-7</div>
+            <div class="age-btn" onclick="tune(10)">8-13</div>
+            <div class="age-btn" onclick="tune(0)">14+</div>
+        </div>
+
+        <div style="margin-top: 50px; color: #fff; text-decoration: underline;" onclick="closePortal()">CLOSE ENGINE</div>
     </div>
 
     <script>
-        const canvas = document.getElementById('skyline');
-        const ctx = canvas.getContext('2d');
-        let stars = [];
+        const canvas = document.getElementById('c'); const ctx = canvas.getContext('2d');
+        let lines = []; let accent = '#d4af37'; let velocity = 12;
 
         function ignite() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            for(let i=0; i<150; i++) {
-                stars.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    r: Math.random() * 3,
-                    opacity: Math.random(),
-                    speed: Math.random() * 0.01 + 0.005
-                });
-            }
-            draw();
+            for(let i=0; i<100; i++) lines.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, v: Math.random()*10+5, l: Math.random()*60+20});
+            loop();
         }
 
-        function draw() {
-            ctx.fillStyle = '#1A3E31'; // Forest background
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            stars.forEach(s => {
-                s.opacity += s.speed;
-                if(s.opacity > 1 || s.opacity < 0) s.speed *= -1;
-                ctx.fillStyle = `rgba(255, 255, 255, ${s.opacity})`;
-                ctx.beginPath();
-                ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-                ctx.fill();
+        function loop() {
+            ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0,0,canvas.width, canvas.height);
+            ctx.strokeStyle = accent; ctx.lineWidth = 2;
+            lines.forEach(l => {
+                ctx.beginPath(); ctx.moveTo(l.x, l.y); ctx.lineTo(l.x, l.y + l.l); ctx.stroke();
+                l.y += (velocity); if(l.y > canvas.height) l.y = -l.l;
             });
-            requestAnimationFrame(draw);
+            requestAnimationFrame(loop);
         }
 
-        function flip(name, color) {
-            document.getElementById('room-layer').style.display = 'block';
-            document.getElementById('room-layer').style.background = color;
-            document.getElementById('room-name').innerText = name;
+        function fire(name, color, status) {
+            accent = color;
+            velocity = (name === 'MARKET') ? 25 : 12;
+            document.getElementById('portal').style.display = 'flex';
+            document.getElementById('rn').innerText = name;
+            document.getElementById('rn').style.color = color;
+            document.getElementById('rs').innerText = status;
+            document.getElementById('age-gates').style.display = (name === 'GARDE') ? 'grid' : 'none';
         }
+
+        function tune(blur) {
+            canvas.style.filter = `blur(${blur}px)`;
+            closePortal();
+        }
+
+        function closePortal() { document.getElementById('portal').style.display = 'none'; }
     </script>
 </body>
 </html>
