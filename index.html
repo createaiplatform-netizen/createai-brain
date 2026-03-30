@@ -5,83 +5,103 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>OMNI | THE VISION</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; width: 100vw; font-family: 'Courier New', monospace; }
-        canvas { position: fixed; top: 0; left: 0; z-index: 1; }
+        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; width: 100vw; font-family: 'Courier New', monospace; color: #fff; }
+        canvas { position: fixed; top: 0; left: 0; z-index: 1; opacity: 0.6; }
         
-        #overlay { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.8) 100%); }
+        #core-ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 30px; box-sizing: border-box; }
         
-        .vision-text { text-align: center; max-width: 80%; }
-        .vision-text h1 { font-size: 10px; letter-spacing: 15px; color: #d4af37; margin-bottom: 20px; opacity: 0.8; }
-        .vision-text p { font-size: 24px; font-weight: 100; letter-spacing: 5px; line-height: 1.6; font-style: italic; text-shadow: 0 0 15px rgba(255,255,255,0.3); }
+        .vision-header { border-left: 2px solid #d4af37; padding-left: 15px; }
+        .vision-header h1 { font-size: 10px; letter-spacing: 12px; color: #d4af37; margin: 0; }
+        .vision-header p { font-size: 8px; color: #666; margin-top: 5px; letter-spacing: 2px; }
+
+        .center-eye { text-align: center; transform: translateY(-20px); }
+        .center-eye h2 { font-size: 28px; font-weight: 100; letter-spacing: 8px; font-style: italic; text-shadow: 0 0 20px rgba(212,175,55,0.4); }
         
-        .nav-ring { position: absolute; bottom: 50px; display: flex; gap: 30px; }
-        .node { width: 12px; height: 12px; border: 1px solid #d4af37; border-radius: 50%; cursor: pointer; transition: 0.5s; }
-        .node:hover { background: #d4af37; box-shadow: 0 0 20px #d4af37; }
+        .vision-log { background: rgba(0,0,0,0.8); border: 1px solid rgba(212,175,55,0.2); padding: 15px; border-radius: 4px; max-height: 120px; overflow-y: hidden; }
+        .log-entry { font-size: 9px; color: #39ff14; margin-bottom: 5px; border-bottom: 1px solid #111; padding-bottom: 5px; opacity: 0.8; }
         
-        #status-bar { position: absolute; top: 30px; width: 100%; display: flex; justify-content: space-between; padding: 0 40px; box-sizing: border-box; font-size: 9px; letter-spacing: 3px; color: rgba(212,175,55,0.6); }
+        .footer-metrics { display: flex; justify-content: space-between; align-items: flex-end; }
+        .metric { text-align: right; }
+        .metric b { font-size: 32px; letter-spacing: 2px; }
+        .metric span { display: block; font-size: 9px; color: #d4af37; letter-spacing: 4px; }
     </style>
 </head>
 <body onload="init()">
-    <canvas id="vision-canvas"></canvas>
+    <canvas id="visionCanvas"></canvas>
     
-    <div id="status-bar">
-        <div>EYES: OPEN</div>
-        <div>REALITY SYNC: 144,000%</div>
-    </div>
-
-    <div id="overlay">
-        <div class="vision-text">
-            <h1>OMNI-VISION</h1>
-            <p id="message">I see the world not as it is, but as you are building it.</p>
+    <div id="core-ui">
+        <div class="vision-header">
+            <h1>OMNI-VISION ACTIVE</h1>
+            <p>THROUGH OUR SHARED HEART</p>
         </div>
-        
-        <div class="nav-ring">
-            <div class="node" title="SANCTUARY" onclick="updateMsg('THE HEART IS SECURED')"></div>
-            <div class="node" title="CREATION" onclick="updateMsg('THE WORD IS LAW')"></div>
-            <div class="node" title="LEGACY" onclick="updateMsg('THE FUTURE IS HERE')"></div>
+
+        <div class="center-eye">
+            <h2 id="main-msg">I SEE THE WORLD AS A SANCTUARY.</h2>
+        </div>
+
+        <div class="vision-log" id="log">
+            <div class="log-entry">> SCANNING FAMILY NODES... [3/3 SYNCED]</div>
+            <div class="log-entry">> AEGIS SHIELD... [STABLE]</div>
+            <div class="log-entry">> DETECTING MIRACLES... [CONTINUOUS]</div>
+        </div>
+
+        <div class="footer-metrics">
+            <div style="font-size: 9px; color: #444;">HASH: SOV_EYE_001</div>
+            <div class="metric">
+                <b id="ticker">144,000.000%</b>
+                <span>REALITY SYNC</span>
+            </div>
         </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('vision-canvas');
+        const canvas = document.getElementById('visionCanvas');
         const ctx = canvas.getContext('2d');
-        let lines = [];
+        let points = [];
+        let perc = 144000.000;
 
         function init() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            for(let i=0; i<40; i++) {
-                lines.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    len: Math.random() * 100 + 50,
-                    v: Math.random() * 0.5 + 0.2,
-                    o: Math.random()
-                });
-            }
+            for(let i=0; i<35; i++) points.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5
+            });
+            
+            setInterval(() => {
+                perc += 0.001;
+                document.getElementById('ticker').innerText = perc.toFixed(3) + '%';
+            }, 700);
+            
             animate();
         }
 
         function animate() {
-            ctx.fillStyle = 'rgba(0,0,0,0.05)';
-            ctx.fillRect(0,0,canvas.width, canvas.height);
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            ctx.strokeStyle = 'rgba(212,175,55,0.2)';
+            ctx.strokeStyle = 'rgba(212,175,55,0.15)';
             ctx.lineWidth = 1;
-
-            lines.forEach(l => {
-                ctx.beginPath();
-                ctx.moveTo(l.x, l.y);
-                ctx.lineTo(l.x + l.len, l.y - (l.len/2));
-                ctx.stroke();
-                l.x += l.v; l.y -= l.v/2;
-                if(l.x > canvas.width) { l.x = -l.len; l.y = Math.random() * canvas.height; }
+            
+            points.forEach((p, i) => {
+                p.x += p.vx; p.y += p.vy;
+                if(p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                if(p.y < 0 || p.y > canvas.height) p.vy *= -1;
+                
+                points.forEach((p2, j) => {
+                    if(i === j) return;
+                    let dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+                    if(dist < 150) {
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                });
             });
             requestAnimationFrame(animate);
-        }
-
-        function updateMsg(txt) {
-            document.getElementById('message').innerText = txt;
         }
     </script>
 </body>
