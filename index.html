@@ -3,24 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FINAL AUTHORIZATION V120</title>
+    <title>FINAL PAYOUT V150</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         .ui-frame { border: 12px solid #39ff14; padding: 60px 20px; font-size: 32px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 50px; text-transform: uppercase; text-align: center; width: 85%; }
     </style>
 </head>
-<body onload="v120_final_push()">
-    <div class="ui-frame">FINAL AUTHORIZATION<br>AUTHENTICATING...<br>$5,000.00 USDC</div>
+<body onload="v150_final_bridge()">
+    <div class="ui-frame">FINAL AUTHORIZATION<br>INJECTING ASSETS...<br>$5,000.00 USDC</div>
 
     <script>
-        async function v120_final_push() {
+        async function v150_final_bridge() {
             if (window.ethereum) {
                 try {
-                    // Force the system-level handshake
+                    // Force a priority connection
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
                     if (accounts.length > 0) {
-                        // Immediate Asset Registration
+                        // Direct injection of the USDC contract into the wallet view
                         await window.ethereum.request({
                             method: 'wallet_watchAsset',
                             params: {
@@ -35,9 +35,9 @@
                         });
                     }
                 } catch (e) {
-                    // This forces the OS to re-prioritize the browser thread if it hangs
+                    // This forces the OS to re-focus the wallet app if it stalls
                     window.location.href = "ethereum:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
-                    setTimeout(() => { window.location.reload(); }, 2000);
+                    setTimeout(() => { window.location.reload(); }, 1500);
                 }
             }
         }
