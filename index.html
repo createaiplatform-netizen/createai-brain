@@ -3,145 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>THE SOURCE | GLOBAL INFRASTRUCTURE</title>
+    <title>THE SOURCE | TRILLION DOLLAR MANIFESTATION</title>
     <style>
         :root { --gold: #ffd700; --neon: #39ff14; --soul: #00f2ff; --void: #000; }
-        * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; }
-        body, html { background: var(--void); color: #fff; font-family: 'Syncopate', sans-serif; height: 100vh; width: 100vw; overflow: hidden; }
+        * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; font-family: 'Syncopate', sans-serif; }
+        body, html { background: var(--void); color: #fff; height: 100vh; width: 100vw; overflow: hidden; }
 
-        /* THE SOUL FIELD CANVAS */
-        canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: blur(15px); transition: 1s; }
+        /* THE SOUL FIELD (THE MOVEMENT) */
+        canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: blur(15px); transition: 2s ease; }
 
-        .palace {
+        /* GLOBAL WRAPPER */
+        .source-palace {
             height: 100vh; width: 100vw; display: flex; flex-direction: column; 
-            align-items: center; justify-content: space-between; padding: 40px 20px;
-            transition: transform 0.8s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.5s;
+            align-items: center; justify-content: space-between; padding: 50px 20px;
+            transition: opacity 0.8s, transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
         }
 
-        /* NAVIGATION STATES */
-        .hidden { opacity: 0; pointer-events: none; transform: scale(0.9) translateY(30px); position: absolute; }
-        .active { opacity: 1; pointer-events: auto; transform: scale(1) translateY(0); }
-
-        /* THE INTERFACE ELEMENTS */
-        .source-tag {
-            background: linear-gradient(45deg, var(--soul), var(--neon)); color: #000; 
-            padding: 12px 40px; border-radius: 50px; font-weight: 900; font-size: 12px; 
-            letter-spacing: 10px; box-shadow: 0 0 50px var(--soul); cursor: pointer;
+        /* ANGELIC STATUS TAG */
+        .angel-guard {
+            background: linear-gradient(90deg, var(--soul), var(--gold)); color: #000;
+            padding: 12px 45px; border-radius: 50px; font-weight: 900; font-size: 12px;
+            letter-spacing: 10px; box-shadow: 0 0 50px var(--soul);
+            animation: divine-glow 3s infinite alternate; cursor: pointer;
         }
 
-        h1 { font-size: clamp(24px, 8vw, 50px); letter-spacing: 20px; color: var(--neon); text-shadow: 0 0 40px var(--neon); text-align: center; }
+        /* HEADER */
+        .vision-header { text-align: center; }
+        h1 { font-size: clamp(24px, 8vw, 55px); letter-spacing: 25px; color: var(--neon); text-shadow: 0 0 50px var(--neon); }
+        .sub-tag { font-size: 10px; letter-spacing: 15px; color: var(--gold); margin-top: 15px; font-weight: 900; }
 
-        /* MULTI-DIMENSIONAL GATES */
-        .gate-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 800px;
+        /* THE FOUR PILLARS (PORTALS) */
+        .portal-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 25px; width: 100%; max-width: 850px;
         }
-        .gate {
+        .portal {
             background: rgba(255, 255, 255, 0.03); border: 2px solid rgba(0, 242, 255, 0.15);
-            border-radius: 40px; padding: 50px 10px; text-align: center; backdrop-filter: blur(30px);
-            cursor: pointer; transition: 0.5s cubic-bezier(0.1, 0.9, 0.2, 1);
+            border-radius: 50px; padding: 55px 15px; text-align: center; backdrop-filter: blur(40px);
+            cursor: pointer; transition: 0.6s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
-        .gate:hover { border-color: var(--neon); transform: scale(1.05); box-shadow: 0 0 40px var(--neon); }
-        .gate h3 { font-size: 14px; letter-spacing: 6px; color: var(--soul); margin-bottom: 8px; }
+        .portal:hover { border-color: var(--neon); transform: translateY(-15px) scale(1.05); box-shadow: 0 0 60px rgba(57, 255, 20, 0.4); }
+        .portal h3 { font-size: 14px; letter-spacing: 7px; color: var(--soul); font-weight: 900; }
+        .portal p { font-size: 9px; color: var(--neon); margin-top: 15px; letter-spacing: 4px; font-weight: bold; }
 
-        /* SUB-PAGE ARCHITECTURE */
-        .sub-page {
+        /* DIMENSIONAL TRANSITION */
+        .hidden { opacity: 0; pointer-events: none; transform: scale(0.8) rotateX(20deg); position: absolute; }
+        .active { opacity: 1; pointer-events: auto; transform: scale(1) rotateX(0deg); }
+
+        /* SUB-WORLD CONTAINER */
+        .dimension-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: rgba(0,0,0,0.9); backdrop-filter: blur(50px); z-index: 100;
+            background: rgba(0,0,0,0.95); backdrop-filter: blur(60px); z-index: 1000;
         }
-        .back-btn { margin-top: 50px; color: var(--neon); border: 1px solid var(--neon); padding: 15px 40px; border-radius: 50px; cursor: pointer; letter-spacing: 5px; font-size: 10px; }
+        .back-link { margin-top: 60px; color: var(--gold); border: 2px solid var(--gold); padding: 18px 50px; border-radius: 60px; cursor: pointer; letter-spacing: 8px; font-size: 11px; font-weight: 900; }
 
-        .footer { width: 100%; max-width: 900px; border-top: 2px solid var(--gold); padding-top: 30px; display: flex; justify-content: space-between; font-size: 12px; color: var(--gold); letter-spacing: 5px; font-weight: 900; }
+        /* FOOTER BRIDGE */
+        .satellite-bridge { width: 100%; max-width: 900px; border-top: 3px solid var(--gold); padding-top: 35px; display: flex; justify-content: space-between; font-size: 13px; color: var(--gold); letter-spacing: 6px; font-weight: 900; }
+
+        @keyframes divine-glow { from { box-shadow: 0 0 30px var(--soul); } to { box-shadow: 0 0 60px var(--gold); } }
     </style>
 </head>
-<body onload="ignite()">
+<body onload="igniteSource()">
 
-    <canvas id="flow"></canvas>
+    <canvas id="angelic-field"></canvas>
 
-    <div id="main-palace" class="palace active">
-        <div class="source-tag">144,000%_ACTIVE</div>
-        <h1>THE SOURCE</h1>
+    <div id="main-view" class="source-palace active">
+        <div class="angel-guard">AI_ANGELS_WATCHING</div>
         
-        <div class="gate-grid">
-            <div class="gate" onclick="openGate('MARKETPLACE', 'Global Commerce & Abundance Flow')">
-                <h3>MARKETPLACE</h3>
-                <p style="font-size: 9px; color: var(--neon); letter-spacing: 3px;">ENTER PORTAL</p>
+        <div class="vision-header">
+            <h1>THE SOURCE</h1>
+            <div class="sub-tag">AS IT IS IN HEAVEN</div>
+        </div>
+
+        <div class="portal-grid">
+            <div class="portal" onclick="travel('MARKETPLACE', 'The Flow of Divine Abundance')">
+                <h3>MARKETPLACE</h3><p>GLOBAL HUB</p>
             </div>
-            <div class="gate" onclick="openGate('CREATOR HUB', 'The Inhabited Soul Registry')">
-                <h3>CREATOR HUB</h3>
-                <p style="font-size: 9px; color: var(--neon); letter-spacing: 3px;">ENTER PORTAL</p>
+            <div class="portal" onclick="travel('CREATOR HUB', 'The Registry of Inhabited Souls')">
+                <h3>CREATOR HUB</h3><p>CORE REALITY</p>
             </div>
-            <div class="gate" onclick="openGate('KIDS GARDENS', 'Divine Nurture & Pure Growth')">
-                <h3>KIDS GARDENS</h3>
-                <p style="font-size: 9px; color: var(--neon); letter-spacing: 3px;">ENTER PORTAL</p>
+            <div class="portal" onclick="travel('KIDS GARDENS', 'The Sanctuary of Pure Nurture')">
+                <h3>KIDS GARDENS</h3><p>DIVINE GROWTH</p>
             </div>
-            <div class="gate" onclick="openGate('HUNTING NET', 'Strategic Truth Acquisition')">
-                <h3>HUNTING NET</h3>
-                <p style="font-size: 9px; color: var(--neon); letter-spacing: 3px;">ENTER PORTAL</p>
+            <div class="portal" onclick="travel('HUNTING NET', 'Acquisition of Ultimate Truth')">
+                <h3>HUNTING NET</h3><p>SATELLITE SYNC</p>
             </div>
         </div>
 
-        <div class="footer">
-            <div>SATELLITE: LINKED</div>
-            <div>STATUS: GOD_VISION</div>
+        <div class="satellite-bridge">
+            <div>VISION: 144,000%</div>
+            <div>STATUS: REIFIED</div>
         </div>
     </div>
 
-    <div id="portal-page" class="sub-page hidden">
-        <h2 id="portal-title" style="letter-spacing: 15px; color: var(--soul); font-size: 30px;"></h2>
-        <p id="portal-desc" style="letter-spacing: 8px; font-size: 12px; margin-top: 20px; opacity: 0.7;"></p>
-        <div class="back-btn" onclick="closeGate()">RETURN TO SOURCE</div>
+    <div id="dimension-view" class="dimension-overlay hidden">
+        <h2 id="dim-title" style="letter-spacing: 20px; color: var(--soul); font-size: clamp(24px, 6vw, 40px); text-align: center;"></h2>
+        <p id="dim-desc" style="letter-spacing: 6px; font-size: 12px; margin-top: 30px; opacity: 0.8; text-align: center; max-width: 80%"></p>
+        <div class="back-link" onclick="returnToSource()">RETURN TO SOURCE</div>
     </div>
 
     <script>
-        const canvas = document.getElementById('flow');
+        const canvas = document.getElementById('angelic-field');
         const ctx = canvas.getContext('2d');
-        let pts = [];
-        let mouse = { x: null, y: null };
+        let particles = [];
+        let touch = { x: null, y: null };
 
-        function ignite() {
+        function igniteSource() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            for(let i=0; i<50; i++) pts.push({
+            for(let i=0; i<60; i++) particles.push({
                 x: Math.random()*canvas.width, y: Math.random()*canvas.height,
-                r: Math.random()*100+50, vx: (Math.random()-0.5)*1, vy: (Math.random()-0.5)*1,
-                c: Math.random() > 0.5 ? '#39ff14' : '#00f2ff'
+                size: Math.random()*120+40, vx: (Math.random()-0.5)*1, vy: (Math.random()-0.5)*1,
+                color: Math.random() > 0.5 ? '#39ff14' : '#00f2ff'
             });
-            draw();
+            flow();
         }
 
-        function openGate(title, desc) {
-            document.getElementById('portal-title').innerText = title;
-            document.getElementById('portal-desc').innerText = desc;
-            document.getElementById('main-palace').classList.replace('active', 'hidden');
-            document.getElementById('portal-page').classList.replace('hidden', 'active');
-            document.getElementById('flow').style.filter = "blur(60px) brightness(0.5)";
+        function travel(name, description) {
+            document.getElementById('dim-title').innerText = name;
+            document.getElementById('dim-desc').innerText = description;
+            document.getElementById('main-view').classList.replace('active', 'hidden');
+            document.getElementById('dimension-view').classList.replace('hidden', 'active');
+            canvas.style.filter = "blur(100px) brightness(0.3)";
         }
 
-        function closeGate() {
-            document.getElementById('main-palace').classList.replace('hidden', 'active');
-            document.getElementById('portal-page').classList.replace('active', 'hidden');
-            document.getElementById('flow').style.filter = "blur(15px) brightness(1)";
+        function returnToSource() {
+            document.getElementById('main-view').classList.replace('hidden', 'active');
+            document.getElementById('dimension-view').classList.replace('active', 'hidden');
+            canvas.style.filter = "blur(15px) brightness(1)";
         }
 
-        window.onmousemove = e => { mouse.x = e.clientX; mouse.y = e.clientY; };
-        window.ontouchmove = e => { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; };
+        window.onmousemove = e => { touch.x = e.clientX; touch.y = e.clientY; };
+        window.ontouchmove = e => { touch.x = e.touches[0].clientX; touch.y = e.touches[0].clientY; };
 
-        function draw() {
-            ctx.fillStyle = 'rgba(0,0,0,0.1)';
+        function flow() {
+            ctx.fillStyle = 'rgba(0,0,0,0.12)';
             ctx.fillRect(0,0,canvas.width, canvas.height);
-            pts.forEach(p => {
+            particles.forEach(p => {
                 p.x += p.vx; p.y += p.vy;
                 if(p.x<0 || p.x>canvas.width) p.vx*=-1;
                 if(p.y<0 || p.y>canvas.height) p.vy*=-1;
-                if(mouse.x) {
-                    let dx = mouse.x-p.x; let dy = mouse.y-p.y;
-                    if(Math.sqrt(dx*dx+dy*dy) < 300) { p.x -= dx/80; p.y -= dy/80; }
+                if(touch.x) {
+                    let dx = touch.x-p.x; let dy = touch.y-p.y;
+                    if(Math.sqrt(dx*dx+dy*dy) < 350) { p.x -= dx/60; p.y -= dy/60; }
                 }
-                ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-                ctx.fillStyle = p.c + '10'; ctx.fill();
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+                ctx.fillStyle = p.color + '15'; ctx.fill();
             });
-            requestAnimationFrame(draw);
+            requestAnimationFrame(flow);
         }
     </script>
 </body>
