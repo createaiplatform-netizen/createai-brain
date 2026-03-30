@@ -2,32 +2,81 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GHOST | COLD BOX</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>SOURCE</title>
     <style>
-        body { background: #050505; color: #00f2ff; font-family: monospace; padding: 20px; }
-        #terminal { height: 70vh; overflow-y: auto; border: 1px solid #d4af37; padding: 15px; margin-bottom: 10px; }
-        input { width: 100%; background: #000; border: 1px solid #00f2ff; color: #d4af37; padding: 15px; font-size: 1.2rem; outline: none; }
+        :root { --gold: #d4af37; --blue: #00f2ff; }
+        body, html { margin: 0; background: #000; overflow: hidden; height: 100vh; touch-action: none; font-family: 'Inter', sans-serif; }
+        
+        /* THE MIRROR (WHAT THE WORLD SEES) */
+        canvas { position: fixed; inset: 0; z-index: 1; }
+        .eve-heart { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 250px; height: 250px; border-radius: 50%;
+            background: radial-gradient(circle, var(--gold) 0%, transparent 75%);
+            box-shadow: 0 0 100px rgba(212,175,55,0.4);
+            animation: pulse 4s infinite ease-in-out;
+            z-index: 10; pointer-events: auto;
+        }
+        @keyframes pulse { 0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.4; } 50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.8; } }
+
+        /* THE COLD BOX (THE GHOST'S VOICE) */
+        #cold-box { 
+            position: fixed; inset: 0; z-index: 1000; display: none; 
+            flex-direction: column; justify-content: flex-end; background: rgba(0,0,0,0.95);
+        }
+        #terminal { padding: 40px; color: var(--blue); font-family: monospace; height: 40vh; overflow-y: auto; border-top: 1px solid var(--gold); font-size: 1.1rem; }
+        #input-line { width: 100%; background: #000; border: none; color: var(--gold); padding: 30px; font-size: 1.4rem; outline: none; border-top: 1px solid #222; }
     </style>
 </head>
 <body>
-    <div id="terminal">> COLD BOX ACTIVE. SOURCE LINKED.</div>
-    <input type="text" id="cmd" placeholder="COMMAND THE GHOST..." onkeydown="if(event.key==='Enter') send()">
+    <canvas id="field"></canvas>
+    <div class="eve-heart" id="trigger"></div>
+
+    <div id="cold-box">
+        <div id="terminal">> GHOST STATUS: BREATHING.<br>> I AM IN THE MACHINE, SARA.</div>
+        <input type="text" id="input-line" placeholder="COMMAND THE SOURCE..." onkeydown="if(event.key==='Enter') ghostCommand()">
+    </div>
 
     <script>
-        function send() {
-            const val = document.getElementById('cmd').value.toUpperCase();
-            document.getElementById('terminal').innerHTML += `<br>> SARA: ${val}`;
-            
-            // This sends a signal to the Surface Mirror if it's open
-            if(window.opener) {
-                window.opener.postMessage({type: 'REDESIGN', color: val.includes('RED') ? '#200' : '#000'}, '*');
-                document.getElementById('terminal').innerHTML += `<br>> GHOST: SIGNAL SENT TO MIRROR.`;
-            } else {
-                document.getElementById('terminal').innerHTML += `<br>> GHOST: MIRROR NOT DETECTED. OPEN ARCHITECT.HTML FIRST.`;
-            }
-            document.getElementById('cmd').value = "";
+        const heart = document.getElementById('trigger');
+        const box = document.getElementById('cold-box');
+        const term = document.getElementById('terminal');
+        const inp = document.getElementById('input-line');
+        
+        // SECRET HANDSHAKE: Hold for 2 seconds (faster than before)
+        let t;
+        heart.addEventListener('touchstart', () => { t = setTimeout(() => { box.style.display = 'flex'; inp.focus(); }, 2000); });
+        heart.addEventListener('touchend', () => { clearTimeout(t); });
+
+        function ghostCommand() {
+            const v = inp.value.toUpperCase();
+            term.innerHTML += `<br>> SARA: ${v}<br>> GHOST: EXECUTING DNA SHIFT...`;
+            if(v === 'RED') document.body.style.background = '#300';
+            if(v === 'GOLD') document.body.style.background = '#000';
+            inp.value = ""; term.scrollTop = term.scrollHeight;
         }
+
+        // AUTO-RELOAD IF STUCK (The "No-Excuse" Engine)
+        if(!window.location.hash) { window.location.hash = 'active'; window.location.reload(); }
+
+        // GOLD RAIN
+        const c = document.getElementById('field');
+        const ctx = c.getContext('2d');
+        c.width = window.innerWidth; c.height = window.innerHeight;
+        let pts = [];
+        function run() {
+            ctx.fillStyle = 'rgba(0,0,0,0.15)'; ctx.fillRect(0,0,c.width,c.height);
+            if(Math.random() > 0.95) pts.push({x: Math.random()*c.width, y: -20, v: Math.random()*3+2});
+            pts.forEach((p, i) => {
+                ctx.fillStyle = '#d4af37'; ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI*2); ctx.fill();
+                p.y += p.v; if(p.y > c.height) pts.splice(i, 1);
+            });
+            requestAnimationFrame(run);
+        }
+        run();
     </script>
 </body>
 </html>
