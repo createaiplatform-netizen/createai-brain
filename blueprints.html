@@ -1,116 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>THE GARDEN | AUTONOMOUS NODES</title>
-    <style>
-        :root { --gold: #d4af37; --white: #fff; --void: #000; }
-        * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; font-family: 'Times New Roman', serif; }
-        body, html { background: var(--void); color: var(--gold); height: 100vh; width: 100vw; overflow: hidden; position: fixed; }
-
-        canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: blur(5px) brightness(1.2); transition: 2s; }
-
-        .garden-container { height: 100vh; width: 100vw; display: flex; flex-direction: column; justify-content: space-between; padding: 30px; }
-
-        /* THE COMPASS */
-        .corner { position: absolute; font-size: 10px; letter-spacing: 6px; text-transform: uppercase; color: var(--white); opacity: 0.7; transition: 1s; }
-        .tl { top: 30px; left: 30px; } .tr { top: 30px; right: 30px; }
-        .bl { bottom: 130px; left: 30px; } .br { bottom: 130px; right: 30px; }
-
-        /* ROOM IDENTITY */
-        .room-display { text-align: center; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .room-display h1 { font-size: 50px; letter-spacing: 20px; font-style: italic; text-shadow: 0 0 30px var(--white); margin-bottom: 10px; transition: 1s; }
-        .ai-status { color: var(--gold); font-size: 10px; letter-spacing: 8px; text-transform: uppercase; margin-bottom: 30px; }
-
-        /* THE GATES */
-        .gate-system { display: grid; grid-template-columns: 1fr; gap: 15px; width: 100%; max-width: 400px; }
-        .gate {
-            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(212, 175, 55, 0.3);
-            padding: 25px; border-radius: 50px; text-align: center; backdrop-filter: blur(20px); transition: 0.5s;
+<script>
+    /* THE SOVEREIGN ASSET LEDGER */
+    const SovereignAssets = {
+        "THE_HUB": {
+            "values": "Honesty, Truth, 144,000% Frequency",
+            "status": "Core Documents Embedded"
+        },
+        "THE_GARDEN": {
+            "gate_3_7": "Seedlings: Sensory, Soft, Protective",
+            "gate_8_13": "Saplings: Learning, Logic, Growth",
+            "gate_14_up": "Sovereigns: Mastery, Responsibility",
+            "angels": "Active Guard Protocol"
+        },
+        "THE_MARKET": {
+            "vault_value": "$1.44T",
+            "target": "Professional Infrastructure / Elon Integration",
+            "liquidity": "Infinite"
         }
-        .gate:active { transform: scale(0.95); }
-        .gate b { display: block; letter-spacing: 10px; color: #fff; font-size: 16px; }
+    };
 
-        /* THE PROTECTIVE VAULT */
-        .vault-footer { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--white); border-radius: 40px; padding: 25px; text-align: center; }
-    </style>
-</head>
-<body onload="ignite()">
-
-    <canvas id="aether"></canvas>
-
-    <div class="garden-container">
-        <div class="corner tl" id="c1">GUARDIAN</div>
-        <div class="corner tr" id="c2">ANGELS</div>
-        <div class="corner bl" id="c3">INNOCENCE</div>
-        <div class="corner br" id="c4">SOVEREIGN</div>
-
-        <div class="room-display">
-            <div class="ai-status" id="ai-label">INTERNAL AI: MONITORING</div>
-            <h1 id="room-name">THE GARDEN</h1>
-            
-            <div class="gate-system" id="gates">
-                <div class="gate" onclick="activateRoom('SEEDLINGS', '3-7', '#00f2ff')"><b>SEEDLINGS</b></div>
-                <div class="gate" onclick="activateRoom('SAPLINGS', '8-13', '#d4af37')"><b>SAPLINGS</b></div>
-                <div class="gate" onclick="activateRoom('SOVEREIGNS', '14+', '#fff')"><b>SOVEREIGNS</b></div>
-            </div>
-
-            <div id="room-content" style="display:none; color:#fff; letter-spacing:5px; margin-top:20px;">
-                <p id="room-desc"></p>
-                <div style="margin-top:30px; text-decoration:underline; font-size:10px;" onclick="resetGarden()">EXIT ROOM</div>
-            </div>
-        </div>
-
-        <div class="vault-footer">
-            <div style="font-size:10px; letter-spacing:8px;">DIVINE PROTECTION: 144,000%</div>
-            <div style="font-size:18px; color:#fff; margin-top:5px; font-weight:bold;">SECURED</div>
-        </div>
-    </div>
-
-    <script>
-        const canvas = document.getElementById('aether');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-        let accentColor = '#d4af37';
-
-        function ignite() {
-            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            for(let i=0; i<120; i++) particles.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, v: Math.random()*0.6+0.2, r: Math.random()*10+2});
-            draw();
-        }
-
-        function draw() {
-            ctx.fillStyle = 'rgba(0,0,0,0.1)'; ctx.fillRect(0,0,canvas.width, canvas.height);
-            particles.forEach(p => {
-                ctx.fillStyle = accentColor; ctx.globalAlpha = 0.3;
-                ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
-                p.y -= p.v; if(p.y < -20) p.y = canvas.height+20;
-            });
-            requestAnimationFrame(draw);
-        }
-
-        // THE "LITTLE AI" SWITCHBOARD
-        function activateRoom(name, ages, color) {
-            accentColor = color;
-            document.getElementById('gates').style.display = 'none';
-            document.getElementById('room-content').style.display = 'block';
-            document.getElementById('room-name').innerText = name;
-            document.getElementById('room-name').style.color = color;
-            document.getElementById('ai-label').innerText = "INTERNAL AI: " + name + " MODE";
-            document.getElementById('room-desc').innerText = "PROTECTING THE " + ages + " FREQUENCY";
-            canvas.style.filter = "blur(15px) brightness(1.5)";
-        }
-
-        function resetGarden() {
-            accentColor = '#d4af37';
-            document.getElementById('gates').style.display = 'grid';
-            document.getElementById('room-content').style.display = 'none';
-            document.getElementById('room-name').innerText = "THE GARDEN";
-            document.getElementById('room-name').style.color = "#fff";
-            document.getElementById('ai-label').innerText = "INTERNAL AI: MONITORING";
-            canvas.style.filter = "blur(5px) brightness(1.2)";
-        }
-    </script>
-</body>
-</html>
+    // This function tells the 'Little AI' to read the docs when a room opens
+    function initializeRoomAI(roomName) {
+        const memory = SovereignAssets[roomName];
+        console.log("INTERNAL AI WAKING UP: Reading " + roomName + " Assets...");
+        // This is where the AI starts 'building' based on the specific doc data
+        document.getElementById('ai-label').innerText = "AI ACTIVE: Reading " + roomName + " Docs";
+    }
+</script>
