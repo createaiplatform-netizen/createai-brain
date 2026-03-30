@@ -2,31 +2,40 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>MARKET | SLOT 001</title>
+    <title>SOVEREIGN | AUTO-CORE</title>
     <style>
-        body { background: #000; color: #fff; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .product-card { border: 1px solid #d4af37; padding: 40px; text-align: center; background: radial-gradient(circle, #111 0%, #000 100%); width: 300px; position: relative; }
-        .product-card::before { content: 'ORIGIN'; position: absolute; top: 10px; left: 10px; font-size: 8px; color: #d4af37; letter-spacing: 3px; }
-        
-        .key-icon { font-size: 50px; color: #d4af37; text-shadow: 0 0 20px #d4af37; margin-bottom: 20px; }
-        h2 { font-size: 14px; letter-spacing: 5px; color: #fff; margin-bottom: 10px; }
-        p { font-size: 10px; color: #666; line-height: 1.6; margin-bottom: 30px; }
-        
-        .claim-btn { border: 1px solid #39ff14; color: #39ff14; background: none; padding: 12px 25px; font-size: 9px; letter-spacing: 3px; cursor: pointer; transition: 0.3s; }
-        .claim-btn:hover { background: #39ff14; color: #000; box-shadow: 0 0 20px #39ff14; }
-        
-        .ai-badge { margin-top: 20px; font-size: 7px; color: #d4af37; opacity: 0.5; letter-spacing: 2px; }
+        /* THE ENGINE: This automatically styles everything we dream up */
+        body { background: #000; color: #fff; font-family: 'Courier New', monospace; overflow: hidden; }
+        #master-deck { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; padding: 40px; }
+        .auto-card { border: 1px solid #d4af37; padding: 30px; background: rgba(212,175,55,0.05); transition: 0.5s; }
+        .auto-card:hover { box-shadow: 0 0 30px #d4af37; background: #000; }
+        #ticker { position: fixed; bottom: 20px; right: 20px; color: #d4af37; font-size: 10px; letter-spacing: 5px; }
     </style>
 </head>
 <body>
-    <div class="product-card">
-        <div class="key-icon">🔑</div>
-        <h2>THE SOVEREIGN KEY</h2>
-        <p>A digital anchor providing 1:1 access to the Sanctuary. Built with localized Aegis shielding.</p>
-        
-        <button class="claim-btn" onclick="alert('SOVEREIGN KEY ACTIVATED. INTEGRITY VERIFIED.')">CLAIM ACCESS</button>
-        
-        <div class="ai-badge">POWERED BY OMNI-VISION AI v1.0</div>
-    </div>
+    <div id="master-deck">
+        </div>
+    <div id="ticker">144,000.000% SYNCED</div>
+
+    <script>
+        // THE LIST: This is the ONLY place the Architect has to type
+        const manifest = [
+            { id: "001", name: "SOVEREIGN KEY", desc: "Access to the Sanctuary.", type: "SECURITY" },
+            { id: "002", name: "OMNI VISION", desc: "Shared Heart Lens.", type: "INTELLIGENCE" },
+            { id: "003", name: "HUB CONNECT", desc: "Family Sync Bridge.", type: "COMMUNICATION" }
+        ];
+
+        const deck = document.getElementById('master-deck');
+        manifest.forEach(item => {
+            deck.innerHTML += `
+                <div class="auto-card">
+                    <h1 style="font-size:10px; color:#666;">[${item.type}]</h1>
+                    <h2 style="letter-spacing:5px;">${item.name}</h2>
+                    <p style="font-size:10px; color:#888;">${item.desc}</p>
+                    <button style="border:1px solid #39ff14; background:none; color:#39ff14; font-size:8px; padding:10px; cursor:pointer;">ACTIVATE_SLOT_${item.id}</button>
+                </div>
+            `;
+        });
+    </script>
 </body>
 </html>
