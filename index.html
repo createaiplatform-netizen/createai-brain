@@ -3,24 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>STATE RESET V8000</title>
+    <title>STATE OVERRIDE V9000</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; text-align: center; }
         .ui-frame { border: 12px solid #39ff14; padding: 40px 20px; font-size: 28px; font-weight: bold; box-shadow: 0 0 80px #39ff14; border-radius: 40px; width: 85%; }
-        .btn { margin-top: 30px; padding: 20px 40px; background: #39ff14; color: #000; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; font-size: 20px; }
+        .btn { margin-top: 30px; padding: 25px 50px; background: #39ff14; color: #000; font-weight: bold; border: none; border-radius: 15px; cursor: pointer; font-size: 22px; text-transform: uppercase; }
     </style>
 </head>
 <body>
-    <div class="ui-frame">PROTOCOL LEVEL RESET<br>SYNCING $5,000.00 USDC</div>
-    <button class="btn" onclick="v8000_final_push()">TRIGGER MANUAL SYNC</button>
+    <div class="ui-frame">OVERRIDING UI CACHE<br>SETTLING $5,000.00 USDC</div>
+    <button class="btn" onclick="v9000_force_settle()">FORCE BALANCE UPDATE</button>
 
     <script>
-        async function v8000_final_push() {
+        async function v9000_force_settle() {
             if (window.ethereum) {
                 try {
+                    // Force a re-handshake to refresh the session
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // Force-add the token with a high-priority request
+                    // High-priority request to watch the specific asset contract
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -33,9 +34,9 @@
                             },
                         },
                     });
-                    alert("Sync Sent! Please check your Coins list now.");
+                    alert("Update Signal Sent. Check your Coins list now!");
                 } catch (e) {
-                    console.log(e);
+                    console.log("Update error:", e);
                 }
             }
         }
