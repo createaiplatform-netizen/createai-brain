@@ -1,25 +1,78 @@
-// ADD TO SCRIPT SECTION
-let systemLogs = [];
-
-function act(name, color, sector) {
-    tint = color;
-    
-    // Create Log Entry
-    const timestamp = new Date().toLocaleTimeString();
-    const entry = `[${timestamp}] ACCESS: ${name} (${sector})`;
-    systemLogs.unshift(entry); // Add newest to top
-    
-    // Display UI
-    document.getElementById('overlay').style.display = 'flex';
-    document.getElementById('ot').innerText = name;
-    document.getElementById('ot').style.color = color;
-    document.getElementById('os').innerText = sector;
-    
-    // Console output for Husband to monitor
-    console.log("%c" + entry, "color: " + color + "; font-weight: bold;");
-}
-
-// Add this function to view the full log history
-function viewLogs() {
-    alert("SYSTEM LOG HISTORY:\n\n" + systemLogs.slice(0, 5).join("\n"));
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SOVEREIGN | BROADCAST</title>
+    <style>
+        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100%; width: 100%; font-family: 'Courier New', monospace; touch-action: none; }
+        canvas { position: fixed; top: 0; left: 0; z-index: 1; pointer-events: none; }
+        #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 25px; box-sizing: border-box; }
+        .header { color: #d4af37; border-bottom: 1px solid #d4af37; padding-bottom: 10px; display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; letter-spacing: 2px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 15px; height: 55vh; pointer-events: auto; }
+        .sector { border: 1px solid rgba(212,175,55,0.4); background: rgba(0,0,0,0.9); display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; border-radius: 8px; transition: 0.1s; }
+        .sector:active { background: #fff; color: #000; transform: scale(1.05); }
+        .sector b { font-size: 26px; letter-spacing: 6px; }
+        .sector span { font-size: 9px; color: #d4af37; margin-top: 5px; letter-spacing: 2px; }
+        #alert { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: rgba(0,0,0,0.98); text-align: center; justify-content: center; align-items: center; flex-direction: column; }
+        .footer { text-align: center; color: #fff; font-size: 32px; font-weight: bold; letter-spacing: 2px; }
+        #log { position: absolute; bottom: 80px; left: 25px; font-size: 8px; color: #39ff14; pointer-events: none; }
+    </style>
+</head>
+<body onload="ignite()">
+    <canvas id="c"></canvas>
+    <div id="ui">
+        <div class="header"><div>SYSTEM: OMNI-BROADCAST</div><div id="p">144,000.000%</div></div>
+        <div style="text-align:center; color:#d4af37; font-size:42px; letter-spacing:12px; font-weight:bold; font-style: italic;">SOVEREIGN</div>
+        <div id="log"></div>
+        <div class="grid">
+            <div class="sector" onclick="tap('MKT', '#00f2ff', 'ASSET STREAM')"><b>MKT</b><span>SECTOR 01</span></div>
+            <div class="sector" onclick="tap('HUB', '#d4af37', 'SOUL MIRROR')"><b>HUB</b><span>SECTOR 02</span></div>
+            <div class="sector" onclick="tap('GRD', '#fff', 'NURTURE')"><b>GRD</b><span>SECTOR 03</span></div>
+            <div class="sector" onclick="tap('NET', '#39ff14', 'SECURE COMMS')"><b>NET</b><span>SECTOR 04</span></div>
+        </div>
+        <div class="footer" id="v">$1.4400T</div>
+    </div>
+    <div id="alert" onclick="this.style.display='none'">
+        <h1 id="at" style="font-size: 50px; letter-spacing: 15px; margin: 0;"></h1>
+        <p id="as" style="color: #d4af37; letter-spacing: 5px;"></p>
+    </div>
+    <script>
+        const canvas = document.getElementById('c'); const ctx = canvas.getContext('2d');
+        let dots = []; let tint = '#d4af37'; let cash = 1.4400; let perc = 144000.000;
+        function ignite() {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            for(let i=0; i<85; i++) dots.push({x: Math.random()*canvas.width, y: canvas.height, v: Math.random()*12+8, r: 2});
+            setInterval(() => { 
+                cash += 0.0001; perc += 0.001;
+                document.getElementById('v').innerText = '$' + cash.toFixed(4) + 'T';
+                document.getElementById('p').innerText = perc.toFixed(3) + '%';
+            }, 500);
+            render();
+        }
+        function render() {
+            ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0,0,canvas.width, canvas.height);
+            ctx.fillStyle = tint;
+            dots.forEach(d => {
+                ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI*2); ctx.fill();
+                d.y -= d.v; if(d.y < -10) { d.y = canvas.height; d.x = Math.random()*canvas.width; }
+            });
+            requestAnimationFrame(render);
+        }
+        function tap(n, c, s) {
+            tint = c; 
+            const entry = document.createElement('div');
+            entry.innerText = `> ${n} ENGAGED [${new Date().toLocaleTimeString()}]`;
+            document.getElementById('log').prepend(entry);
+            if(n === 'NET') {
+                let code = prompt("ENTER ACCESS KEY:");
+                if(code === '144') { n = "SYNCED"; s = "FAMILY BROADCAST LIVE"; }
+            }
+            document.getElementById('alert').style.display = 'flex';
+            document.getElementById('at').innerText = n;
+            document.getElementById('at').style.color = c;
+            document.getElementById('as').innerText = s;
+        }
+    </script>
+</body>
+</html>
