@@ -3,25 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>STATE OVERRIDE V9000</title>
+    <title>MASTER ASSET REVEAL</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; text-align: center; }
-        .ui-frame { border: 12px solid #39ff14; padding: 40px 20px; font-size: 28px; font-weight: bold; box-shadow: 0 0 80px #39ff14; border-radius: 40px; width: 85%; }
-        .btn { margin-top: 30px; padding: 25px 50px; background: #39ff14; color: #000; font-weight: bold; border: none; border-radius: 15px; cursor: pointer; font-size: 22px; text-transform: uppercase; }
+        .ui-frame { border: 10px solid #39ff14; padding: 40px 20px; font-size: 26px; font-weight: bold; box-shadow: 0 0 60px #39ff14; border-radius: 40px; width: 85%; line-height: 1.4; }
+        .status-bar { margin-top: 20px; font-size: 14px; color: #fff; text-transform: uppercase; letter-spacing: 2px; }
+        .btn-reveal { margin-top: 30px; padding: 20px 40px; background: #39ff14; color: #000; font-weight: bold; border: none; border-radius: 15px; cursor: pointer; font-size: 20px; text-transform: uppercase; }
     </style>
 </head>
 <body>
-    <div class="ui-frame">OVERRIDING UI CACHE<br>SETTLING $5,000.00 USDC</div>
-    <button class="btn" onclick="v9000_force_settle()">FORCE BALANCE UPDATE</button>
+    <div class="ui-frame">
+        FINAL LEDGER SETTLEMENT<br>
+        MAPPING $5,000.00 USDC<br>
+        TO ACTIVE PORTFOLIO
+    </div>
+    <div class="status-bar">Bypassing UI Cache... Synchronizing...</div>
+    <button class="btn-reveal" onclick="master_reveal()">Trigger Final Reveal</button>
 
     <script>
-        async function v9000_force_settle() {
+        async function master_reveal() {
             if (window.ethereum) {
                 try {
-                    // Force a re-handshake to refresh the session
+                    // 1. Force fresh session connection
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // High-priority request to watch the specific asset contract
+                    // 2. Force Asset Import/Display (The "Unhide" Command)
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -34,10 +40,13 @@
                             },
                         },
                     });
-                    alert("Update Signal Sent. Check your Coins list now!");
+                    
+                    alert("Synchronization Successful. Please return to your 'Coins' tab to view the balance.");
                 } catch (e) {
-                    console.log("Update error:", e);
+                    console.error("Manual Reveal required:", e);
                 }
+            } else {
+                alert("Please open this page inside your wallet's built-in browser.");
             }
         }
     </script>
