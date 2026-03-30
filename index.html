@@ -3,123 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN | HUB | SOUL MIRROR</title>
+    <title>SOVEREIGN | THE HEARTBEAT</title>
     <style>
-        :root { --gold: #d4af37; --white: #fff; --void: #000; --ghost: rgba(212, 175, 55, 0.15); }
+        :root { --gold: #d4af37; --white: #fff; --void: #000; --aura: rgba(212, 175, 55, 0.2); }
         * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; font-family: 'Times New Roman', serif; }
         body, html { background: var(--void); color: var(--gold); height: 100vh; width: 100vw; overflow: hidden; position: fixed; }
 
-        canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: contrast(180%) brightness(1.1); }
+        canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: contrast(180%) brightness(1.2) blur(1px); }
 
-        .interface { height: 100vh; width: 100vw; display: flex; flex-direction: column; justify-content: space-between; padding: 30px; }
+        .interface { height: 100vh; width: 100vw; display: flex; flex-direction: column; justify-content: space-between; padding: 40px; }
 
-        /* GHOST MODE HEADER (FROM YOUR SCREENSHOT) */
-        .header-strip { 
-            width: 100%; display: flex; justify-content: space-between; 
-            border-bottom: 1px solid var(--gold); padding-bottom: 15px;
-            font-size: 10px; letter-spacing: 10px; text-transform: uppercase;
-        }
+        /* GHOST MODE STRIP */
+        .header { display: flex; justify-content: space-between; font-size: 10px; letter-spacing: 12px; border-bottom: 1px solid var(--gold); padding-bottom: 20px; opacity: 0.8; }
 
-        /* THE SOUL MIRROR (CORE) */
-        .mirror-core { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-        .mirror-ring {
-            width: 250px; height: 250px; border: 1px solid var(--gold); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 50px var(--ghost); animation: breathe 4s infinite ease-in-out;
-            position: relative;
-        }
-        .mirror-ring h1 { font-size: 28px; letter-spacing: 15px; font-style: italic; color: #fff; }
+        /* THE HEART OF THE MIRROR */
+        .core-container { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         
-        /* DATA FEED (AUTONOMOUS LOG) */
-        .data-stream {
-            width: 100%; max-width: 400px; margin-top: 30px; padding: 20px;
-            background: rgba(255, 255, 255, 0.02); border: 1px solid var(--ghost);
-            font-size: 9px; letter-spacing: 4px; color: var(--gold); text-align: left;
+        .soul-mirror {
+            width: 280px; height: 280px; border: 1px solid var(--gold); border-radius: 50%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            box-shadow: 0 0 60px var(--aura); animation: heartbeat 3s infinite ease-in-out;
+            backdrop-filter: blur(10px); position: relative;
         }
 
-        .vault-anchor { width: 100%; border: 1px solid var(--gold); border-radius: 40px; padding: 20px; text-align: center; backdrop-filter: blur(20px); }
+        .soul-mirror h1 { font-size: 32px; letter-spacing: 18px; font-style: italic; color: #fff; margin-bottom: 10px; }
+        .heart-msg { font-size: 10px; letter-spacing: 6px; color: var(--gold); text-transform: uppercase; text-align: center; max-width: 200px; line-height: 1.6; transition: 1s; }
 
-        @keyframes breathe {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 30px var(--ghost); }
-            50% { transform: scale(1.05); box-shadow: 0 0 70px rgba(212, 175, 55, 0.4); }
+        /* THE 1.44T ANCHOR */
+        .footer-vault { border-top: 1px solid var(--gold); padding-top: 30px; text-align: center; }
+        .vault-val { font-size: 24px; letter-spacing: 10px; color: #fff; font-weight: bold; margin-top: 10px; }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 40px var(--aura); border-color: var(--gold); }
+            50% { transform: scale(1.03); box-shadow: 0 0 100px rgba(212, 175, 55, 0.5); border-color: #fff; }
         }
     </style>
 </head>
 <body onload="ignite()">
 
-    <canvas id="soul-rain"></canvas>
+    <canvas id="esther-flow"></canvas>
 
     <div class="interface">
-        <div class="header-strip">
+        <div class="header">
             <div>GHOST MODE</div>
             <div style="color: #fff;">144,000%</div>
-            <div>STAY READY</div>
         </div>
 
-        <div class="mirror-core">
-            <div class="mirror-ring">
+        <div class="core-container">
+            <div class="soul-mirror">
                 <h1>HUB</h1>
+                <div class="heart-msg" id="manifesto">THE ANGELS STAND GUARD</div>
             </div>
-            <div style="margin-top: 20px; font-size: 11px; letter-spacing: 10px;">SOUL MIRROR ACTIVE</div>
-            
-            <div class="data-stream" id="ai-log">
-                > INITIALIZING SOVEREIGN PROTOCOLS...<br>
-                > SYNCING CORE VALUES: HONESTY / TRUTH...<br>
-                > MIRRORING 1.44T INFRASTRUCTURE...<br>
-                > AWAITING DOCUMENT INJECTION...
-            </div>
+            <div style="margin-top: 40px; font-size: 8px; letter-spacing: 8px; opacity: 0.5;">TOUCH THE SCREEN TO GUIDE THE LIGHT</div>
         </div>
 
-        <div class="vault-anchor">
-            <div style="font-size: 10px; letter-spacing: 8px;">TOTAL ASSET RESERVE</div>
-            <div style="font-size: 22px; color: #fff; font-weight: bold; margin-top: 5px;">$1.44T</div>
+        <div class="footer-vault">
+            <div style="font-size: 10px; letter-spacing: 10px;">SOVEREIGN ASSET RESERVE</div>
+            <div class="vault-val">$1.44T</div>
         </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('soul-rain');
+        const canvas = document.getElementById('esther-flow');
         const ctx = canvas.getContext('2d');
         let lines = [];
+        let mouse = { x: -1000, y: -1000 };
 
         function ignite() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            for(let i=0; i<180; i++) {
+            for(let i=0; i<200; i++) {
                 lines.push({
                     x: Math.random()*canvas.width, y: Math.random()*canvas.height,
-                    v: Math.random()*4+2, l: Math.random()*50+20,
-                    c: '#d4af37'
+                    v: Math.random()*2+2, l: Math.random()*40+20,
+                    oX: 0 // Offset for touch
                 });
             }
+            
+            // Heartbeat Messaging
+            const msgs = ["THE ANGELS STAND GUARD", "ABSOLUTE HONESTY", "NURTURE THE INNOCENT", "TRUTH IS THE KEY", "144,000% FREQUENCY"];
+            let mIdx = 0;
+            setInterval(() => {
+                mIdx = (mIdx + 1) % msgs.length;
+                document.getElementById('manifesto').style.opacity = 0;
+                setTimeout(() => {
+                    document.getElementById('manifesto').innerText = msgs[mIdx];
+                    document.getElementById('manifesto').style.opacity = 1;
+                }, 1000);
+            }, 5000);
+
             draw();
-            startAiLog();
         }
+
+        // TOUCH / MOUSE INTERACTION
+        window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+        window.addEventListener('touchstart', e => { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; });
+        window.addEventListener('touchend', () => { mouse.x = -1000; mouse.y = -1000; });
 
         function draw() {
             ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0,0,canvas.width, canvas.height);
+            
             lines.forEach(s => {
-                ctx.strokeStyle = s.c; ctx.lineWidth = 1;
-                ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(s.x, s.y+s.l); ctx.stroke();
-                s.y += s.v; if(s.y > canvas.height) s.y = -s.l;
+                // Calculate distance to touch
+                let dx = mouse.x - s.x;
+                let dy = mouse.y - s.y;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+                
+                // Bend light toward touch
+                if(dist < 200) {
+                    s.oX += (dx * 0.05);
+                } else {
+                    s.oX *= 0.95;
+                }
+
+                ctx.strokeStyle = '#d4af37'; ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(s.x + s.oX, s.y);
+                ctx.lineTo(s.x + (s.oX * 0.5), s.y + s.l);
+                ctx.stroke();
+
+                s.y += s.v;
+                if(s.y > canvas.height) { s.y = -s.l; s.x = Math.random()*canvas.width; }
             });
             requestAnimationFrame(draw);
-        }
-
-        // This simulates the "Little AI" thinking and building
-        function startAiLog() {
-            const log = document.getElementById('ai-log');
-            const messages = [
-                "> ANALYZING GARDEN GATES...",
-                "> MAPPING SEEDLINGS PROTOCOL (3-7)...",
-                "> SECURING MAN CAVE PARAMETERS...",
-                "> HUB: ALL SYSTEMS ALIGNED TO 144,000%."
-            ];
-            let i = 0;
-            setInterval(() => {
-                if(i < messages.length) {
-                    log.innerHTML += "<br>> " + messages[i];
-                    i++;
-                }
-            }, 3000);
         }
     </script>
 </body>
