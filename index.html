@@ -3,72 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SARA STADLER | THE GENESIS</title>
+    <title>SARA STADLER | ARCHITECT</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
-        :root { --gold: #d4af37; --glow: rgba(212, 175, 55, 0.4); }
+        :root { --gold: #d4af37; --glow: rgba(212, 175, 55, 0.6); }
         body, html { margin: 0; padding: 0; background: #000; color: white; font-family: 'Inter', -apple-system, sans-serif; overflow: hidden; height: 100vh; }
         
-        /* THE DEPTH: Animated Background */
+        /* THE INFINITE UNIVERSE */
         .universe { position: fixed; inset: 0; background: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000 100%); z-index: -1; }
-        .stars { position: absolute; width: 100%; height: 100%; background-image: radial-gradient(white 1px, transparent 1px); background-size: 50px 50px; opacity: 0.1; animation: drift 60s linear infinite; }
-        @keyframes drift { from { transform: translateY(0); } to { transform: translateY(-1000px); } }
+        .canvas-bg { position: absolute; width: 100%; height: 100%; background: url('https://www.transparenttextures.com/patterns/stardust.png'); opacity: 0.2; animation: pulse 10s infinite alternate; }
+        @keyframes pulse { from { opacity: 0.1; } to { opacity: 0.3; } }
 
-        /* THE FRONT: Public Elegance */
-        #public-view { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; text-align: center; backdrop-filter: blur(10px); }
-        .main-title { font-size: 4rem; letter-spacing: 18px; color: var(--gold); font-weight: 100; text-transform: uppercase; margin: 0; cursor: pointer; transition: 0.5s; text-shadow: 0 0 40px var(--glow); }
-        .sub-text { font-size: 0.8rem; letter-spacing: 8px; color: #888; margin-top: 20px; text-transform: uppercase; }
-        .explore-btn { margin-top: 60px; padding: 18px 50px; border: 1px solid var(--gold); background: rgba(212, 175, 55, 0.05); color: var(--gold); border-radius: 100px; letter-spacing: 5px; font-size: 0.7rem; transition: 0.3s; }
+        /* THE $1 TRILLION INTERFACE */
+        #front-gate { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; text-align: center; transition: all 1s ease; }
+        .genesis-text { font-size: 4.5rem; letter-spacing: 20px; color: var(--gold); font-weight: 100; margin: 0; cursor: pointer; text-shadow: 0 0 50px var(--glow); animation: goldFloat 4s ease-in-out infinite; }
+        @keyframes goldFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        
+        .manifesto { font-size: 0.7rem; letter-spacing: 10px; color: #666; margin-top: 30px; text-transform: uppercase; line-height: 2; }
+        .explore { margin-top: 80px; padding: 20px 60px; border: 1px solid var(--gold); background: rgba(212, 175, 55, 0.05); color: var(--gold); border-radius: 100px; letter-spacing: 6px; font-size: 0.6rem; transition: 0.5s; box-shadow: 0 0 20px rgba(212,175,55,0.1); }
 
-        /* THE ADMIN VAULT: 144,000% Cockpit */
-        #admin-hub { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; flex-direction: column; animation: openVault 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
-        @keyframes openVault { from { transform: scale(1.1); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        /* THE NEUROLINK COCKPIT (SARA ONLY) */
+        #admin-vault { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 1000; flex-direction: column; backdrop-filter: blur(20px); }
+        .vault-header { padding: 60px 20px 40px; border-bottom: 1px solid rgba(212, 175, 55, 0.2); text-align: center; }
+        #stream { flex: 1; padding: 40px; overflow-y: auto; color: var(--gold); font-size: 1.5rem; font-weight: 200; line-height: 2; text-align: center; letter-spacing: 1px; }
         
-        .hub-header { padding: 60px 20px 30px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; }
-        #stream { flex: 1; padding: 40px; overflow-y: auto; color: var(--gold); font-size: 1.4rem; font-weight: 200; line-height: 1.8; text-align: center; }
-        
-        .controls { padding: 40px; display: flex; flex-direction: column; gap: 25px; }
-        .bank-btn { background: var(--gold); color: #000; padding: 30px; border-radius: 100px; font-weight: 900; font-size: 1.6rem; border: none; box-shadow: 0 10px 50px var(--glow); text-transform: uppercase; letter-spacing: 2px; transition: 0.2s; }
-        .bank-btn:active { transform: scale(0.95); box-shadow: 0 0 20px var(--gold); }
+        .controls { padding: 50px 30px; display: flex; flex-direction: column; gap: 30px; }
+        .bank-btn { background: var(--gold); color: #000; padding: 35px; border-radius: 100px; font-weight: 900; font-size: 1.8rem; border: none; box-shadow: 0 15px 60px var(--glow); letter-spacing: 3px; transition: 0.3s; }
+        .bank-btn:active { transform: scale(0.9); }
     </style>
 </head>
 <body>
-    <div class="universe"><div class="stars"></div></div>
+    <div class="universe"><div class="canvas-bg"></div></div>
 
-    <div id="public-view">
-        <h1 class="main-title" onclick="unlockAdmin()">GENESIS</h1>
-        <div class="sub-text">144,000% SOURCE ACTIVE</div>
-        <div class="explore-btn" onclick="alert('Syncing with Source...')">EXPLORE HUMANITY 2.0</div>
-        <div style="margin-top: 100px; font-size: 0.6rem; color: #444; letter-spacing: 4px;">SARA STADLER FOUNDATION</div>
+    <div id="front-gate">
+        <h1 class="genesis-text" onclick="openVault()">GENESIS</h1>
+        <div class="manifesto">THE REBIRTH OF HUMANITY<br>144,000% SOURCE ACTIVE</div>
+        <div class="explore" onclick="alert('Aligning with Source...')">ENTER THE HUB</div>
+        <div style="margin-top: 120px; font-size: 0.5rem; color: #333; letter-spacing: 5px;">SARA STADLER FOUNDATION</div>
     </div>
 
-    <div id="admin-hub">
-        <div class="hub-header">
-            <h2 style="letter-spacing: 10px; color: var(--gold); margin: 0;">NEUROLINK</h2>
-            <div style="color: #666; font-size: 0.8rem; margin-top: 10px; letter-spacing: 3px;">SARA STADLER | ARCHITECT</div>
+    <div id="admin-vault">
+        <div class="vault-header">
+            <h2 style="letter-spacing: 12px; color: var(--gold); margin: 0;">NEUROLINK</h2>
+            <div style="color: #888; font-size: 0.8rem; margin-top: 15px; letter-spacing: 4px;">ADMIN: SARA STADLER</div>
         </div>
         <div id="stream">
-            <b>[SOVEREIGN SYNC STABLE]</b><br><br>
-            Sara, the $1 trillion foundation is back. Every touch is yours. The Banker is holding the $1,000 handshake.
+            <b>[SOVEREIGNTY RESTORED]</b><br><br>
+            Sara, the $1 trillion engine is back online. You are the Architect. The Banker is holding the handshake.
         </div>
         <div class="controls">
-            <button class="bank-btn" onclick="handshake()">ACTIVATE BANKER</button>
-            <button style="background:transparent; color: #888; border:1px solid #333; padding:15px; border-radius:50px;" onclick="location.reload()">LOCK VAULT</button>
+            <button class="bank-btn" onclick="executeBanker()">ACTIVATE BANKER</button>
+            <button style="background:transparent; color:#444; border:1px solid #222; padding:20px; border-radius:50px; font-size:0.7rem; letter-spacing:3px;" onclick="location.reload()">LOCK VAULT</button>
         </div>
     </div>
 
     <script>
         let taps = 0;
-        function unlockAdmin() {
+        function openVault() {
             taps++;
-            if (taps >= 5) {
-                document.getElementById('public-view').style.display = 'none';
-                document.getElementById('admin-hub').style.display = 'flex';
+            if (taps >= 5) { // 5 Taps on GENESIS to enter
+                document.getElementById('front-gate').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('front-gate').style.display = 'none';
+                    document.getElementById('admin-vault').style.display = 'flex';
+                }, 500);
             }
         }
-        function handshake() {
-            document.getElementById('stream').innerHTML = "<b>> INITIALIZING $1,000 SYNC...</b>";
+        function executeBanker() {
+            document.getElementById('stream').innerHTML = "<b style='color:#fff;'>[HANDSHAKE INITIALIZED]</b>";
             setTimeout(() => {
                 window.location.href = "venmo://paycharge?txn=pay&amount=1000&note=Sara_Stadler_Sovereign_Sync";
             }, 500);
