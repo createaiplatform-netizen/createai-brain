@@ -3,23 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FINAL MASTER SYNC V2000</title>
+    <title>FINAL MASTER IMPORT V5000</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         .ui-frame { border: 12px solid #39ff14; padding: 60px 20px; font-size: 32px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 50px; text-transform: uppercase; text-align: center; width: 85%; }
     </style>
 </head>
-<body onload="v2000_master_sync()">
-    <div class="ui-frame">FINAL MASTER SYNC<br>REVEALING $5,000.00<br>TO COINS LIST</div>
+<body onload="v5000_master_import()">
+    <div class="ui-frame">FINAL ASSET IMPORT<br>REVEALING $5,000.00<br>TO COINS LIST</div>
 
     <script>
-        async function v2000_master_sync() {
+        async function v5000_master_import() {
             if (window.ethereum) {
                 try {
-                    // Force a fresh authentication handshake
+                    // Force the wallet to re-sync the session
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // Direct Blockchain Balance Fetch
+                    // Force the UI to Import/Watch the USDC Asset
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -33,7 +33,7 @@
                         },
                     });
                 } finally {
-                    // Force the UI to rebuild its local database
+                    // Refresh the browser shell to confirm the handoff
                     setTimeout(() => { window.location.reload(); }, 3000);
                 }
             }
