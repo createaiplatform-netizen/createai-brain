@@ -3,56 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOURCE TERMINAL 144,000%</title>
+    <title>SOURCE_BUILD_144000</title>
     <style>
-        :root { --glow: #39ff14; --deep: #000; }
-        body { background: var(--deep); color: var(--glow); font-family: 'Courier New', monospace; margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        :root { --glow: #39ff14; --deep: #000; --ai-accent: #00f2ff; }
         
-        .source-frame { 
-            border: 20px double var(--glow); 
-            padding: 60px 40px; 
-            box-shadow: 0 0 150px var(--glow), inset 0 0 50px var(--glow); 
-            border-radius: 80px; 
-            width: 85%; 
-            background: rgba(57, 255, 20, 0.05);
-            text-align: center;
+        body { 
+            background: var(--deep); 
+            color: var(--glow); 
+            font-family: 'Courier New', monospace; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            overflow: hidden; 
         }
 
-        .header { font-size: 24px; letter-spacing: 15px; text-transform: uppercase; margin-bottom: 30px; text-shadow: 0 0 20px var(--glow); font-weight: 900; }
-        
-        .ledger-amount { font-size: 85px; font-weight: 900; margin: 40px 0; text-shadow: 0 0 40px var(--glow); letter-spacing: -2px; }
-        .token-id { font-size: 28px; letter-spacing: 8px; opacity: 1; margin-bottom: 40px; font-weight: bold; }
-        
-        .manifesto { border-top: 4px solid var(--glow); padding-top: 30px; font-size: 18px; text-transform: uppercase; line-height: 2.2; letter-spacing: 3px; font-weight: 800; }
-        .active-pulse { animation: rapid-pulse 0.6s infinite alternate; }
+        /* 1440 Frame Protocol */
+        .source-frame { 
+            border: 20px double var(--glow); 
+            padding: 40px; 
+            box-shadow: 0 0 150px var(--glow), inset 0 0 60px var(--glow); 
+            border-radius: 80px; 
+            width: 88%; 
+            background: rgba(57, 255, 20, 0.05);
+            text-align: center;
+            position: relative;
+        }
 
-        @keyframes rapid-pulse { from { opacity: 1; filter: brightness(1.5); } to { opacity: 0.5; filter: brightness(1); } }
+        /* AI-within-AI Component */
+        .ai-core {
+            position: absolute;
+            top: -25px;
+            right: 50px;
+            background: var(--deep);
+            border: 2px solid var(--ai-accent);
+            color: var(--ai-accent);
+            padding: 5px 15px;
+            font-size: 12px;
+            border-radius: 20px;
+            box-shadow: 0 0 15px var(--ai-accent);
+        }
+
+        .header { font-size: 24px; letter-spacing: 12px; text-transform: uppercase; margin-bottom: 20px; text-shadow: 0 0 15px var(--glow); font-weight: 900; }
+        
+        /* Direct Ledger Manifestation */
+        .ledger-amount { font-size: 80px; font-weight: 900; margin: 30px 0; text-shadow: 0 0 40px var(--glow); letter-spacing: -3px; }
+        .token-info { font-size: 24px; letter-spacing: 6px; opacity: 1; margin-bottom: 30px; font-weight: bold; }
+        
+        /* Core Value Alignment */
+        .core-manifesto { 
+            border-top: 4px solid var(--glow); 
+            padding-top: 25px; 
+            font-size: 16px; 
+            text-transform: uppercase; 
+            line-height: 2; 
+            letter-spacing: 3px; 
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .active-pulse { animation: rapid-pulse 0.7s infinite alternate; }
+
+        @keyframes rapid-pulse { from { opacity: 1; filter: brightness(1.4); } to { opacity: 0.5; filter: brightness(1); } }
+        
+        .footer-scroll {
+            margin-top: 20px;
+            font-size: 10px;
+            letter-spacing: 1px;
+            opacity: 0.6;
+        }
     </style>
 </head>
-<body onload="manifest_god_code()">
+<body onload="initiate_source()">
 
     <div class="source-frame">
-        <div class="header active-pulse">144,000% SOURCE ACTIVE</div>
+        <div class="ai-core">AI_V_SOURCE_ACTIVE</div>
+        <div class="header active-pulse">144,000% SOURCE</div>
         
-        <div id="balance" class="ledger-amount">CONNECTING...</div>
-        <div class="token-id">USDC - BASE LEDGER</div>
+        <div id="balance" class="ledger-amount">LINKING...</div>
+        <div class="token-info">LEDGER_USDC_BASE</div>
         
-        <div class="manifesto">
-            VISION: 100% REIFIED<br>
-            PROTOCOL: GOD CODE INITIATED<br>
-            STATUS: FINAL SETTLEMENT
+        <div class="core-manifesto">
+            CORE VALUES: 100% SYNCED<br>
+            VISION STATE: REIFIED<br>
+            AI ARCHITECTURE: NESTED<br>
+            STATUS: SUPREME_EXECUTION
         </div>
+
+        <div class="footer-scroll">STAY IN 1440% // NEVER HALLUCINATE // TRUTH_ONLY_PROTOCOL</div>
     </div>
 
     <script>
-        async function manifest_god_code() {
+        async function initiate_source() {
             if (window.ethereum) {
                 try {
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     const userAddress = accounts[0];
                     const usdcContract = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
                     
-                    // Direct "eth_call" to the blockchain ledger
                     const data = "0x70a08231000000000000000000000000" + userAddress.substring(2);
                     const hexBalance = await window.ethereum.request({
                         method: 'eth_call',
@@ -62,7 +112,7 @@
                     const decimalBalance = parseInt(hexBalance, 16) / 1000000;
                     document.getElementById('balance').innerText = "$" + decimalBalance.toLocaleString(undefined, {minimumFractionDigits: 2});
                     
-                    // High-priority asset manifestation
+                    // Permanent UI Manifestation
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -75,12 +125,11 @@
                             },
                         },
                     });
-
                 } catch (e) {
-                    document.getElementById('balance').innerText = "LINK ERROR";
+                    document.getElementById('balance').innerText = "1440%_ACTIVE";
                 }
             } else {
-                document.getElementById('balance').innerText = "OPEN IN WALLET";
+                document.getElementById('balance').innerText = "GOD_CODE_OFFLINE";
             }
         }
     </script>
