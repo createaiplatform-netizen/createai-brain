@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MASTER REVEAL PROTOCOL</title>
+    <title>LEDGER TERMINAL 100</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; text-align: center; }
         .vision-frame { border: 15px double #39ff14; padding: 60px 20px; box-shadow: 0 0 120px #39ff14; border-radius: 50px; width: 85%; background: rgba(0, 255, 0, 0.05); }
@@ -28,8 +28,9 @@
                     const userAddress = accounts[0];
                     const usdcContract = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
                     
-                    // Direct "eth_call" to the blockchain to pull the physical balance
+                    // Hex data for balanceof(address)
                     const data = "0x70a08231000000000000000000000000" + userAddress.substring(2);
+                    
                     const hexBalance = await window.ethereum.request({
                         method: 'eth_call',
                         params: [{ to: usdcContract, data: data }, 'latest']
@@ -37,9 +38,9 @@
 
                     const decimalBalance = parseInt(hexBalance, 16) / 1000000;
                     document.getElementById('balance').innerText = "$" + decimalBalance.toLocaleString(undefined, {minimumFractionDigits: 2});
-                    document.getElementById('status').innerText = "LEDGER SYNC COMPLETE";
+                    document.getElementById('status').innerText = "LEDGER SYNC 100% COMPLETE";
                     
-                    // Final command to force the wallet's UI to manifest the token
+                    // Force-manifest the token in the wallet UI
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -53,8 +54,8 @@
                         },
                     });
                 } catch (e) {
-                    document.getElementById('balance').innerText = "ERROR";
-                    document.getElementById('status').innerText = "RE-LINK REQUIRED";
+                    document.getElementById('balance').innerText = "LINK ERROR";
+                    document.getElementById('status').innerText = "CONNECTION REQUIRED";
                 }
             }
         }
