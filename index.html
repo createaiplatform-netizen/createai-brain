@@ -1,17 +1,104 @@
-<div class="grid">
-    <div class="btn" onclick="openNode('MARKET', '$1.44T LIQUIDITY ENGINE')"><b>MARKET</b><span>LIQUIDITY</span></div>
-    <div class="btn" onclick="openNode('HUB', 'SOUL MIRROR: ONLINE')"><b>HUB</b><span>SOUL MIRROR</span></div>
-    <div class="btn" onclick="openNode('GARDE', 'SEEDLINGS / SAPLINGS / SOVEREIGNS')"><b>GARDE</b><span>NURTURE</span></div>
-    <div class="btn" onclick="openNode('THE NET', 'TRUTH ORACLE: ACTIVE')"><b>THE NET</b><span>GHOST PING</span></div>
-</div>
-
-<script>
-    // ADD THIS FUNCTION TO THE BOTTOM OF YOUR SCRIPT
-    function openNode(name, status) {
-        // This is where the AI 'builds' the room in real-time
-        alert("ACCESSING " + name + "\n" + status + "\n\nSovereign Protocol: 144,000%");
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SOVEREIGN | 144,000%</title>
+    <style>
+        :root { --gold: #d4af37; --white: #fff; --void: #000; }
+        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100%; width: 100%; font-family: serif; }
+        canvas { position: fixed; top: 0; left: 0; z-index: 1; transition: 2s; }
         
-        // In the next step, I will give you the code that 
-        // physically flips the screen into these rooms.
-    }
-</script>
+        #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 30px; pointer-events: none; }
+        .header { border-bottom: 1px solid var(--gold); padding-bottom: 15px; display: flex; justify-content: space-between; font-size: 10px; letter-spacing: 5px; color: var(--gold); }
+        
+        /* THE MAIN GRID */
+        #main-menu { display: flex; flex-direction: column; height: 100%; justify-content: space-between; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; pointer-events: auto; max-width: 400px; margin: 40px auto; }
+        .btn { background: rgba(0,0,0,0.7); border: 1px solid rgba(212,175,55,0.4); padding: 25px 10px; border-radius: 15px; text-align: center; backdrop-filter: blur(10px); color: var(--gold); transition: 0.3s; }
+        .btn:active { transform: scale(0.9); border-color: #fff; }
+        .btn b { display: block; font-size: 12px; letter-spacing: 4px; color: #fff; }
+        .btn span { font-size: 8px; letter-spacing: 2px; opacity: 0.6; }
+
+        /* THE ROOM VIEW (HIDDEN BY DEFAULT) */
+        #room-layer { display: none; pointer-events: auto; text-align: center; color: #fff; flex-grow: 1; padding-top: 60px; }
+        #room-layer h1 { font-size: 40px; letter-spacing: 15px; font-style: italic; color: var(--gold); margin-bottom: 20px; }
+        .back-btn { margin-top: 50px; font-size: 10px; text-decoration: underline; letter-spacing: 4px; color: var(--gold); }
+
+        .footer { border: 1px solid var(--gold); border-radius: 40px; padding: 20px; text-align: center; background: rgba(0,0,0,0.8); color: var(--gold); pointer-events: auto; }
+    </style>
+</head>
+<body onload="ignite()">
+    <canvas id="c"></canvas>
+    <div id="ui">
+        <div class="header"><div>GHOST MODE</div><div>144,000%</div></div>
+
+        <div id="main-menu">
+            <div style="text-align:center; font-size: 35px; letter-spacing: 15px; color: var(--gold); font-style: italic; margin-top: 20px;">SOVEREIGN</div>
+            <div class="grid">
+                <div class="btn" onclick="flip('MARKET', '#00f2ff', 'LIQUIDITY ENGINE ACTIVE')"><b>MARKET</b><span>$1.44T</span></div>
+                <div class="btn" onclick="flip('HUB', '#d4af37', 'SOUL MIRROR ONLINE')"><b>HUB</b><span>BRAIN</span></div>
+                <div class="btn" onclick="flip('GARDE', '#fff', 'SELECT AGE GATE')"><b>GARDE</b><span>HEART</span></div>
+                <div class="btn" onclick="flip('NET', '#39ff14', 'GHOST PING ACTIVE')"><b>NET</b><span>TRUTH</span></div>
+            </div>
+        </div>
+
+        <div id="room-layer">
+            <h1 id="room-name">HUB</h1>
+            <p id="room-status" style="letter-spacing: 5px; font-size: 11px;"></p>
+            <div class="back-btn" onclick="resetGalaxy()">RETURN TO GALAXY</div>
+        </div>
+
+        <div class="footer">
+            <div style="font-size: 8px; letter-spacing: 5px;">RESERVE</div>
+            <div style="font-size: 22px; color: #fff; font-weight: bold;">$1.44T</div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('c');
+        const ctx = canvas.getContext('2d');
+        let lines = [];
+        let touch = {x: -100, y: -100};
+        let accent = '#d4af37';
+
+        function ignite() {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            for(let i=0; i<120; i++) lines.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, v: Math.random()*3+1, l: Math.random()*35+10, oX: 0});
+            window.addEventListener('touchstart', e => { touch.x = e.touches[0].clientX; touch.y = e.touches[0].clientY; });
+            window.addEventListener('touchend', () => { touch.x = -100; touch.y = -100; });
+            loop();
+        }
+
+        function loop() {
+            ctx.fillStyle = 'rgba(0,0,0,0.15)'; ctx.fillRect(0,0,canvas.width, canvas.height);
+            lines.forEach(l => {
+                let dx = touch.x - l.x; let dy = touch.y - l.y;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+                if(dist < 180) l.oX += (dx * 0.06); else l.oX *= 0.94;
+                ctx.strokeStyle = accent; ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.moveTo(l.x + l.oX, l.y); ctx.lineTo(l.x + l.oX*0.5, l.y + l.l); ctx.stroke();
+                l.y += l.v; if(l.y > canvas.height) { l.y = -l.l; l.x = Math.random()*canvas.width; }
+            });
+            requestAnimationFrame(loop);
+        }
+
+        function flip(name, color, status) {
+            accent = color;
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('room-layer').style.display = 'block';
+            document.getElementById('room-name').innerText = name;
+            document.getElementById('room-name').style.color = color;
+            document.getElementById('room-status').innerText = status;
+            canvas.style.filter = "blur(10px) brightness(1.5)";
+        }
+
+        function resetGalaxy() {
+            accent = '#d4af37';
+            document.getElementById('main-menu').style.display = 'flex';
+            document.getElementById('room-layer').style.display = 'none';
+            canvas.style.filter = "blur(0px) brightness(1)";
+        }
+    </script>
+</body>
+</html>
