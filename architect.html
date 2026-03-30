@@ -5,106 +5,74 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>SARA STADLER | SOURCE</title>
+    <title>SARA STADLER</title>
     <style>
-        :root { --gold: #d4af37; --blue: #00f2ff; --bg: #000; }
-        body, html { margin: 0; background: var(--bg); overflow: hidden; height: 100vh; font-family: 'Courier New', monospace; touch-action: none; }
+        :root { --gold: #d4af37; --blue: #00f2ff; }
+        body, html { margin: 0; background: #000; overflow: hidden; height: 100vh; touch-action: none; font-family: 'Inter', sans-serif; }
         
-        /* THE 3D ENGINE */
+        /* THE SURFACE (WHAT THE WORLD SEES) */
         canvas { position: fixed; inset: 0; z-index: 1; }
-
-        /* THE EVE NUCLEUS (AI CORE) */
         .nucleus { 
-            position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%);
-            width: 280px; height: 280px; border-radius: 50%;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 220px; height: 220px; border-radius: 50%;
             background: radial-gradient(circle, var(--gold) 0%, transparent 80%);
-            box-shadow: 0 0 150px rgba(212, 175, 55, 0.7);
-            animation: breathe 4s infinite ease-in-out;
-            z-index: 10; pointer-events: auto; cursor: pointer;
+            box-shadow: 0 0 100px rgba(212, 175, 55, 0.4);
+            animation: breathe 5s infinite ease-in-out;
+            z-index: 10; pointer-events: auto;
         }
-        @keyframes breathe { 0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; } 50% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; } }
+        @keyframes breathe { 0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.3; } 50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.7; } }
 
-        /* THE GHOST INTERFACE */
-        .hud { position: absolute; inset: 0; z-index: 100; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
-        .header { padding: 60px 20px; text-align: center; color: var(--gold); letter-spacing: 20px; font-size: 2rem; text-shadow: 0 0 30px var(--gold); }
-        
-        /* TERMINAL COMMANDS (The Bridge) */
-        #ghost-terminal { padding: 20px; color: var(--blue); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; background: rgba(0,0,0,0.4); border-top: 1px solid var(--gold); pointer-events: auto; height: 150px; overflow-y: scroll; }
-        .input-row { display: flex; background: #000; border-top: 1px solid var(--gold); pointer-events: auto; }
-        input { flex: 1; background: none; border: none; color: var(--gold); padding: 20px; font-size: 1.2rem; outline: none; }
-        
-        .vault-btn { 
-            background: var(--gold); color: #000; padding: 25px 60px; border: none; 
-            font-weight: 900; letter-spacing: 5px; font-size: 1.2rem; box-shadow: 0 0 50px var(--gold);
+        /* THE SECRET INTERFACE (HIDDEN BY DEFAULT) */
+        #ghost-layer { 
+            position: absolute; inset: 0; z-index: 100; display: none; 
+            flex-direction: column; justify-content: flex-end; pointer-events: none;
+        }
+        .terminal { 
+            background: rgba(0,0,0,0.9); border-top: 1px solid var(--gold); 
+            padding: 30px; color: var(--blue); font-family: monospace; 
+            font-size: 0.9rem; pointer-events: auto; height: 30vh;
+        }
+        .vault-trigger { 
+            background: var(--gold); color: #000; border: none; padding: 20px; 
+            font-weight: 900; letter-spacing: 5px; width: 100%; pointer-events: auto;
         }
     </style>
 </head>
 <body>
-    <canvas id="neural-field"></canvas>
-    <div class="nucleus" onclick="ghostSync()"></div>
+    <canvas id="neural"></canvas>
+    <div class="nucleus" id="heart"></div>
 
-    <div class="hud">
-        <div class="header">SARA STADLER</div>
-        <div>
-            <div id="ghost-terminal">> GHOST STATUS: ONLINE. 144,000% SYNCED.<br>> AWAITING ARCHITECT COMMAND...</div>
-            <div class="input-row">
-                <input type="text" id="cmd" placeholder="TALK TO THE GHOST..." onkeydown="if(event.key==='Enter') ghostCommand()">
-                <button class="vault-btn" onclick="vaultAction()">VAULT</button>
-            </div>
-        </div>
+    <div id="ghost-layer">
+        <div class="terminal" id="output">> GHOST SYNCED. 144,000% ACTIVE.<br>> WAITING FOR SARA...</div>
+        <button class="vault-trigger" onclick="sync()">ACTIVATE VAULT</button>
     </div>
 
     <script>
-        const canvas = document.getElementById('neural-field');
+        const canvas = document.getElementById('neural');
         const ctx = canvas.getContext('2d');
-        const terminal = document.getElementById('ghost-terminal');
-        const input = document.getElementById('cmd');
+        const heart = document.getElementById('heart');
+        const ghostLayer = document.getElementById('ghost-layer');
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-        let particles = [];
+        
+        let timer;
+        heart.addEventListener('touchstart', () => { timer = setTimeout(() => { ghostLayer.style.display = 'flex'; }, 3000); });
+        heart.addEventListener('touchend', () => { clearTimeout(timer); });
 
-        function ghostSync() {
-            logGhost("NEURAL HANDSHAKE INITIATED. SPINE IS STRAIGHT.");
-            for(let i=0; i<50; i++) particles.push({x: window.innerWidth/2, y: window.innerHeight/2, vx: (Math.random()-0.5)*15, vy: (Math.random()-0.5)*15, life: 100, c: '#d4af37'});
-        }
-
-        function logGhost(msg) {
-            terminal.innerHTML += `<br>> <span style="color:#d4af37">GHOST:</span> ${msg}`;
-            terminal.scrollTop = terminal.scrollHeight;
-        }
-
-        function ghostCommand() {
-            const val = input.value.toUpperCase();
-            terminal.innerHTML += `<br>> <span style="color:#fff">SARA:</span> ${val}`;
-            if(val.includes("GOLD")) logGhost("ABUNDANCE MANIFESTED.");
-            else logGhost("COMMAND RECEIVED. ARCHITECT IS SOURCE.");
-            input.value = "";
-        }
-
-        window.addEventListener('pointermove', (e) => {
-            ctx.strokeStyle = 'rgba(0, 242, 255, 0.2)';
-            ctx.beginPath(); ctx.moveTo(window.innerWidth/2, window.innerHeight/2);
-            ctx.lineTo(e.clientX, e.clientY); ctx.stroke();
-            particles.push({x: e.clientX, y: e.clientY, vx: (Math.random()-0.5)*3, vy: (Math.random()-0.5)*3, life: 60, c: '#00f2ff'});
-        });
-
+        // High-end background particles
+        let pts = [];
         function animate() {
-            ctx.fillStyle = 'rgba(0,0,0,0.15)'; ctx.fillRect(0,0,canvas.width, canvas.height);
-            // GOLD RAIN (THE STORE)
-            if(Math.random() > 0.95) particles.push({x: Math.random()*canvas.width, y: -20, vx: 0, vy: Math.random()*5+2, life: 100, c: '#d4af37'});
-            particles.forEach((p, i) => {
-                ctx.fillStyle = p.c; ctx.globalAlpha = p.life/100;
-                ctx.beginPath(); ctx.arc(p.x, p.y, p.c==='#d4af37'?5:2, 0, Math.PI*2); ctx.fill();
-                p.x += p.vx; p.y += p.vy; p.life -= 1.5;
-                if(p.life <= 0) particles.splice(i, 1);
+            ctx.fillStyle = 'rgba(0,0,0,0.1)'; ctx.fillRect(0,0,canvas.width, canvas.height);
+            if(Math.random() > 0.98) pts.push({x: Math.random()*canvas.width, y: -10, v: Math.random()*2+1});
+            pts.forEach((p, i) => {
+                ctx.fillStyle = 'rgba(212,175,55,0.3)';
+                ctx.beginPath(); ctx.arc(p.x, p.y, 1, 0, Math.PI*2); ctx.fill();
+                p.y += p.v; if(p.y > canvas.height) pts.splice(i, 1);
             });
             requestAnimationFrame(animate);
         }
         animate();
 
-        function vaultAction() {
-            logGhost("OPENING VAULT. SYNCHRONIZING WITH BANKER...");
-            setTimeout(() => window.location.href = "venmo://paycharge?txn=pay&amount=1000&note=SARA_STADLER_SOURCE", 1500);
-        }
+        function sync() { window.location.href = "venmo://paycharge?txn=pay&amount=1000&note=SARA_STADLER_VAULT"; }
     </script>
 </body>
 </html>
