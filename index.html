@@ -3,23 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FINAL DEEP SYNC V700</title>
+    <title>FINAL LEDGER FLUSH V1000</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         .ui-frame { border: 12px solid #39ff14; padding: 60px 20px; font-size: 32px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 50px; text-transform: uppercase; text-align: center; width: 85%; }
     </style>
 </head>
-<body onload="v700_deep_sync()">
-    <div class="ui-frame">FINAL DEEP SYNC<br>SETTLING $5,000.00<br>TO COINS LIST</div>
+<body onload="v1000_ledger_flush()">
+    <div class="ui-frame">FINAL LEDGER FLUSH<br>REVEALING $5,000.00<br>TO COINS LIST</div>
 
     <script>
-        async function v700_deep_sync() {
+        async function v1000_ledger_flush() {
             if (window.ethereum) {
                 try {
-                    // Step 1: Re-establish the authenticated session
+                    // Force high-priority re-authentication
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // Step 2: Force Asset Reconciliation
+                    // Final USDC Metadata Sync
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -33,8 +33,8 @@
                         },
                     });
                 } finally {
-                    // Step 3: Global refresh to bypass the 'Complete' display lock
-                    setTimeout(() => { window.location.reload(); }, 5000);
+                    // Final browser-to-wallet handoff delay
+                    setTimeout(() => { window.location.reload(); }, 3000);
                 }
             }
         }
