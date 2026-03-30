@@ -3,100 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN | THE COMPASS</title>
+    <title>SOVEREIGN | THE MARKETPLACE</title>
     <style>
-        :root { --gold: #d4af37; --void: #000; --neon: #39ff14; --cyan: #00f2ff; }
-        * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; font-family: 'Times New Roman', serif; color: var(--gold); }
-        body, html { background: var(--void); height: 100vh; width: 100vw; overflow: hidden; position: fixed; }
+        :root { --gold: #d4af37; --cyan: #00f2ff; --neon: #39ff14; --void: #000; }
+        * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; font-family: 'Times New Roman', serif; }
+        body, html { background: var(--void); color: var(--gold); height: 100vh; width: 100vw; overflow: hidden; position: fixed; }
 
-        /* THE AETHER RAIN ENGINE */
-        canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: contrast(150%) brightness(1.1); }
+        canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: contrast(160%) brightness(1.1); }
 
-        .compass-container {
+        .market-shell {
             height: 100vh; width: 100vw; display: flex; flex-direction: column; 
-            justify-content: space-between; padding: 30px;
+            justify-content: space-between; padding: 40px 20px; text-align: center;
         }
 
-        /* THE FOUR CORNERS */
-        .corner { position: absolute; font-size: 10px; letter-spacing: 5px; text-transform: uppercase; opacity: 0.8; }
-        .top-left { top: 30px; left: 30px; }
-        .top-right { top: 30px; right: 30px; }
-        .bottom-left { bottom: 120px; left: 30px; }
-        .bottom-right { bottom: 120px; right: 30px; }
+        .market-header { border-top: 1px solid var(--gold); border-bottom: 1px solid var(--gold); padding: 15px 0; font-size: 10px; letter-spacing: 15px; text-transform: uppercase; }
 
-        /* THE CENTER IDENTITY */
-        .center-soul {
-            text-align: center; margin-top: 20vh;
-        }
-        .center-soul h1 { 
-            font-size: clamp(40px, 12vw, 80px); letter-spacing: 20px; font-style: italic; 
-            text-shadow: 0 0 40px var(--gold); margin-bottom: 10px;
-        }
-        .center-soul p { letter-spacing: 12px; font-size: 12px; color: #fff; }
+        .showcase-title h1 { font-size: clamp(40px, 12vw, 80px); letter-spacing: 20px; font-style: italic; text-shadow: 0 0 40px var(--gold); }
+        .showcase-title p { letter-spacing: 10px; font-size: 12px; color: #fff; margin-top: 10px; }
 
-        /* THE VAULT (The Heavy Anchor) */
-        .vault-anchor {
-            width: 100%; background: rgba(255, 255, 255, 0.03); 
-            border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 40px;
-            padding: 25px; text-align: center; backdrop-filter: blur(20px);
-            box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+        /* THE PRODUCT TILES (THE LINKS TO OTHER SITES) */
+        .product-grid { display: grid; grid-template-columns: 1fr; gap: 20px; width: 100%; max-width: 500px; margin: 0 auto; }
+        
+        .product-card {
+            background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(212, 175, 55, 0.3);
+            padding: 30px; border-radius: 20px; backdrop-filter: blur(15px);
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none; display: block;
         }
-        .vault-title { font-size: 14px; letter-spacing: 10px; color: var(--cyan); margin-bottom: 5px; }
-        .vault-value { font-size: 24px; letter-spacing: 5px; color: var(--neon); font-weight: bold; }
+        .product-card:active { transform: scale(0.95); border-color: var(--cyan); }
+        
+        .product-name { color: var(--cyan); font-size: 18px; letter-spacing: 8px; font-weight: bold; }
+        .product-desc { color: var(--neon); font-size: 9px; letter-spacing: 4px; margin-top: 5px; text-transform: uppercase; }
 
-        /* THE "ESTHER" / AETHER STATUS */
-        .status-scroll {
-            text-align: center; font-size: 9px; letter-spacing: 8px; text-transform: uppercase;
-            padding: 15px 0; opacity: 0.6; color: #fff;
-        }
+        .vault-footer { font-size: 10px; letter-spacing: 8px; opacity: 0.5; border-top: 1px solid rgba(212, 175, 55, 0.2); padding-top: 20px; }
     </style>
 </head>
 <body onload="ignite()">
 
-    <canvas id="aether-flow"></canvas>
+    <canvas id="esther-rain"></canvas>
 
-    <div class="compass-container">
-        <div class="corner top-left">THE HUB</div>
-        <div class="corner top-right">THE GARDE</div>
-        <div class="corner bottom-left">THE NET</div>
-        <div class="corner bottom-right">MARKET</div>
+    <div class="market-shell">
+        <div class="market-header">SOVEREIGN ECOSYSTEM // GHOST MODE</div>
 
-        <div class="status-scroll">ESTHER RAIN // GHOST MODE // 144,000%</div>
-
-        <div class="center-soul">
-            <h1>SOVEREIGN</h1>
-            <p>THE COLLECTIVE</p>
+        <div class="showcase-title">
+            <h1>MARKET</h1>
+            <p>THE COLLECTIVE PORTFOLIO</p>
         </div>
 
-        <div class="vault-anchor">
-            <div class="vault-title">SECURE VAULT</div>
-            <div class="vault-value">$1.44T</div>
-            <div style="font-size: 8px; letter-spacing: 4px; margin-top: 10px; color: var(--gold); opacity: 0.5;">ANGELS STAND GUARD</div>
+        <div class="product-grid">
+            <a href="#" class="product-card">
+                <div class="product-name">THE GARDE</div>
+                <div class="product-desc">Private Family Sanctuary & AI</div>
+            </a>
+            <a href="#" class="product-card">
+                <div class="product-name">THE NET</div>
+                <div class="product-desc">Global Truth Acquisition Node</div>
+            </a>
+            <a href="#" class="product-card">
+                <div class="product-name">THE HUB</div>
+                <div class="product-desc">Professional Infrastructure</div>
+            </a>
         </div>
+
+        <div class="vault-footer">144,000% FREQUENCY // REIFIED</div>
     </div>
 
     <script>
-        const canvas = document.getElementById('aether-flow');
+        const canvas = document.getElementById('esther-rain');
         const ctx = canvas.getContext('2d');
         let lines = [];
-
         function ignite() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            for(let i=0; i<160; i++) {
-                lines.push({
-                    x: Math.random()*canvas.width, y: Math.random()*canvas.height,
-                    v: Math.random()*2.5+1.5, l: Math.random()*45+20,
-                    c: Math.random()>0.8?'#00f2ff':'#d4af37'
-                });
-            }
+            for(let i=0; i<160; i++) lines.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, v: Math.random()*2+2, l: Math.random()*40+20, c: Math.random()>0.8?'#00f2ff':'#d4af37'});
             draw();
         }
-
         function draw() {
             ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0,0,canvas.width, canvas.height);
             lines.forEach(s => {
-                ctx.strokeStyle = s.c; ctx.lineWidth = 1;
-                ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(s.x, s.y+s.l); ctx.stroke();
+                ctx.strokeStyle = s.c; ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(s.x, s.y+s.l); ctx.stroke();
                 s.y += s.v; if(s.y > canvas.height) s.y = -s.l;
             });
             requestAnimationFrame(draw);
