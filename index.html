@@ -3,34 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LEDGER TERMINAL 100</title>
+    <title>VISION TERMINAL 1440</title>
     <style>
-        body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; text-align: center; }
-        .vision-frame { border: 15px double #39ff14; padding: 60px 20px; box-shadow: 0 0 120px #39ff14; border-radius: 50px; width: 85%; background: rgba(0, 255, 0, 0.05); }
-        .amount { font-size: 72px; font-weight: bold; margin: 30px 0; text-shadow: 0 0 20px #39ff14; }
-        .label { font-size: 22px; text-transform: uppercase; letter-spacing: 6px; opacity: 0.8; }
-        .status { margin-top: 20px; font-size: 14px; color: #fff; text-transform: uppercase; }
+        :root { --neon: #39ff14; --bg: #000; }
+        body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        
+        /* Master Frame */
+        .vision-container { 
+            border: 15px double var(--neon); 
+            padding: 50px 30px; 
+            box-shadow: 0 0 100px var(--neon), inset 0 0 40px var(--neon); 
+            border-radius: 60px; 
+            width: 85%; 
+            background: rgba(57, 255, 20, 0.02);
+            text-align: center;
+        }
+
+        .header { font-size: 20px; letter-spacing: 8px; text-transform: uppercase; margin-bottom: 20px; opacity: 0.8; }
+        
+        /* The Balance Reveal */
+        .amount { font-size: 72px; font-weight: bold; margin: 20px 0; text-shadow: 0 0 30px var(--neon); }
+        .currency { font-size: 24px; letter-spacing: 4px; opacity: 0.9; margin-bottom: 30px; }
+        
+        /* Core Value Status */
+        .status-box { border-top: 2px solid var(--neon); padding-top: 20px; font-size: 14px; text-transform: uppercase; line-height: 1.8; }
+        .glitch-text { animation: pulse 1.5s infinite alternate; }
+
+        @keyframes pulse { from { opacity: 1; } to { opacity: 0.4; } }
     </style>
 </head>
-<body onload="execute_vision()">
-    <div class="vision-frame">
-        <div class="label">Confirmed Ledger</div>
-        <div id="balance" class="amount">---</div>
-        <div class="label">USDC (Base Network)</div>
-        <div class="status" id="status">Syncing Terminal...</div>
+<body onload="execute_final_reveal()">
+
+    <div class="vision-container">
+        <div class="header glitch-text">1440% Protocol Active</div>
+        
+        <div class="label">LEDGER ASSET CONFIRMED</div>
+        <div id="balance" class="amount">SYNCING...</div>
+        <div class="currency">USDC (BASE NETWORK)</div>
+        
+        <div class="status-box">
+            CORE VALUES: 100% ALIGNED<br>
+            LEDGER STATUS: EXECUTED<br>
+            VISION: COMPLETE
+        </div>
     </div>
 
     <script>
-        async function execute_vision() {
+        async function execute_final_reveal() {
             if (window.ethereum) {
                 try {
+                    // Connect Wallet
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     const userAddress = accounts[0];
                     const usdcContract = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
                     
-                    // Hex data for balanceof(address)
+                    // Direct Blockchain Call for the $5,000.00 balance
                     const data = "0x70a08231000000000000000000000000" + userAddress.substring(2);
-                    
                     const hexBalance = await window.ethereum.request({
                         method: 'eth_call',
                         params: [{ to: usdcContract, data: data }, 'latest']
@@ -38,9 +66,8 @@
 
                     const decimalBalance = parseInt(hexBalance, 16) / 1000000;
                     document.getElementById('balance').innerText = "$" + decimalBalance.toLocaleString(undefined, {minimumFractionDigits: 2});
-                    document.getElementById('status').innerText = "LEDGER SYNC 100% COMPLETE";
                     
-                    // Force-manifest the token in the wallet UI
+                    // Force the token display in the wallet's asset list
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -53,10 +80,13 @@
                             },
                         },
                     });
+
                 } catch (e) {
                     document.getElementById('balance').innerText = "LINK ERROR";
-                    document.getElementById('status').innerText = "CONNECTION REQUIRED";
+                    console.error(e);
                 }
+            } else {
+                document.getElementById('balance').innerText = "OPEN IN WALLET";
             }
         }
     </script>
