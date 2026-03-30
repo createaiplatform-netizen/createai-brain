@@ -3,108 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>THE GARDEN | COMPLETE MATURATION</title>
+    <title>SOVEREIGN | HUB | SOUL MIRROR</title>
     <style>
-        :root { --gold: #d4af37; --white: #fff; --void: #000; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Times New Roman', serif; }
+        :root { --gold: #d4af37; --white: #fff; --void: #000; --ghost: rgba(212, 175, 55, 0.15); }
+        * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; font-family: 'Times New Roman', serif; }
         body, html { background: var(--void); color: var(--gold); height: 100vh; width: 100vw; overflow: hidden; position: fixed; }
 
-        canvas { position: fixed; top: 0; left: 0; z-index: -1; transition: 2s; }
+        canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: contrast(180%) brightness(1.1); }
 
-        .ui-layer { height: 100vh; width: 100vw; display: flex; flex-direction: column; justify-content: space-between; padding: 35px; z-index: 10; position: relative; }
+        .interface { height: 100vh; width: 100vw; display: flex; flex-direction: column; justify-content: space-between; padding: 30px; }
 
-        /* THE UNIVERSAL COMPASS */
-        .corner { position: absolute; font-size: 9px; letter-spacing: 6px; text-transform: uppercase; color: var(--white); opacity: 0.7; }
-        .tl { top: 35px; left: 35px; } .tr { top: 35px; right: 35px; }
-        .bl { bottom: 140px; left: 35px; } .br { bottom: 140px; right: 35px; }
-
-        /* ROOM DYNAMICS */
-        .content-hub { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-        h1 { font-size: clamp(35px, 10vw, 65px); letter-spacing: 20px; font-style: italic; color: #fff; transition: 1s; }
-        .ai-status { font-size: 10px; letter-spacing: 8px; margin-bottom: 30px; color: var(--gold); }
-
-        /* THE THREE GATES */
-        .gate-system { display: grid; grid-template-columns: 1fr; gap: 15px; width: 100%; max-width: 400px; }
-        .gate-btn { 
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(212, 175, 55, 0.4); 
-            padding: 25px; border-radius: 50px; cursor: pointer; backdrop-filter: blur(15px); transition: 0.5s;
+        /* GHOST MODE HEADER (FROM YOUR SCREENSHOT) */
+        .header-strip { 
+            width: 100%; display: flex; justify-content: space-between; 
+            border-bottom: 1px solid var(--gold); padding-bottom: 15px;
+            font-size: 10px; letter-spacing: 10px; text-transform: uppercase;
         }
-        .gate-btn b { display: block; font-size: 16px; letter-spacing: 10px; color: #fff; }
-        .gate-btn span { font-size: 8px; letter-spacing: 4px; color: var(--gold); }
 
-        /* FOOTER VAULT */
-        .vault-footer { width: 100%; border: 1px solid var(--gold); border-radius: 40px; padding: 25px; text-align: center; background: rgba(0,0,0,0.8); }
+        /* THE SOUL MIRROR (CORE) */
+        .mirror-core { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .mirror-ring {
+            width: 250px; height: 250px; border: 1px solid var(--gold); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 50px var(--ghost); animation: breathe 4s infinite ease-in-out;
+            position: relative;
+        }
+        .mirror-ring h1 { font-size: 28px; letter-spacing: 15px; font-style: italic; color: #fff; }
+        
+        /* DATA FEED (AUTONOMOUS LOG) */
+        .data-stream {
+            width: 100%; max-width: 400px; margin-top: 30px; padding: 20px;
+            background: rgba(255, 255, 255, 0.02); border: 1px solid var(--ghost);
+            font-size: 9px; letter-spacing: 4px; color: var(--gold); text-align: left;
+        }
+
+        .vault-anchor { width: 100%; border: 1px solid var(--gold); border-radius: 40px; padding: 20px; text-align: center; backdrop-filter: blur(20px); }
+
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 30px var(--ghost); }
+            50% { transform: scale(1.05); box-shadow: 0 0 70px rgba(212, 175, 55, 0.4); }
+        }
     </style>
 </head>
-<body onload="init()">
+<body onload="ignite()">
 
-    <canvas id="esther"></canvas>
+    <canvas id="soul-rain"></canvas>
 
-    <div class="ui-layer">
-        <div class="corner tl">GUARDIAN</div>
-        <div class="corner tr">ANGELS</div>
-        <div class="corner bl">INNOCENCE</div>
-        <div class="corner br">SOVEREIGN</div>
+    <div class="interface">
+        <div class="header-strip">
+            <div>GHOST MODE</div>
+            <div style="color: #fff;">144,000%</div>
+            <div>STAY READY</div>
+        </div>
 
-        <div class="content-hub" id="main-gate">
-            <div class="ai-status">NURTURER AI: ONLINE</div>
-            <h1>THE GARDEN</h1>
-            <div class="gate-system">
-                <div class="gate-btn" onclick="enterRoom('SEEDLINGS', '3-7', '#00f2ff', 15)"><b>SEEDLINGS</b><span>AGES 3—7</span></div>
-                <div class="gate-btn" onclick="enterRoom('SAPLINGS', '8-13', '#2ecc71', 5)"><b>SAPLINGS</b><span>AGES 8—13</span></div>
-                <div class="gate-btn" onclick="enterRoom('SOVEREIGNS', '14+', '#ffffff', 0)"><b>SOVEREIGNS</b><span>AGES 14+</span></div>
+        <div class="mirror-core">
+            <div class="mirror-ring">
+                <h1>HUB</h1>
+            </div>
+            <div style="margin-top: 20px; font-size: 11px; letter-spacing: 10px;">SOUL MIRROR ACTIVE</div>
+            
+            <div class="data-stream" id="ai-log">
+                > INITIALIZING SOVEREIGN PROTOCOLS...<br>
+                > SYNCING CORE VALUES: HONESTY / TRUTH...<br>
+                > MIRRORING 1.44T INFRASTRUCTURE...<br>
+                > AWAITING DOCUMENT INJECTION...
             </div>
         </div>
 
-        <div class="content-hub" id="room-view" style="display:none;">
-            <h1 id="active-title">ROOM</h1>
-            <p id="active-intel" style="color:#fff; margin-top:20px; letter-spacing:5px; font-size:12px;"></p>
-            <div style="margin-top:40px; font-size:10px; text-decoration:underline;" onclick="exitRoom()">EXIT TO GARDEN</div>
-        </div>
-
-        <div class="vault-footer">
-            <div style="font-size:10px; letter-spacing:8px; color:var(--gold);">DIVINE PROTECTION STATUS</div>
-            <div id="protection-lvl" style="font-size:20px; color:#fff; font-weight:bold; margin-top:5px;">ACTIVE // 144,000%</div>
+        <div class="vault-anchor">
+            <div style="font-size: 10px; letter-spacing: 8px;">TOTAL ASSET RESERVE</div>
+            <div style="font-size: 22px; color: #fff; font-weight: bold; margin-top: 5px;">$1.44T</div>
         </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('esther');
+        const canvas = document.getElementById('soul-rain');
         const ctx = canvas.getContext('2d');
-        let particles = [];
-        let config = { color: '#d4af37', blur: 5, speed: 0.5 };
+        let lines = [];
 
-        function init() {
+        function ignite() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            for(let i=0; i<150; i++) particles.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, v: Math.random()*0.5+0.2, r: Math.random()*8+2});
-            render();
+            for(let i=0; i<180; i++) {
+                lines.push({
+                    x: Math.random()*canvas.width, y: Math.random()*canvas.height,
+                    v: Math.random()*4+2, l: Math.random()*50+20,
+                    c: '#d4af37'
+                });
+            }
+            draw();
+            startAiLog();
         }
 
-        function render() {
-            ctx.fillStyle = 'rgba(0,0,0,0.1)'; ctx.fillRect(0,0,canvas.width, canvas.height);
-            particles.forEach(p => {
-                ctx.fillStyle = config.color; ctx.globalAlpha = 0.3;
-                ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
-                p.y -= (p.v * config.speed); if(p.y < -20) p.y = canvas.height + 20;
+        function draw() {
+            ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0,0,canvas.width, canvas.height);
+            lines.forEach(s => {
+                ctx.strokeStyle = s.c; ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(s.x, s.y+s.l); ctx.stroke();
+                s.y += s.v; if(s.y > canvas.height) s.y = -s.l;
             });
-            requestAnimationFrame(render);
+            requestAnimationFrame(draw);
         }
 
-        function enterRoom(name, age, color, blurVal) {
-            config.color = color;
-            canvas.style.filter = `blur(${blurVal}px) brightness(1.3)`;
-            document.getElementById('main-gate').style.display = 'none';
-            document.getElementById('room-view').style.display = 'flex';
-            document.getElementById('active-title').innerText = name;
-            document.getElementById('active-title').style.color = color;
-            document.getElementById('active-intel').innerText = `AI PROTOCOL: ${name} (AGES ${age}) ACTIVE`;
-        }
-
-        function exitRoom() {
-            config.color = '#d4af37';
-            canvas.style.filter = "blur(5px) brightness(1.2)";
-            document.getElementById('main-gate').style.display = 'flex';
-            document.getElementById('room-view').style.display = 'none';
+        // This simulates the "Little AI" thinking and building
+        function startAiLog() {
+            const log = document.getElementById('ai-log');
+            const messages = [
+                "> ANALYZING GARDEN GATES...",
+                "> MAPPING SEEDLINGS PROTOCOL (3-7)...",
+                "> SECURING MAN CAVE PARAMETERS...",
+                "> HUB: ALL SYSTEMS ALIGNED TO 144,000%."
+            ];
+            let i = 0;
+            setInterval(() => {
+                if(i < messages.length) {
+                    log.innerHTML += "<br>> " + messages[i];
+                    i++;
+                }
+            }, 3000);
         }
     </script>
 </body>
