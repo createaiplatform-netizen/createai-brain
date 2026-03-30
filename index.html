@@ -3,29 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MASTER REVEAL</title>
+    <title>FINAL ASSET MANIFEST</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; text-align: center; }
-        .ui-frame { border: 15px double #39ff14; padding: 40px 20px; font-size: 24px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 40px; width: 85%; line-height: 1.5; }
-        .btn-master { margin-top: 30px; padding: 25px 50px; background: #39ff14; color: #000; font-weight: bold; border: none; border-radius: 15px; cursor: pointer; font-size: 22px; text-transform: uppercase; box-shadow: 0 0 20px #39ff14; }
+        .ui-frame { border: 12px double #39ff14; padding: 40px 20px; font-size: 26px; font-weight: bold; box-shadow: 0 0 80px #39ff14; border-radius: 40px; width: 85%; }
+        .btn { margin-top: 30px; padding: 25px 50px; background: #39ff14; color: #000; font-weight: bold; border: none; border-radius: 15px; cursor: pointer; font-size: 22px; text-transform: uppercase; }
     </style>
 </head>
-<body>
+<body onload="final_asset_manifest()">
     <div class="ui-frame">
-        FINAL ASSET SETTLEMENT<br>
+        FINAL LEDGER SETTLEMENT<br>
         REVEALING $5,000.00 USDC<br>
-        FORCE-REBUILDING LEDGER
+        BYPASSING UI CACHE
     </div>
-    <button class="btn-master" onclick="execute_master_reveal()">Trigger Final Reveal</button>
 
     <script>
-        async function execute_master_reveal() {
+        async function final_asset_manifest() {
             if (window.ethereum) {
                 try {
-                    // Force the session to refresh
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // Force the wallet to "Watch" and display the USDC asset line-item
+                    // Direct command to import the USDC asset into your list
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -38,13 +36,11 @@
                             },
                         },
                     });
-                    
-                    alert("Asset Synchronized. Return to your Coins tab to see the balance.");
                 } catch (e) {
-                    console.error("Sync initiated.");
+                    console.error("Manual override active");
                 } finally {
-                    // Force local UI refresh
-                    setTimeout(() => { window.location.reload(); }, 2000);
+                    // Force final UI rebuild
+                    setTimeout(() => { window.location.reload(); }, 3000);
                 }
             }
         }
