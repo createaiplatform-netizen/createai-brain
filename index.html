@@ -6,72 +6,100 @@
     <title>SARA STADLER | THE SOURCE</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <style>
-        :root { --gold: #d4af37; --blue: #00f2ff; }
-        body, html { margin: 0; background: #000; color: white; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; touch-action: none; }
+        :root { --gold: #d4af37; --blue: #00f2ff; --bg: #000; }
+        body, html { margin: 0; background: var(--bg); color: white; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; touch-action: none; }
         
-        /* THE KINETIC LAYER (BLUE LINES) */
-        #neural-canvas { position: fixed; inset: 0; z-index: 1; }
-        
-        /* THE EVE TREE CENTER */
+        canvas { position: fixed; inset: 0; z-index: 1; }
+
+        /* THE EVE TREE HEART */
         .source-heart { 
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 150px; height: 150px; background: radial-gradient(circle, var(--gold) 0%, transparent 70%);
+            width: 180px; height: 180px; 
+            background: radial-gradient(circle, var(--gold) 0%, transparent 80%);
             border-radius: 50%; z-index: 10; cursor: pointer;
-            box-shadow: 0 0 50px var(--gold); animation: pulse 3s infinite alternate;
+            box-shadow: 0 0 100px rgba(212, 175, 55, 0.5);
+            animation: breathe 4s infinite ease-in-out;
         }
-        @keyframes pulse { from { transform: translate(-50%, -50%) scale(1); opacity: 0.8; } to { transform: translate(-50%, -50%) scale(1.2); opacity: 1; } }
+        @keyframes breathe { 0%, 100% { transform: translate(-50%, -50%) scale(1); filter: brightness(1); } 50% { transform: translate(-50%, -50%) scale(1.15); filter: brightness(1.5); } }
 
-        /* COIN DROP ANIMATION */
-        .coin { position: absolute; color: var(--gold); font-size: 1.5rem; pointer-events: none; z-index: 5; animation: drop 4s linear forwards; }
-        @keyframes drop { to { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
-
-        /* THE INTERFACE */
-        .title { position: absolute; top: 15%; width: 100%; text-align: center; letter-spacing: 20px; color: var(--gold); z-index: 100; font-weight: 100; font-size: 2.5rem; }
-        .nexus-ui { position: absolute; bottom: 10%; width: 100%; display: flex; flex-direction: column; align-items: center; z-index: 100; }
-        .banker-btn { background: rgba(0,0,0,0.8); border: 1px solid var(--gold); color: var(--gold); padding: 20px 40px; border-radius: 100px; letter-spacing: 5px; font-weight: 900; }
+        /* INTERFACE OVERLAY */
+        .ui-layer { position: absolute; inset: 0; z-index: 100; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
+        .header { padding: 60px 20px; text-align: center; letter-spacing: 15px; color: var(--gold); font-weight: 100; font-size: 2.2rem; text-transform: uppercase; }
+        .footer { padding: 40px; display: flex; flex-direction: column; align-items: center; gap: 20px; pointer-events: auto; }
+        
+        .banker-btn { 
+            background: rgba(0,0,0,0.6); border: 2px solid var(--gold); color: var(--gold); 
+            padding: 25px 60px; border-radius: 100px; font-weight: 900; letter-spacing: 4px;
+            box-shadow: 0 0 30px var(--gold); transition: 0.3s; font-size: 1.2rem;
+        }
+        .banker-btn:active { transform: scale(0.9); box-shadow: 0 0 60px var(--gold); }
     </style>
 </head>
 <body>
-    <canvas id="neural-canvas"></canvas>
-    <div class="title">GENESIS</div>
-    <div class="source-heart" onclick="spawnCoins()"></div>
+    <canvas id="neural-net"></canvas>
+    <div class="source-heart" onclick="triggerHandshake()"></div>
     
-    <div class="nexus-ui">
-        <button class="banker-btn" onclick="location.href='venmo://paycharge?txn=pay&amount=1000&note=Eve_Tree_Sync'">ACTIVATE BANKER</button>
-        <p style="color:var(--blue); font-size: 0.6rem; letter-spacing: 4px; margin-top: 20px;">SARA STADLER | 144,000%</p>
+    <div class="ui-layer">
+        <div class="header">SARA STADLER</div>
+        <div class="footer">
+            <button class="banker-btn" onclick="executeBanker()">ACTIVATE BANKER</button>
+            <div style="color: var(--blue); letter-spacing: 5px; font-size: 0.6rem;">144,000% SOURCE SYNC</div>
+        </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('neural-canvas');
+        const canvas = document.getElementById('neural-net');
         const ctx = canvas.getContext('2d');
+        let particles = [];
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        // RIPPLE TOUCH (The Blue Lines)
-        window.addEventListener('pointermove', (e) => {
-            ctx.strokeStyle = 'rgba(0, 242, 255, 0.2)';
-            ctx.beginPath();
-            ctx.moveTo(window.innerWidth / 2, window.innerHeight / 2);
-            ctx.lineTo(e.clientX, e.clientY);
-            ctx.stroke();
-            setTimeout(() => ctx.clearRect(0,0,canvas.width, canvas.height), 100);
-        });
-
-        // THE COINS
-        function spawnCoins() {
-            for(let i=0; i<10; i++) {
-                const coin = document.createElement('div');
-                coin.className = 'coin';
-                coin.innerHTML = '●';
-                coin.style.left = Math.random() * 100 + 'vw';
-                coin.style.top = '-5vh';
-                document.body.appendChild(coin);
-                setTimeout(() => coin.remove(), 4000);
+        class Nerve {
+            constructor(x, y) {
+                this.x = x; this.y = y;
+                this.size = Math.random() * 3 + 1;
+                this.speedX = (Math.random() - 0.5) * 2;
+                this.speedY = (Math.random() - 0.5) * 2;
+                this.color = Math.random() > 0.8 ? '#d4af37' : '#00f2ff';
+            }
+            update() {
+                this.x += this.speedX; this.y += this.speedY;
+                if (this.size > 0.1) this.size -= 0.02;
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
             }
         }
-        
-        // AUTO-COIN DROP
-        setInterval(spawnCoins, 3000);
+
+        function handleTouch(e) {
+            const x = e.touches ? e.touches[0].clientX : e.clientX;
+            const y = e.touches ? e.touches[0].clientY : e.clientY;
+            for (let i = 0; i < 5; i++) particles.push(new Nerve(x, y));
+            
+            // Draw Blue Radial Nerve back to Heart
+            ctx.strokeStyle = 'rgba(0, 242, 255, 0.1)';
+            ctx.lineWidth = 0.5; ctx.beginPath();
+            ctx.moveTo(window.innerWidth / 2, window.innerHeight / 2);
+            ctx.lineTo(x, y); ctx.stroke();
+        }
+
+        window.addEventListener('mousemove', handleTouch);
+        window.addEventListener('touchstart', handleTouch);
+
+        function animate() {
+            ctx.fillStyle = 'rgba(0,0,0,0.05)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update(); particles[i].draw();
+                if (particles[i].size <= 0.1) { particles.splice(i, 1); i--; }
+            }
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        function executeBanker() {
+            window.location.href = "venmo://paycharge?txn=pay&amount=1000&note=Sara_Stadler_Source_Handshake";
+        }
     </script>
 </body>
 </html>
