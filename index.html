@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN CORE</title>
+    <title>SOVEREIGN SECTOR</title>
     <style>
         body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100%; width: 100%; font-family: 'Courier New', monospace; touch-action: none; }
         canvas { position: fixed; top: 0; left: 0; z-index: 1; pointer-events: none; }
@@ -11,69 +11,70 @@
         #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 25px; box-sizing: border-box; }
         .header { color: #d4af37; border-bottom: 2px solid #d4af37; padding-bottom: 10px; display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; letter-spacing: 2px; }
 
-        /* THE KINETIC GRID */
-        .grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 12px; height: 55vh; pointer-events: auto; }
-        .sector { 
-            border: 1px solid rgba(212,175,55,0.6); background: rgba(0,0,0,0.95); 
+        /* THE BUILDING SECTOR GRID */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 15px; height: 60vh; pointer-events: auto; }
+        .block { 
+            border: 1px solid rgba(212,175,55,0.7); background: rgba(0,0,0,0.9); 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            color: #fff; border-radius: 8px; transition: 0.1s;
+            color: #fff; border-radius: 4px; transition: 0.05s;
         }
-        .sector:active { background: #fff; color: #000; transform: scale(1.05); }
-        .sector b { font-size: 22px; letter-spacing: 4px; }
-        .sector span { font-size: 8px; color: #d4af37; margin-top: 5px; letter-spacing: 1px; }
+        /* INSTANT VISUAL FEEDBACK */
+        .block:active { background: #fff; color: #000; transform: scale(1.1); }
+        .block b { font-size: 24px; letter-spacing: 5px; }
+        .block span { font-size: 9px; color: #d4af37; margin-top: 8px; letter-spacing: 2px; }
 
-        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #000; text-align: center; justify-content: center; align-items: center; flex-direction: column; pointer-events: auto; }
-        .footer { text-align: center; color: #fff; font-size: 30px; font-weight: bold; letter-spacing: 2px; }
+        #room-view { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #000; text-align: center; justify-content: center; align-items: center; flex-direction: column; pointer-events: auto; }
+        .footer { text-align: center; color: #fff; font-size: 30px; font-weight: bold; }
     </style>
 </head>
 <body onload="ignite()">
     <canvas id="c"></canvas>
     
     <div id="ui">
-        <div class="header"><div>SYSTEM: CORE ACTIVE</div><div>144,000%</div></div>
-        <div style="text-align:center; color:#d4af37; font-size:38px; letter-spacing:10px; font-weight:bold; font-style: italic;">SOVEREIGN</div>
+        <div class="header"><div>PROTOCOL: SECTOR</div><div>144,000%</div></div>
+        <div style="text-align:center; color:#d4af37; font-size:38px; letter-spacing:10px; font-weight:bold;">SOVEREIGN</div>
         
         <div class="grid">
-            <div class="sector" onclick="go('MARKET', '#00f2ff')"><b>MKT</b><span>SECTOR 01</span></div>
-            <div class="sector" onclick="go('HUB', '#d4af37')"><b>HUB</b><span>SECTOR 02</span></div>
-            <div class="sector" onclick="go('GARDE', '#fff')"><b>GRD</b><span>SECTOR 03</span></div>
-            <div class="sector" onclick="go('NET', '#39ff14')"><b>NET</b><span>SECTOR 04</span></div>
+            <div class="block" onclick="enter('MARKET', '#00f2ff')"><b>MKT</b><span>SECTOR 01</span></div>
+            <div class="block" onclick="enter('HUB', '#d4af37')"><b>HUB</b><span>SECTOR 02</span></div>
+            <div class="block" onclick="enter('GARDE', '#fff')"><b>GRD</b><span>SECTOR 03</span></div>
+            <div class="block" onclick="enter('NET', '#39ff14')"><b>NET</b><span>SECTOR 04</span></div>
         </div>
 
         <div class="footer">$1.44T</div>
     </div>
 
-    <div id="overlay" onclick="this.style.display='none'">
-        <h1 id="ot" style="font-size: 60px; letter-spacing: 15px; margin: 0;"></h1>
-        <p style="color: #d4af37; letter-spacing: 5px;">SECTOR ENGAGED</p>
+    <div id="room-view" onclick="this.style.display='none'">
+        <h1 id="rt" style="font-size: 55px; letter-spacing: 15px; margin: 0;"></h1>
+        <p style="color: #d4af37; letter-spacing: 5px;">SECTOR ENGAGED | TAP TO EXIT</p>
     </div>
 
     <script>
         const canvas = document.getElementById('c'); const ctx = canvas.getContext('2d');
-        let parts = []; let tint = '#d4af37';
+        let dots = []; let tint = '#d4af37';
 
         function ignite() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            // KINETIC PARTICLES - High speed rising dome motion
-            for(let i=0; i<60; i++) parts.push({x: Math.random()*canvas.width, y: canvas.height, v: Math.random()*12+10, r: 2});
-            loop();
+            // KINETIC LIGHT (Building upwards)
+            for(let i=0; i<70; i++) dots.push({x: Math.random()*canvas.width, y: canvas.height, v: Math.random()*15+10, r: 2});
+            draw();
         }
 
-        function loop() {
+        function draw() {
             ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(0,0,canvas.width, canvas.height);
             ctx.fillStyle = tint;
-            parts.forEach(p => {
+            dots.forEach(p => {
                 ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
                 p.y -= p.v; if(p.y < -10) { p.y = canvas.height; p.x = Math.random()*canvas.width; }
             });
-            requestAnimationFrame(loop);
+            requestAnimationFrame(draw);
         }
 
-        function go(name, color) {
+        function enter(name, color) {
             tint = color;
-            document.getElementById('overlay').style.display = 'flex';
-            document.getElementById('ot').innerText = name;
-            document.getElementById('ot').style.color = color;
+            document.getElementById('room-view').style.display = 'flex';
+            document.getElementById('rt').innerText = name;
+            document.getElementById('rt').style.color = color;
         }
     </script>
 </body>
