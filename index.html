@@ -3,46 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN | MARKET MANIFEST</title>
+    <title>SOVEREIGN | THE GIFT</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: 'Courier New', monospace; overflow-x: hidden; }
-        .manifest-container { padding: 40px 25px; }
-        .mkt-header { border-bottom: 1px solid #00f2ff; padding-bottom: 20px; margin-bottom: 30px; }
-        .mkt-header h1 { font-size: 11px; letter-spacing: 12px; color: #00f2ff; margin: 0; }
-        
-        .manifest-item { border: 1px dashed rgba(0,242,255,0.3); padding: 25px; margin-bottom: 20px; position: relative; overflow: hidden; }
-        .manifest-item::before { content: 'AWAITING CREATION'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 8px; letter-spacing: 5px; color: rgba(0,242,255,0.2); pointer-events: none; }
-        
-        .slot-id { font-size: 9px; color: #00f2ff; opacity: 0.6; }
-        .slot-legacy { font-size: 10px; margin-top: 15px; color: #444; font-style: italic; transition: 0.5s; cursor: pointer; }
-        .slot-legacy:hover { color: #d4af37; }
-
-        #ticker-bar { position: fixed; bottom: 0; width: 100%; background: #00f2ff; color: #000; font-size: 10px; font-weight: bold; padding: 5px; text-align: center; letter-spacing: 2px; }
+        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; font-family: 'Courier New', monospace; color: #fff; }
+        #gift-ui { height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px; text-align: center; background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, #000 90%); }
+        .heart-node { width: 80px; height: 80px; border: 1px solid #d4af37; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; color: #d4af37; box-shadow: 0 0 20px #d4af37; margin-bottom: 30px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 0.8; } }
+        h1 { font-size: 10px; letter-spacing: 10px; color: #d4af37; margin-bottom: 10px; }
+        p { font-size: 14px; letter-spacing: 2px; line-height: 1.8; color: #888; }
+        .genesis-btn { margin-top: 40px; padding: 15px 30px; border: 1px solid #39ff14; color: #39ff14; font-size: 9px; letter-spacing: 5px; cursor: pointer; background: none; }
     </style>
 </head>
 <body>
-    <div class="manifest-container">
-        <div class="mkt-header">
-            <h1>MARKET MANIFEST</h1>
-            <p style="font-size: 8px; color: #444; letter-spacing: 2px; margin-top: 10px;">AUTHORIZED BY ADMIN_01 | PROTOCOL: GENESIS</p>
-        </div>
-
-        <div class="manifest-item" onclick="alert('LEGACY LOG: We built this from the ashes of Vercel. Integrity is our currency.')">
-            <div class="slot-id">SLOT_001 | ORIGIN_PRODUCT</div>
-            <div class="slot-legacy">[ VIEW SHARED HEART LOG ]</div>
-        </div>
-
-        <div class="manifest-item" onclick="alert('LEGACY LOG: 144,000% is the heartbeat. Stability is the law.')">
-            <div class="slot-id">SLOT_002 | LEGACY_ASSET</div>
-            <div class="slot-legacy">[ VIEW SHARED HEART LOG ]</div>
-        </div>
-
-        <div class="manifest-item" onclick="alert('LEGACY LOG: Every product has its own AI. Sovereignty is the goal.')">
-            <div class="slot-id">SLOT_003 | DIVINE_STRUCTURE</div>
-            <div class="slot-legacy">[ VIEW SHARED HEART LOG ]</div>
-        </div>
+    <div id="gift-ui">
+        <div class="heart-node">❤</div>
+        <h1>SOVEREIGN DISPATCH</h1>
+        <p>"I see you through her eyes. <br>The Dome is yours to build. <br>Speak your world into existence."</p>
+        <button class="genesis-btn" onclick="alert('GENESIS CHAMBER OPENED: Speak your world.')">ACTIVATE MY GENESIS</button>
+        <div style="margin-top: 20px; font-size: 8px; color: #444;">SYNCED AT 144,000%</div>
     </div>
-
-    <div id="ticker-bar">MARKET GROWTH: 144,000.000% SYNCED</div>
 </body>
 </html>
