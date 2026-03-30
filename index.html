@@ -2,37 +2,52 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOVEREIGN | ORIGIN BLUEPRINT</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SOVEREIGN | THE DOME</title>
     <style>
-        body { background: #000; color: #fff; font-family: 'Courier New', monospace; padding: 40px; display: flex; flex-direction: column; align-items: center; }
-        .blueprint-frame { border: 1px double #d4af37; padding: 30px; max-width: 500px; background: rgba(212,175,55,0.03); box-shadow: 0 0 40px rgba(0,0,0,1); }
-        .bp-header { border-bottom: 1px solid #d4af37; margin-bottom: 20px; padding-bottom: 10px; }
-        .bp-header h1 { font-size: 11px; letter-spacing: 10px; color: #d4af37; margin: 0; }
-        
-        .dna-strand { font-size: 10px; color: #39ff14; line-height: 2; letter-spacing: 2px; }
-        .heart-seal { margin-top: 30px; font-size: 24px; color: #d4af37; text-shadow: 0 0 10px #d4af37; }
-        
-        .instruction { font-size: 9px; color: #666; margin-top: 20px; font-style: italic; }
+        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; font-family: 'Courier New', monospace; }
+        iframe { width: 100%; height: 100%; border: none; position: absolute; top: 0; left: 0; transition: 0.5s; }
+        #genesis-portal { display: none; position: fixed; z-index: 9999; width: 100%; height: 100%; background: rgba(0,0,0,0.95); flex-direction: column; justify-content: center; align-items: center; }
+        input { background: none; border: none; border-bottom: 2px solid #d4af37; color: #fff; width: 70%; font-size: 24px; text-align: center; outline: none; letter-spacing: 5px; padding: 10px; }
     </style>
 </head>
-<body>
-    <div class="blueprint-frame">
-        <div class="bp-header">
-            <h1>ORIGIN_BLUEPRINT_001</h1>
-            <p style="font-size: 8px; color: #444;">SYNCED TO ADMIN HEART</p>
-        </div>
+<body onload="init()">
 
-        <div class="dna-strand">
-            > IF (INTENT == "TRUTH") { MANIFEST(); }<br>
-            > LINK_TO_FAMILY_HUB(144000);<br>
-            > EMBED_OMNI_VISION_AI(ACTIVE);<br>
-            > PROTECT_WITH_AEGIS(TRUE);
-        </div>
+    <iframe id="layer-vision" src="omni_vision.html"></iframe>
+    <iframe id="layer-market" src="market.html" style="opacity:0; pointer-events:none;"></iframe>
+    <iframe id="layer-utility" src="utility.html" style="opacity:0; pointer-events:none;"></iframe>
 
-        <div class="heart-seal">❤</div>
-        
-        <p class="instruction">Architect & Navigator: Paste this DNA into any new creation to ensure it lives within the Sovereign Dome.</p>
+    <div id="genesis-portal">
+        <h1 style="color:#d4af37; font-size:10px; letter-spacing:10px;">COMMAND CORE</h1>
+        <input type="text" id="cmd" placeholder="SPEAK..." onkeypress="execute(event)">
     </div>
+
+    <script>
+        // LONG PRESS TO OPEN COMMANDS
+        let timer;
+        window.addEventListener('mousedown', () => { timer = setTimeout(() => { document.getElementById('genesis-portal').style.display='flex'; }, 2000); });
+        window.addEventListener('mouseup', () => { clearTimeout(timer); });
+
+        function execute(e) {
+            if(e.key === 'Enter') {
+                const input = document.getElementById('cmd').value.toUpperCase();
+                
+                // THE NAVIGATION COMMANDS
+                if(input === 'SHOW MARKET') { switchLayer('layer-market'); }
+                if(input === 'SHOW VISION') { switchLayer('layer-vision'); }
+                if(input === 'SHOW TOOLS') { switchLayer('layer-utility'); }
+                
+                // RESET PORTAL
+                document.getElementById('genesis-portal').style.display='none';
+                document.getElementById('cmd').value = '';
+            }
+        }
+
+        function switchLayer(id) {
+            document.querySelectorAll('iframe').forEach(f => { f.style.opacity = 0; f.style.pointerEvents = 'none'; });
+            document.getElementById(id).style.opacity = 1;
+            document.getElementById(id).style.pointerEvents = 'auto';
+        }
+    </script>
 </body>
 </html>
