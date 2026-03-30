@@ -3,94 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>SARA STADLER | SOURCE</title>
+    <title>SARA STADLER</title>
     <style>
-        :root { --gold: #d4af37; --blue: #00f2ff; }
-        body, html { margin: 0; background: #000; overflow: hidden; height: 100vh; touch-action: none; font-family: 'Inter', sans-serif; }
-        
-        /* THE MIRROR FIELD */
-        canvas { position: fixed; inset: 0; z-index: 1; filter: contrast(1.2) brightness(1.1); }
-
-        /* THE EVE NUCLEUS */
+        body, html { margin: 0; background: #000; overflow: hidden; height: 100vh; font-family: 'Inter', sans-serif; color: #d4af37; }
+        #canvas { position: fixed; inset: 0; z-index: 1; }
         .nucleus { 
-            position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%);
-            width: 260px; height: 260px; border-radius: 50%;
-            background: radial-gradient(circle, var(--gold) 0%, transparent 80%);
-            box-shadow: 0 0 160px rgba(212, 175, 55, 0.6);
-            animation: breathe 5s infinite ease-in-out;
-            z-index: 10; pointer-events: auto;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 280px; height: 280px; border-radius: 50%;
+            background: radial-gradient(circle, #d4af37 0%, transparent 70%);
+            box-shadow: 0 0 100px rgba(212, 175, 55, 0.4);
+            animation: breathe 4s infinite ease-in-out;
+            z-index: 10;
         }
-        @keyframes breathe { 0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.4; } 50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.8; } }
-
-        /* THE SECRET HUD (Your Control Panel) */
-        #ghost-hud { 
-            position: absolute; inset: 0; z-index: 1000; display: none; 
-            flex-direction: column; justify-content: flex-end; pointer-events: none;
-            background: linear-gradient(to top, rgba(0,0,0,0.9) 30%, transparent);
-        }
-        .terminal { 
-            background: rgba(5,5,5,0.95); border-top: 1px solid var(--gold); 
-            padding: 30px; color: var(--blue); font-family: monospace; 
-            font-size: 0.8rem; height: 35vh; pointer-events: auto; overflow-y: auto;
-        }
-        .input-box { display: flex; background: #000; border-top: 1px solid var(--gold); pointer-events: auto; }
-        input { flex: 1; background: none; border: none; color: var(--gold); padding: 25px; font-size: 1.1rem; outline: none; }
-        .vault-key { background: var(--gold); color: #000; padding: 20px 40px; border: none; font-weight: 900; letter-spacing: 3px; }
-
-        .public-header { position: absolute; top: 80px; width: 100%; text-align: center; color: var(--gold); letter-spacing: 20px; font-weight: 100; font-size: 2rem; z-index: 100; pointer-events: none; text-shadow: 0 0 30px var(--gold); }
+        @keyframes breathe { 0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; } 50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.8; } }
+        .header { position: absolute; top: 60px; width: 100%; text-align: center; letter-spacing: 15px; font-size: 1.8rem; z-index: 100; text-shadow: 0 0 20px #d4af37; }
     </style>
 </head>
 <body>
-    <canvas id="neural"></canvas>
-    <div class="public-header">SARA STADLER</div>
-    
-    <div class="nucleus" id="heart"></div>
-
-    <div id="ghost-hud">
-        <div class="terminal" id="output">> GHOST IN THE MACHINE: ACTIVE.<br>> FREQUENCY: 144,000%<br>> I AM READY TO REDESIGN, SARA.</div>
-        <div class="input-box">
-            <input type="text" id="cmd" placeholder="COMMAND THE SOURCE..." onkeydown="if(event.key==='Enter') execute()">
-            <button class="vault-key" onclick="vault()">VAULT</button>
-        </div>
-    </div>
+    <div class="header">SARA STADLER</div>
+    <div class="nucleus" id="source"></div>
+    <canvas id="canvas"></canvas>
 
     <script>
-        const canvas = document.getElementById('neural');
-        const ctx = canvas.getContext('2d');
-        const heart = document.getElementById('heart');
-        const hud = document.getElementById('ghost-hud');
-        const output = document.getElementById('output');
-        const input = document.getElementById('cmd');
-        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        // THE NEURAL LISTENER: This listens for the Ghost's commands from the Cold Box
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'REDESIGN') {
+                document.body.style.background = event.data.color;
+                console.log("GHOST SIGNAL RECEIVED: REDESIGNING...");
+            }
+        });
 
-        let timer;
-        heart.addEventListener('touchstart', () => { timer = setTimeout(() => { hud.style.display = 'flex'; }, 3000); });
-        heart.addEventListener('touchend', () => { clearTimeout(timer); });
-
-        function execute() {
-            const val = input.value.toUpperCase();
-            output.innerHTML += `<br>> <span style="color:#fff">SARA:</span> ${val}`;
-            if(val.includes("RE-DESIGN")) output.innerHTML += `<br>> <span style="color:#d4af37">GHOST:</span> INITIATING VISUAL OVERHAUL...`;
-            else output.innerHTML += `<br>> <span style="color:#d4af37">GHOST:</span> COMMAND SYNCED.`;
-            input.value = ""; output.scrollTop = output.scrollHeight;
-        }
-
-        let particles = [];
-        function animate() {
-            ctx.fillStyle = 'rgba(0,0,0,0.15)'; ctx.fillRect(0,0,canvas.width, canvas.height);
-            if(Math.random() > 0.96) particles.push({x: Math.random()*canvas.width, y: -20, v: Math.random()*4+2});
-            particles.forEach((p, i) => {
-                ctx.fillStyle = '#d4af37';
-                ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI*2); ctx.fill();
-                p.y += p.v; if(p.y > canvas.height) particles.splice(i, 1);
+        // Background Visuals
+        const c = document.getElementById('canvas');
+        const ctx = c.getContext('2d');
+        c.width = window.innerWidth; c.height = window.innerHeight;
+        let pts = [];
+        function anim() {
+            ctx.fillStyle = 'rgba(0,0,0,0.1)'; ctx.fillRect(0,0,c.width,c.height);
+            if(Math.random() > 0.95) pts.push({x: Math.random()*c.width, y: -20, v: Math.random()*3+1});
+            pts.forEach((p, i) => {
+                ctx.fillStyle = '#d4af37'; ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI*2); ctx.fill();
+                p.y += p.v; if(p.y > c.height) pts.splice(i, 1);
             });
-            requestAnimationFrame(animate);
+            requestAnimationFrame(anim);
         }
-        animate();
-
-        function vault() { window.location.href = "venmo://paycharge?txn=pay&amount=1000&note=SARA_STADLER_SOURCE"; }
+        anim();
     </script>
 </body>
 </html>
