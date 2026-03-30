@@ -1,16 +1,38 @@
-<script>
-    // THE STRATEGIST AI: MAN CAVE PROTOCOL
-    function activateManCave() {
-        accent = '#228b22'; // Forest Green
-        document.getElementById('node-name').innerText = "THE CAVE";
-        document.getElementById('node-status').innerText = "STRATEGIST ONLINE // GEAR SYNCED";
-        
-        // Change the 'Rain' to be heavier/faster for the Cave
-        lines.forEach(s => {
-            s.v = Math.random() * 8 + 4; // High velocity
-            s.l = Math.random() * 60 + 40; // Longer, sharper lines
-        });
-        
-        canvas.style.filter = "contrast(220%) brightness(0.8) grayscale(0.3)";
+// THE HUSBAND'S SENSOR SWEEP
+function draw() {
+    ctx.fillStyle = 'rgba(0,0,0,0.2)'; 
+    ctx.fillRect(0,0,canvas.width, canvas.height);
+    
+    // The 'Radar' Pulse
+    if(touch.x > 0) {
+        ctx.strokeStyle = 'rgba(34, 139, 34, 0.3)'; // Tactical Green Pulse
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(touch.x, touch.y, (Date.now() % 1000) / 5, 0, Math.PI * 2);
+        ctx.stroke();
     }
-</script>
+
+    lines.forEach(s => {
+        let dx = touch.x - s.x;
+        let dy = touch.y - s.y;
+        let dist = Math.sqrt(dx*dx + dy*dy);
+        
+        // Bend light toward touch
+        if(dist < 150) {
+            s.oX += (dx * 0.08);
+            ctx.strokeStyle = '#fff'; // Turn white when touched (Tactical Highlight)
+        } else {
+            s.oX *= 0.92;
+            ctx.strokeStyle = '#d4af37'; // Stay gold in the shadows
+        }
+
+        ctx.beginPath();
+        ctx.moveTo(s.x + s.oX, s.y);
+        ctx.lineTo(s.x + (s.oX * 0.5), s.y + s.l);
+        ctx.stroke();
+
+        s.y += s.v;
+        if(s.y > canvas.height) { s.y = -s.l; s.x = Math.random()*canvas.width; }
+    });
+    requestAnimationFrame(draw);
+}
