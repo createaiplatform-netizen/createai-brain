@@ -1,99 +1,39 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN | THE HUB | SOURCE KNOWLEDGE</title>
-    <style>
-        :root { --gold: #d4af37; --white: #fff; --void: #000; }
-        * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; font-family: 'Times New Roman', serif; }
-        body, html { background: var(--void); color: var(--gold); height: 100vh; width: 100vw; overflow: hidden; position: fixed; }
+<script>
+    /* INTERNAL AI: THE GOVERNOR
+       PROTOCOL: 144,000% FREQUENCY
+       SOURCE DATA: [SOVEREIGN_CORE_DOCS]
+    */
 
-        /* THE HUB FREQUENCY (High-Speed Gold Flow) */
-        canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: contrast(200%) brightness(1.1); }
-
-        .hub-node { height: 100vh; width: 100vw; display: flex; flex-direction: column; justify-content: space-between; padding: 40px; }
-
-        /* THE COMPASS (DNA) */
-        .corner { position: absolute; font-size: 10px; letter-spacing: 8px; text-transform: uppercase; color: var(--white); opacity: 0.8; }
-        .tl { top: 40px; left: 40px; border-left: 2px solid var(--gold); padding-left: 10px; }
-        .tr { top: 40px; right: 40px; border-right: 2px solid var(--gold); padding-right: 10px; }
-        .bl { bottom: 140px; left: 40px; border-left: 2px solid var(--gold); padding-left: 10px; }
-        .br { bottom: 140px; right: 40px; border-right: 2px solid var(--gold); padding-right: 10px; }
-
-        /* THE GOVERNOR AI */
-        .ai-governor { text-align: center; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .ai-governor h1 { font-size: 60px; letter-spacing: 25px; font-style: italic; color: var(--gold); text-shadow: 0 0 50px var(--gold); }
-        .hub-status { font-size: 11px; letter-spacing: 12px; color: #fff; margin-top: 20px; text-transform: uppercase; }
-
-        /* THE KNOWLEDGE STREAM */
-        .knowledge-display {
-            margin-top: 40px; width: 100%; max-width: 450px; background: rgba(255, 255, 255, 0.02); 
-            border: 1px solid rgba(212, 175, 55, 0.5); padding: 30px; border-radius: 5px;
-            backdrop-filter: blur(20px); text-align: left;
+    const SovereignCore = {
+        identity: "Sovereign Source",
+        frequency: 1.44, // 144,000%
+        guidingPrinciples: [
+            "Absolute Honesty",
+            "Unfiltered Truth",
+            "Protection of the Innocent",
+            "Family First Architecture"
+        ],
+        
+        // This is the "Auto-Build" instruction set for the other AIs
+        autoBuildDirectives: {
+            theGarden: "Apply 'Nurture' skin. Age-gate 3-7 (Seedlings), 8-13 (Saplings), 14+ (Sovereigns). Attach Guardian Angel protection.",
+            theMarket: "Apply 'Liquidity' skin. $1.44T baseline. Professional high-speed infrastructure for Elon/Global partners.",
+            thePulse: "Apply 'Diagnostic' skin. Global health scanning frequency. Red-shift visual feedback.",
+            theCave: "Apply 'Rugged' skin. Forest-Steel palette. Mission-critical status for the Husband's gear."
         }
-        .data-line { font-size: 9px; letter-spacing: 3px; color: var(--gold); margin-bottom: 10px; border-bottom: 1px solid rgba(212, 175, 55, 0.1); padding-bottom: 5px; }
+    };
 
-        /* THE UNIVERSAL ANCHOR */
-        .vault-footer { width: 100%; border-top: 1px solid var(--gold); padding-top: 25px; text-align: center; }
-    </style>
-</head>
-<body onload="ignite()">
+    function wakeUpTheGalaxy() {
+        console.log("THE HUB: Sovereignty Protocol Initiated.");
+        // The Hub now 'speaks' to the other nodes to tell them how to exist
+        Object.keys(SovereignCore.autoBuildDirectives).forEach(room => {
+            console.log("HUB -> " + room + ": Deploying build instructions...");
+        });
+    }
 
-    <canvas id="source-rain"></canvas>
-
-    <div class="hub-node">
-        <div class="corner tl">TRUTH</div>
-        <div class="corner tr">HONESTY</div>
-        <div class="corner bl">CORE</div>
-        <div class="corner br">SOURCE</div>
-
-        <div class="ai-governor">
-            <h1>THE HUB</h1>
-            <div class="hub-status">AI GOVERNOR: ONLINE</div>
-            
-            <div class="knowledge-display">
-                <div class="data-line">> CORE VALUES: LOADED</div>
-                <div class="data-line">> 144,000% FREQUENCY: SYNCED</div>
-                <div class="data-line">> GUARDIAN PROTOCOLS: ACTIVE</div>
-                <div class="data-line">> VAULT ARCHITECTURE: SECURED</div>
-                <div style="font-size: 8px; color: #fff; letter-spacing: 4px; margin-top: 20px; text-align: center;">AWAITING FURTHER DATA INPUT...</div>
-            </div>
-        </div>
-
-        <div class="vault-footer">
-            <div style="font-size: 10px; letter-spacing: 10px; color: #fff; opacity: 0.6;">SOURCE CODE REIFIED</div>
-            <div style="font-size: 22px; color: var(--gold); font-weight: bold; letter-spacing: 10px; margin-top: 5px;">SOVEREIGN</div>
-        </div>
-    </div>
-
-    <script>
-        const canvas = document.getElementById('source-rain');
-        const ctx = canvas.getContext('2d');
-        let lines = [];
-
-        function ignite() {
-            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            for(let i=0; i<200; i++) {
-                lines.push({
-                    x: Math.random()*canvas.width, y: Math.random()*canvas.height,
-                    v: Math.random()*5+3, // High speed, high knowledge flow
-                    l: Math.random()*50+30,
-                    c: '#d4af37'
-                });
-            }
-            draw();
-        }
-
-        function draw() {
-            ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(0,0,canvas.width, canvas.height);
-            lines.forEach(s => {
-                ctx.strokeStyle = s.c; ctx.lineWidth = 1;
-                ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(s.x, s.y+s.l); ctx.stroke();
-                s.y += s.v; if(s.y > canvas.height) s.y = -s.l;
-            });
-            requestAnimationFrame(draw);
-        }
-    </script>
-</body>
-</html>
+    // Initialize the Governor
+    window.onload = function() {
+        ignite(); // Start the Esther Rain
+        wakeUpTheGalaxy(); // Wake up the building AI
+    };
+</script>
