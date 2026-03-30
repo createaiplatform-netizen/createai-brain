@@ -1,40 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>SOVEREIGN | ALL NODES ACTIVE</title>
-    <style>
-        body { background: #000; color: #fff; font-family: 'Courier New', monospace; overflow: hidden; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        
-        /* THE POWER GRID */
-        .node-container { display: flex; gap: 40px; margin-bottom: 50px; }
-        .node { width: 60px; height: 60px; border: 1px solid #d4af37; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #d4af37; cursor: pointer; transition: 0.3s; position: relative; }
-        
-        /* ACTIVE STATUS - THE GOLDEN GLOW */
-        .node.active { background: rgba(212,175,55,0.2); box-shadow: 0 0 30px #d4af37; color: #fff; border: 1px solid #fff; }
-        .node.active::after { content: 'LIVE'; position: absolute; bottom: -20px; font-size: 8px; letter-spacing: 2px; color: #39ff14; }
-
-        .vision-log { width: 80%; background: rgba(212,175,55,0.05); padding: 20px; border: 1px solid #222; font-size: 11px; line-height: 1.8; color: #888; text-align: left; }
-        .ticker { margin-top: 30px; font-size: 24px; letter-spacing: 10px; color: #fff; text-shadow: 0 0 15px #d4af37; }
-    </style>
-</head>
-<body>
-
-    <div class="node-container">
-        <div class="node active">MKT</div>
-        <div class="node active">HUB</div>
-        <div class="node active">GRD</div>
-        <div class="node active">NET</div>
-    </div>
-
-    <div class="vision-log" id="log">
-        > SYSTEM CHECK: ALL NODES RESPONDING...<br>
-        > HUSBAND_DEV: LINKED AND AUTHORIZED<br>
-        > SISTER_NAV: SYNCED AND READY<br>
-        > ADMIN_CORE: 100% CONTROL
-    </div>
-
-    <div class="ticker">144,000.000%</div>
-
-</body>
-</html>
+/* THE SOVEREIGN ADMIN OVERRIDE */
+const GENESIS_CORE = {
+    execute: function(command) {
+        console.log("IGNITING: " + command);
+        if (command === "ORIGIN_001") {
+            this.manifest("SLOT_001", "THE SOVEREIGN KEY", "Access granted via Aegis.");
+        }
+        if (command === "SYNC_NODES") {
+            document.querySelectorAll('.node').forEach(n => n.classList.add('active'));
+        }
+    },
+    manifest: function(slot, name, desc) {
+        // This automatically builds the product without a single line of HTML
+        const market = document.getElementById('market-grid');
+        market.innerHTML += `<div class='product-card'><h3>${name}</h3><p>${desc}</p></div>`;
+    }
+};
