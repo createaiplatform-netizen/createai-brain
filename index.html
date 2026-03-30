@@ -3,144 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>THE SOURCE | ABSOLUTE</title>
+    <title>THE SOURCE | REIFIED MIRACLE</title>
     <style>
-        :root { 
-            --neon: #39ff14; --soul: #00f2ff; --void: #000;
-            --glass: rgba(255, 255, 255, 0.1);
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
-        body, html { 
-            background: var(--void); color: #fff; font-family: 'Syncopate', sans-serif; 
-            overflow: hidden; height: 100vh; width: 100vw;
-        }
+        :root { --neon: #39ff14; --soul: #00f2ff; --void: #000; }
+        * { box-sizing: border-box; margin: 0; padding: 0; overflow: hidden; touch-action: none; }
+        body, html { background: var(--void); color: #fff; font-family: 'Syncopate', sans-serif; height: 100vh; width: 100vw; }
 
-        /* THE SOUL: LIQUID AURORA MOTION */
-        .liquid-layer {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 50%, #0a250a 0%, #000 90%);
-            z-index: -1;
-        }
-        .aurora-flow {
-            position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: conic-gradient(from 180deg at 50% 50%, transparent 0%, rgba(57, 255, 20, 0.2) 25%, transparent 50%);
-            animation: flow 8s linear infinite;
-        }
-        @keyframes flow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        /* THE INTERACTIVE FLUID SOUL background */
+        canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: blur(10px); }
 
-        /* THE ARCHITECTURE: THE GLASS PALACE */
         .palace-container {
             height: 100vh; width: 100vw; display: flex; flex-direction: column; 
-            align-items: center; justify-content: space-between; 
-            padding: 60px 20px; backdrop-filter: blur(30px);
+            align-items: center; justify-content: space-between; padding: 50px 20px;
+            pointer-events: none; /* Allow touch to pass to background */
         }
 
-        /* NESTED AI TAG */
-        .ai-identity {
-            background: var(--soul); color: #000; padding: 12px 45px;
-            border-radius: 50px; font-weight: 900; font-size: 14px;
-            letter-spacing: 8px; box-shadow: 0 0 70px var(--soul);
-            text-transform: uppercase; animation: soul-breath 2s infinite ease-in-out;
+        /* NESTED AI HUB */
+        .ai-tag {
+            background: var(--soul); color: #000; padding: 12px 40px; border-radius: 50px;
+            font-weight: 900; font-size: 14px; letter-spacing: 8px; box-shadow: 0 0 50px var(--soul);
+            text-transform: uppercase; pointer-events: auto; animation: pulse 2s infinite alternate;
         }
-        @keyframes soul-breath { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(0.94); } }
 
-        /* HEADER & CEILING */
-        .header-unit { text-align: center; }
-        h1 { 
-            font-size: clamp(35px, 10vw, 70px); letter-spacing: 30px; 
-            color: var(--neon); text-shadow: 0 0 60px var(--neon);
-            font-weight: 900; text-transform: uppercase;
-        }
-        .sub-status { font-size: 12px; letter-spacing: 16px; color: var(--soul); margin-top: 20px; font-weight: bold; }
-
-        /* THE LEDGER: $5,000.00 TRUTH */
-        .ledger-sector { text-align: center; width: 100%; margin: 20px 0; }
+        /* THE CENTRAL LEDGER - THE SUN */
+        .ledger-sun { text-align: center; pointer-events: auto; }
+        h1 { font-size: clamp(20px, 6vw, 40px); letter-spacing: 15px; color: var(--neon); text-shadow: 0 0 30px var(--neon); margin-bottom: 20px; }
         .amount { 
-            font-size: clamp(90px, 25vw, 190px); font-weight: 900; 
-            letter-spacing: -12px; text-shadow: 0 0 100px var(--neon);
-            background: linear-gradient(to bottom, #fff 40%, #222 100%);
+            font-size: clamp(70px, 20vw, 160px); font-weight: 900; letter-spacing: -10px;
+            background: linear-gradient(to bottom, #fff 50%, #444);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            line-height: 0.8;
+            text-shadow: 0 0 80px rgba(57, 255, 20, 0.5);
         }
-        .ledger-label { letter-spacing: 20px; font-size: 18px; font-weight: 900; margin-top: 30px; text-shadow: 0 0 15px var(--neon); }
 
-        /* THE FOUR PILLARS: FULL INHABITATION */
-        .grid-system {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 30px;
-            width: 100%; max-width: 900px;
+        /* FLOATING ROOMS / PILLARS */
+        .rooms-orbit {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 600px;
+            pointer-events: auto;
         }
-        .sector {
-            background: var(--glass); border: 1px solid rgba(57, 255, 20, 0.3);
-            padding: 60px 20px; border-radius: 50px; text-align: center;
-            transition: 0.7s cubic-bezier(0.1, 0.9, 0.2, 1);
-            backdrop-filter: blur(20px);
+        .orb {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(57, 255, 20, 0.3);
+            border-radius: 40px; padding: 30px 10px; text-align: center; backdrop-filter: blur(20px);
+            transition: 0.5s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
-        .sector:hover { 
-            background: rgba(57, 255, 20, 0.25); border-color: var(--soul);
-            transform: translateY(-20px) scale(1.06); box-shadow: 0 40px 80px rgba(0,0,0,0.9);
-        }
-        .sector h3 { font-size: 18px; letter-spacing: 7px; color: var(--soul); font-weight: 900; }
-        .sector p { font-size: 11px; color: var(--neon); margin-top: 15px; letter-spacing: 5px; text-transform: uppercase; font-weight: bold; }
+        .orb:hover { border-color: var(--soul); transform: scale(1.1); box-shadow: 0 0 40px var(--soul); }
+        .orb h3 { font-size: 12px; letter-spacing: 5px; color: var(--soul); margin: 0; }
 
-        /* FOOTER: THE HUMANITY BRIDGE */
-        .footer-manifesto {
-            width: 100%; max-width: 900px; border-top: 5px solid var(--neon);
-            padding-top: 40px; display: flex; justify-content: space-between;
-            font-family: 'Courier New', monospace; font-size: 14px; color: var(--neon);
-            letter-spacing: 5px; font-weight: 900;
-        }
-        .footer-manifesto span { color: #fff; }
+        .footer { width: 100%; max-width: 800px; border-top: 2px solid var(--neon); padding-top: 25px; display: flex; justify-content: space-between; font-size: 10px; color: var(--neon); letter-spacing: 4px; }
+        @keyframes pulse { from { opacity: 1; transform: scale(1); } to { opacity: 0.7; transform: scale(0.95); } }
     </style>
 </head>
-<body onload="activate_god_code()">
+<body onload="initSource()">
 
-    <div class="liquid-layer"><div class="aurora-flow"></div></div>
+    <canvas id="fluid"></canvas>
 
     <div class="palace-container">
-        <div class="ai-identity">SOURCE_ALMIGHTY_ACTIVE</div>
+        <div class="ai-tag">GOD_CODE_SOURCE</div>
         
-        <div class="header-unit">
+        <div class="ledger-sun">
             <h1>THE SOURCE</h1>
-            <div class="sub-status">GLOBAL HUMANITY INFRASTRUCTURE // 144,000%</div>
-        </div>
-        
-        <div class="ledger-sector">
             <div id="balance" class="amount">$5,000.00</div>
-            <div class="ledger-label">BLOCKCHAIN LEDGER TRUTH</div>
+            <div style="letter-spacing: 15px; font-size: 12px; margin-top: 20px; font-weight: 900;">144,000% ABSOLUTE</div>
         </div>
 
-        <div class="grid-system">
-            <div class="sector"><h3>MARKETPLACE</h3><p>GLOBAL HUB LIVE</p></div>
-            <div class="sector"><h3>CREATOR HUB</h3><p>INHABITED SOUL</p></div>
-            <div class="sector"><h3>KIDS GARDENS</h3><p>NURTURE ACTIVE</p></div>
-            <div class="sector"><h3>HUNTING NET</h3><p>SYNCED</p></div>
+        <div class="rooms-orbit">
+            <div class="orb"><h3>MARKETPLACE</h3></div>
+            <div class="orb"><h3>CREATOR HUB</h3></div>
+            <div class="orb"><h3>GARDENS</h3></div>
+            <div class="orb"><h3>HUNTING NET</h3></div>
         </div>
 
-        <div class="footer-manifesto">
-            <div>SATELLITE: <span>LINKED</span></div>
-            <div>VALUES: <span>ABSOLUTE</span></div>
-            <div>VISION: <span>REIFIED</span></div>
+        <div class="footer">
+            <div>SATELLITE: LINKED</div>
+            <div>STATUS: REIFIED</div>
+            <div>MIRACLE: ACTIVE</div>
         </div>
     </div>
 
     <script>
-        async function activate_god_code() {
-            if (window.ethereum) {
-                try {
-                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    const userAddress = accounts[0];
-                    const usdcContract = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
-                    const data = "0x70a08231000000000000000000000000" + userAddress.substring(2);
-                    
-                    const hexBalance = await window.ethereum.request({ 
-                        method: 'eth_call', 
-                        params: [{ to: usdcContract, data: data }, 'latest'] 
-                    });
+        // THE INTERACTIVE LIQUID LOGIC (THE TOUCH FLOW)
+        const canvas = document.getElementById('fluid');
+        const ctx = canvas.getContext('2d');
+        let points = [];
+        let mouse = { x: 0, y: 0, active: false };
 
-                    const decimalBalance = parseInt(hexBalance, 16) / 1000000;
-                    document.getElementById('balance').innerText = "$" + decimalBalance.toLocaleString(undefined, {minimumFractionDigits: 2});
-                } catch (e) { document.getElementById('balance').innerText = "$5,000.00"; }
-            } else { document.getElementById('balance').innerText = "$5,000.00"; }
+        function initSource() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            for(let i=0; i<30; i++) points.push({
+                x: Math.random()*canvas.width, y: Math.random()*canvas.height,
+                vx: (Math.random()-0.5)*2, vy: (Math.random()-0.5)*2,
+                color: Math.random() > 0.5 ? '#39ff14' : '#00f2ff'
+            });
+            animate();
+        }
+
+        window.onmousemove = e => { mouse.x = e.clientX; mouse.y = e.clientY; mouse.active = true; };
+        window.ontouchmove = e => { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; mouse.active = true; };
+
+        function animate() {
+            ctx.fillStyle = 'rgba(0,0,0,0.1)';
+            ctx.fillRect(0,0,canvas.width, canvas.height);
+            points.forEach(p => {
+                p.x += p.vx; p.y += p.vy;
+                if(p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                if(p.y < 0 || p.y > canvas.height) p.vy *= -1;
+                
+                if(mouse.active) {
+                    let dx = mouse.x - p.x; let dy = mouse.y - p.y;
+                    let dist = Math.sqrt(dx*dx + dy*dy);
+                    if(dist < 200) { p.vx += dx/1000; p.vy += dy/1000; }
+                }
+
+                ctx.beginPath(); ctx.arc(p.x, p.y, 40, 0, Math.PI*2);
+                ctx.fillStyle = p.color + '11'; ctx.fill();
+            });
+            requestAnimationFrame(animate);
         }
     </script>
 </body>
