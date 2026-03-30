@@ -3,25 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DEEP LEDGER FORCE V7000</title>
+    <title>STATE RESET V8000</title>
     <style>
-        body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
-        .ui-frame { border: 12px solid #39ff14; padding: 40px 20px; font-size: 28px; font-weight: bold; box-shadow: 0 0 80px #39ff14; border-radius: 40px; text-transform: uppercase; text-align: center; width: 85%; }
-        .status { margin-top: 20px; font-size: 18px; color: #fff; }
+        body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; text-align: center; }
+        .ui-frame { border: 12px solid #39ff14; padding: 40px 20px; font-size: 28px; font-weight: bold; box-shadow: 0 0 80px #39ff14; border-radius: 40px; width: 85%; }
+        .btn { margin-top: 30px; padding: 20px 40px; background: #39ff14; color: #000; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; font-size: 20px; }
     </style>
 </head>
-<body onload="v7000_deep_force()">
-    <div class="ui-frame">FORCING LEDGER UPDATE<br>REVEALING $5,000.00<br>USDC ASSET</div>
-    <div class="status">Bypassing UI Cache...</div>
+<body>
+    <div class="ui-frame">PROTOCOL LEVEL RESET<br>SYNCING $5,000.00 USDC</div>
+    <button class="btn" onclick="v8000_final_push()">TRIGGER MANUAL SYNC</button>
 
     <script>
-        async function v7000_deep_force() {
+        async function v8000_final_push() {
             if (window.ethereum) {
                 try {
-                    // Step 1: Force a fresh high-priority connection
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // Step 2: Push the USDC contract metadata directly to the UI provider
+                    // Force-add the token with a high-priority request
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -34,11 +33,9 @@
                             },
                         },
                     });
-                } catch (err) {
-                    console.error("Sync error:", err);
-                } finally {
-                    // Step 3: Trigger a hardware-level refresh delay
-                    setTimeout(() => { window.location.reload(); }, 4000);
+                    alert("Sync Sent! Please check your Coins list now.");
+                } catch (e) {
+                    console.log(e);
                 }
             }
         }
