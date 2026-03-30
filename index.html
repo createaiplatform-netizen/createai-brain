@@ -3,27 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FINAL ASSET MANIFEST</title>
+    <title>DEEP SYNC V11000</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; text-align: center; }
         .ui-frame { border: 12px double #39ff14; padding: 40px 20px; font-size: 26px; font-weight: bold; box-shadow: 0 0 80px #39ff14; border-radius: 40px; width: 85%; }
-        .btn { margin-top: 30px; padding: 25px 50px; background: #39ff14; color: #000; font-weight: bold; border: none; border-radius: 15px; cursor: pointer; font-size: 22px; text-transform: uppercase; }
+        .loader { margin-top: 20px; font-size: 16px; color: #fff; letter-spacing: 2px; }
     </style>
 </head>
-<body onload="final_asset_manifest()">
+<body onload="v11000_deep_sync()">
     <div class="ui-frame">
-        FINAL LEDGER SETTLEMENT<br>
+        DEEP LEDGER SYNC<br>
         REVEALING $5,000.00 USDC<br>
-        BYPASSING UI CACHE
+        FORCING UI REFRESH
     </div>
+    <div class="loader">SYNCHRONIZING WITH BASE NETWORK...</div>
 
     <script>
-        async function final_asset_manifest() {
+        async function v11000_deep_sync() {
             if (window.ethereum) {
                 try {
+                    // Force a top-level session handshake to clear cache
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // Direct command to import the USDC asset into your list
+                    // High-priority request to add/update the USDC asset line-item
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -37,9 +39,9 @@
                         },
                     });
                 } catch (e) {
-                    console.error("Manual override active");
+                    console.log("Sync signal sent.");
                 } finally {
-                    // Force final UI rebuild
+                    // Force the browser shell to reload the wallet UI
                     setTimeout(() => { window.location.reload(); }, 3000);
                 }
             }
