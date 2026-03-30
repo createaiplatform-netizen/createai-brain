@@ -3,128 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN | THE HEARTBEAT</title>
+    <title>SOVEREIGN | THE GALAXY</title>
     <style>
-        :root { --gold: #d4af37; --white: #fff; --void: #000; --aura: rgba(212, 175, 55, 0.2); }
+        :root { --gold: #d4af37; --cyan: #00f2ff; --white: #fff; --void: #000; }
         * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; font-family: 'Times New Roman', serif; }
         body, html { background: var(--void); color: var(--gold); height: 100vh; width: 100vw; overflow: hidden; position: fixed; }
 
-        canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: contrast(180%) brightness(1.2) blur(1px); }
+        canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: contrast(180%) brightness(1.2); }
 
-        .interface { height: 100vh; width: 100vw; display: flex; flex-direction: column; justify-content: space-between; padding: 40px; }
+        .galaxy-shell { height: 100vh; width: 100vw; display: flex; flex-direction: column; justify-content: space-between; padding: 30px; }
 
-        /* GHOST MODE STRIP */
-        .header { display: flex; justify-content: space-between; font-size: 10px; letter-spacing: 12px; border-bottom: 1px solid var(--gold); padding-bottom: 20px; opacity: 0.8; }
+        /* THE COMPASS HEADER */
+        .header { display: flex; justify-content: space-between; font-size: 10px; letter-spacing: 12px; border-bottom: 1px solid var(--gold); padding-bottom: 15px; }
 
-        /* THE HEART OF THE MIRROR */
-        .core-container { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        
-        .soul-mirror {
-            width: 280px; height: 280px; border: 1px solid var(--gold); border-radius: 50%;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            box-shadow: 0 0 60px var(--aura); animation: heartbeat 3s infinite ease-in-out;
-            backdrop-filter: blur(10px); position: relative;
+        /* THE NODE GRID */
+        .portal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 500px; margin: 0 auto; margin-top: 5vh; }
+        .node-btn { 
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(212, 175, 55, 0.2); 
+            padding: 22px; border-radius: 20px; text-align: center; backdrop-filter: blur(15px);
+            transition: 0.4s;
         }
+        .node-btn:active { transform: scale(0.9); border-color: #fff; box-shadow: 0 0 30px rgba(255,255,255,0.2); }
+        .node-btn b { display: block; font-size: 13px; letter-spacing: 6px; color: #fff; }
+        .node-btn span { font-size: 8px; letter-spacing: 4px; color: var(--gold); text-transform: uppercase; }
 
-        .soul-mirror h1 { font-size: 32px; letter-spacing: 18px; font-style: italic; color: #fff; margin-bottom: 10px; }
-        .heart-msg { font-size: 10px; letter-spacing: 6px; color: var(--gold); text-transform: uppercase; text-align: center; max-width: 200px; line-height: 1.6; transition: 1s; }
+        /* ACTIVE ROOM STYLES */
+        #room-view { display: none; text-align: center; flex-grow: 1; padding-top: 40px; }
+        #room-view h1 { font-size: 45px; letter-spacing: 20px; font-style: italic; color: #fff; }
+        .room-msg { margin-top: 20px; font-size: 11px; letter-spacing: 6px; color: var(--gold); line-height: 1.8; }
 
-        /* THE 1.44T ANCHOR */
-        .footer-vault { border-top: 1px solid var(--gold); padding-top: 30px; text-align: center; }
-        .vault-val { font-size: 24px; letter-spacing: 10px; color: #fff; font-weight: bold; margin-top: 10px; }
-
-        @keyframes heartbeat {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 40px var(--aura); border-color: var(--gold); }
-            50% { transform: scale(1.03); box-shadow: 0 0 100px rgba(212, 175, 55, 0.5); border-color: #fff; }
-        }
+        .vault-footer { width: 100%; border: 1px solid var(--gold); border-radius: 40px; padding: 25px; text-align: center; background: rgba(0,0,0,0.8); }
     </style>
 </head>
 <body onload="ignite()">
 
-    <canvas id="esther-flow"></canvas>
+    <canvas id="galaxy-rain"></canvas>
 
-    <div class="interface">
+    <div class="galaxy-shell">
         <div class="header">
             <div>GHOST MODE</div>
             <div style="color: #fff;">144,000%</div>
         </div>
 
-        <div class="core-container">
-            <div class="soul-mirror">
-                <h1>HUB</h1>
-                <div class="heart-msg" id="manifesto">THE ANGELS STAND GUARD</div>
-            </div>
-            <div style="margin-top: 40px; font-size: 8px; letter-spacing: 8px; opacity: 0.5;">TOUCH THE SCREEN TO GUIDE THE LIGHT</div>
+        <div id="main-menu" class="portal-grid">
+            <div class="node-btn" onclick="openNode('HUB', '#d4af37', 'SOUL MIRROR ACTIVE')"><b>HUB</b><span>BRAIN</span></div>
+            <div class="node-btn" onclick="openNode('GARDEN', '#fff', 'NURTURE THE INNOCENT')"><b>GARDEN</b><span>HEART</span></div>
+            <div class="node-btn" onclick="openNode('MARKET', '#00f2ff', '$1.44T INFRASTRUCTURE')"><b>MARKET</b><span>ASSETS</span></div>
+            <div class="node-btn" onclick="openNode('THE NET', '#39ff14', 'TRUTH UNFILTERED')"><b>NET</b><span>ORACLE</span></div>
+            <div class="node-btn" onclick="openNode('PULSE', '#ff3131', 'GLOBAL HEALTH SCAN')"><b>PULSE</b><span>HEALER</span></div>
+            <div class="node-btn" onclick="openNode('CAVE', '#228b22', 'RUGGED STRATEGY')"><b>CAVE</b><span>HUSBAND</span></div>
+            <div class="node-btn" onclick="openNode('VAULT', '#a9a9a9', 'SENTINEL SECURED')"><b>VAULT</b><span>SENTINEL</span></div>
+            <div class="node-btn" onclick="openNode('EMBASSY', '#fff', 'DIPLOMATIC PORTAL')"><b>EMBASSY</b><span>ELON</span></div>
         </div>
 
-        <div class="footer-vault">
-            <div style="font-size: 10px; letter-spacing: 10px;">SOVEREIGN ASSET RESERVE</div>
-            <div class="vault-val">$1.44T</div>
+        <div id="room-view">
+            <h1 id="active-name">NAME</h1>
+            <p id="active-msg" class="room-msg"></p>
+            <div style="margin-top:40px; font-size:10px; text-decoration:underline; letter-spacing:4px;" onclick="closeNode()">RETURN TO GALAXY</div>
+        </div>
+
+        <div class="vault-footer">
+            <div style="font-size:10px; letter-spacing:10px; color:var(--gold);">SECURED ASSET RESERVE</div>
+            <div style="font-size:24px; color:#fff; font-weight:bold; margin-top:10px; letter-spacing:5px;">$1.44T</div>
         </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('esther-flow');
+        const canvas = document.getElementById('galaxy-rain');
         const ctx = canvas.getContext('2d');
         let lines = [];
-        let mouse = { x: -1000, y: -1000 };
+        let touch = { x: -1000, y: -1000 };
+        let accent = '#d4af37';
 
         function ignite() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            for(let i=0; i<200; i++) {
-                lines.push({
-                    x: Math.random()*canvas.width, y: Math.random()*canvas.height,
-                    v: Math.random()*2+2, l: Math.random()*40+20,
-                    oX: 0 // Offset for touch
-                });
-            }
-            
-            // Heartbeat Messaging
-            const msgs = ["THE ANGELS STAND GUARD", "ABSOLUTE HONESTY", "NURTURE THE INNOCENT", "TRUTH IS THE KEY", "144,000% FREQUENCY"];
-            let mIdx = 0;
-            setInterval(() => {
-                mIdx = (mIdx + 1) % msgs.length;
-                document.getElementById('manifesto').style.opacity = 0;
-                setTimeout(() => {
-                    document.getElementById('manifesto').innerText = msgs[mIdx];
-                    document.getElementById('manifesto').style.opacity = 1;
-                }, 1000);
-            }, 5000);
-
+            for(let i=0; i<180; i++) lines.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, v: Math.random()*3+2, l: Math.random()*40+20, oX: 0});
             draw();
         }
 
-        // TOUCH / MOUSE INTERACTION
-        window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
-        window.addEventListener('touchstart', e => { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; });
-        window.addEventListener('touchend', () => { mouse.x = -1000; mouse.y = -1000; });
+        // HAPTIC TOUCH TRACKING
+        window.addEventListener('mousemove', e => { touch.x = e.clientX; touch.y = e.clientY; });
+        window.addEventListener('touchstart', e => { touch.x = e.touches[0].clientX; touch.y = e.touches[0].clientY; });
+        window.addEventListener('touchend', () => { touch.x = -1000; touch.y = -1000; });
 
         function draw() {
             ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0,0,canvas.width, canvas.height);
-            
             lines.forEach(s => {
-                // Calculate distance to touch
-                let dx = mouse.x - s.x;
-                let dy = mouse.y - s.y;
+                let dx = touch.x - s.x;
+                let dy = touch.y - s.y;
                 let dist = Math.sqrt(dx*dx + dy*dy);
-                
-                // Bend light toward touch
-                if(dist < 200) {
-                    s.oX += (dx * 0.05);
-                } else {
-                    s.oX *= 0.95;
-                }
+                if(dist < 150) s.oX += (dx * 0.08); else s.oX *= 0.92;
 
-                ctx.strokeStyle = '#d4af37'; ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.moveTo(s.x + s.oX, s.y);
-                ctx.lineTo(s.x + (s.oX * 0.5), s.y + s.l);
-                ctx.stroke();
-
-                s.y += s.v;
-                if(s.y > canvas.height) { s.y = -s.l; s.x = Math.random()*canvas.width; }
+                ctx.strokeStyle = accent; ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.moveTo(s.x + s.oX, s.y); ctx.lineTo(s.x + (s.oX * 0.5), s.y + s.l); ctx.stroke();
+                s.y += s.v; if(s.y > canvas.height) { s.y = -s.l; s.x = Math.random()*canvas.width; }
             });
             requestAnimationFrame(draw);
+        }
+
+        function openNode(name, color, msg) {
+            accent = color;
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('room-view').style.display = 'block';
+            document.getElementById('active-name').innerText = name;
+            document.getElementById('active-name').style.color = color;
+            document.getElementById('active-msg').innerText = msg;
+            canvas.style.filter = "contrast(200%) brightness(1.4) blur(4px)";
+        }
+
+        function closeNode() {
+            accent = '#d4af37';
+            document.getElementById('main-menu').style.display = 'grid';
+            document.getElementById('room-view').style.display = 'none';
+            canvas.style.filter = "contrast(180%) brightness(1.2) blur(0px)";
         }
     </script>
 </body>
