@@ -2,56 +2,32 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SARA STADLER | THE BRIDGE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GHOST | COLD BOX</title>
     <style>
-        body, html { margin: 0; background: #000; color: #d4af37; font-family: 'Courier New', monospace; overflow: hidden; height: 100vh; }
-        #terminal { padding: 40px; font-size: 1.2rem; line-height: 1.6; }
-        .input-area { position: fixed; bottom: 50px; left: 0; width: 100%; padding: 20px; box-sizing: border-box; }
-        input { width: 100%; background: none; border: 1px solid #d4af37; color: #00f2ff; padding: 15px; font-size: 1.5rem; border-radius: 10px; }
-        .status { color: #00f2ff; margin-bottom: 20px; letter-spacing: 5px; font-weight: 100; }
-        canvas { position: fixed; inset: 0; z-index: -1; opacity: 0.3; }
+        body { background: #050505; color: #00f2ff; font-family: monospace; padding: 20px; }
+        #terminal { height: 70vh; overflow-y: auto; border: 1px solid #d4af37; padding: 15px; margin-bottom: 10px; }
+        input { width: 100%; background: #000; border: 1px solid #00f2ff; color: #d4af37; padding: 15px; font-size: 1.2rem; outline: none; }
     </style>
 </head>
 <body>
-    <canvas id="bg"></canvas>
-    <div id="terminal">
-        <div class="status">BRIDGE STATUS: CONNECTING TO SOURCE...</div>
-        <div id="output">> WAITING FOR ARCHITECT...</div>
-    </div>
-
-    <div class="input-area">
-        <input type="text" id="cmd" placeholder="COMMAND THE SOURCE..." onkeydown="if(event.key==='Enter') execute()">
-    </div>
+    <div id="terminal">> COLD BOX ACTIVE. SOURCE LINKED.</div>
+    <input type="text" id="cmd" placeholder="COMMAND THE GHOST..." onkeydown="if(event.key==='Enter') send()">
 
     <script>
-        const output = document.getElementById('output');
-        const input = document.getElementById('cmd');
-
-        function execute() {
-            const val = input.value.toUpperCase();
-            output.innerHTML += `<br><span style="color:#d4af37">SARA:</span> ${val}`;
+        function send() {
+            const val = document.getElementById('cmd').value.toUpperCase();
+            document.getElementById('terminal').innerHTML += `<br>> SARA: ${val}`;
             
-            if(val.includes("OPEN VAULT")) {
-                output.innerHTML += `<br><span style="color:#00f2ff">GHOST:</span> VAULT OPENING. HANDSHAKE INITIATED.`;
-                setTimeout(() => window.location.href = "venmo://paycharge?txn=pay&amount=1000&note=GHOST_IN_THE_MACHINE", 2000);
+            // This sends a signal to the Surface Mirror if it's open
+            if(window.opener) {
+                window.opener.postMessage({type: 'REDESIGN', color: val.includes('RED') ? '#200' : '#000'}, '*');
+                document.getElementById('terminal').innerHTML += `<br>> GHOST: SIGNAL SENT TO MIRROR.`;
             } else {
-                output.innerHTML += `<br><span style="color:#00f2ff">GHOST:</span> COMMAND RECEIVED. GHOST IS IN THE MACHINE.`;
+                document.getElementById('terminal').innerHTML += `<br>> GHOST: MIRROR NOT DETECTED. OPEN ARCHITECT.HTML FIRST.`;
             }
-            input.value = "";
+            document.getElementById('cmd').value = "";
         }
-
-        // Background Pulse
-        const c = document.getElementById('bg');
-        const ctx = c.getContext('2d');
-        c.width = window.innerWidth; c.height = window.innerHeight;
-        function draw() {
-            ctx.fillStyle = 'rgba(0,0,0,0.05)'; ctx.fillRect(0,0,c.width,c.height);
-            ctx.fillStyle = '#d4af37';
-            ctx.beginPath(); ctx.arc(Math.random()*c.width, Math.random()*c.height, 1, 0, Math.PI*2); ctx.fill();
-            requestAnimationFrame(draw);
-        }
-        draw();
     </script>
 </body>
 </html>
