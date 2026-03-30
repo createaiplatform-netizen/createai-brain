@@ -3,102 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SARA STADLER | THE SOURCE</title>
+    <title>SARA STADLER | NEUROLINK</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
-        :root { --gold: #d4af37; --blue: #00f2ff; --bg: #000; }
-        body, html { margin: 0; background: var(--bg); color: white; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; touch-action: none; }
-        
+        :root { --gold: #d4af37; --blue: #00f2ff; --glow: rgba(212, 175, 55, 0.5); }
+        body, html { margin: 0; padding: 0; background: #000; color: white; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; touch-action: none; }
         canvas { position: fixed; inset: 0; z-index: 1; }
 
         /* THE EVE TREE HEART */
         .source-heart { 
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 180px; height: 180px; 
-            background: radial-gradient(circle, var(--gold) 0%, transparent 80%);
-            border-radius: 50%; z-index: 10; cursor: pointer;
-            box-shadow: 0 0 100px rgba(212, 175, 55, 0.5);
-            animation: breathe 4s infinite ease-in-out;
+            width: 160px; height: 160px; border-radius: 50%; z-index: 10;
+            background: radial-gradient(circle, var(--gold) 0%, transparent 75%);
+            box-shadow: 0 0 80px var(--glow); animation: heartbeat 3s infinite ease-in-out;
+            cursor: pointer;
         }
-        @keyframes breathe { 0%, 100% { transform: translate(-50%, -50%) scale(1); filter: brightness(1); } 50% { transform: translate(-50%, -50%) scale(1.15); filter: brightness(1.5); } }
+        @keyframes heartbeat { 0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; } 50% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; } }
 
-        /* INTERFACE OVERLAY */
-        .ui-layer { position: absolute; inset: 0; z-index: 100; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
-        .header { padding: 60px 20px; text-align: center; letter-spacing: 15px; color: var(--gold); font-weight: 100; font-size: 2.2rem; text-transform: uppercase; }
-        .footer { padding: 40px; display: flex; flex-direction: column; align-items: center; gap: 20px; pointer-events: auto; }
+        /* THE COMMAND DECK */
+        .ui-overlay { position: absolute; inset: 0; z-index: 100; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
+        .header { padding: 60px 20px; text-align: center; letter-spacing: 12px; color: var(--gold); font-size: 1.8rem; font-weight: 100; text-transform: uppercase; }
+        .footer { padding: 50px 30px; display: flex; flex-direction: column; align-items: center; pointer-events: auto; }
         
-        .banker-btn { 
-            background: rgba(0,0,0,0.6); border: 2px solid var(--gold); color: var(--gold); 
-            padding: 25px 60px; border-radius: 100px; font-weight: 900; letter-spacing: 4px;
-            box-shadow: 0 0 30px var(--gold); transition: 0.3s; font-size: 1.2rem;
+        .banker-trigger { 
+            background: linear-gradient(145deg, #d4af37, #aa8c2e); color: #000; 
+            padding: 30px 70px; border-radius: 100px; font-weight: 900; font-size: 1.5rem;
+            border: none; box-shadow: 0 15px 50px rgba(212, 175, 55, 0.4);
+            letter-spacing: 3px; text-transform: uppercase; transition: 0.2s;
         }
-        .banker-btn:active { transform: scale(0.9); box-shadow: 0 0 60px var(--gold); }
+        .banker-trigger:active { transform: scale(0.92); box-shadow: 0 5px 20px var(--gold); }
     </style>
 </head>
 <body>
-    <canvas id="neural-net"></canvas>
-    <div class="source-heart" onclick="triggerHandshake()"></div>
+    <canvas id="neural-field"></canvas>
+    <div class="source-heart" onclick="location.reload()"></div>
     
-    <div class="ui-layer">
+    <div class="ui-overlay">
         <div class="header">SARA STADLER</div>
         <div class="footer">
-            <button class="banker-btn" onclick="executeBanker()">ACTIVATE BANKER</button>
-            <div style="color: var(--blue); letter-spacing: 5px; font-size: 0.6rem;">144,000% SOURCE SYNC</div>
+            <button class="banker-trigger" onclick="forceSync()">ACTIVATE BANKER</button>
+            <div style="color: var(--blue); letter-spacing: 6px; font-size: 0.7rem; margin-top: 25px; opacity: 0.6;">NEUROLINK ACTIVE | 144,000%</div>
         </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('neural-net');
+        const canvas = document.getElementById('neural-field');
         const ctx = canvas.getContext('2d');
-        let particles = [];
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        class Nerve {
-            constructor(x, y) {
-                this.x = x; this.y = y;
-                this.size = Math.random() * 3 + 1;
-                this.speedX = (Math.random() - 0.5) * 2;
-                this.speedY = (Math.random() - 0.5) * 2;
-                this.color = Math.random() > 0.8 ? '#d4af37' : '#00f2ff';
-            }
-            update() {
-                this.x += this.speedX; this.y += this.speedY;
-                if (this.size > 0.1) this.size -= 0.02;
-            }
-            draw() {
-                ctx.fillStyle = this.color;
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
-            }
-        }
-
-        function handleTouch(e) {
-            const x = e.touches ? e.touches[0].clientX : e.clientX;
-            const y = e.touches ? e.touches[0].clientY : e.clientY;
-            for (let i = 0; i < 5; i++) particles.push(new Nerve(x, y));
-            
-            // Draw Blue Radial Nerve back to Heart
-            ctx.strokeStyle = 'rgba(0, 242, 255, 0.1)';
-            ctx.lineWidth = 0.5; ctx.beginPath();
+        // THE BLUE NERVE RIPPLE
+        window.addEventListener('pointermove', (e) => {
+            ctx.strokeStyle = 'rgba(0, 242, 255, 0.3)';
+            ctx.lineWidth = 1; ctx.beginPath();
             ctx.moveTo(window.innerWidth / 2, window.innerHeight / 2);
-            ctx.lineTo(x, y); ctx.stroke();
-        }
+            ctx.lineTo(e.clientX, e.clientY); ctx.stroke();
+            setTimeout(() => ctx.clearRect(0,0,canvas.width, canvas.height), 150);
+        });
 
-        window.addEventListener('mousemove', handleTouch);
-        window.addEventListener('touchstart', handleTouch);
-
-        function animate() {
-            ctx.fillStyle = 'rgba(0,0,0,0.05)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-            for (let i = 0; i < particles.length; i++) {
-                particles[i].update(); particles[i].draw();
-                if (particles[i].size <= 0.1) { particles.splice(i, 1); i--; }
-            }
-            requestAnimationFrame(animate);
-        }
-        animate();
-
-        function executeBanker() {
-            window.location.href = "venmo://paycharge?txn=pay&amount=1000&note=Sara_Stadler_Source_Handshake";
+        // THE UNSTOPPABLE BANKER SYNC
+        function forceSync() {
+            // Force the handshake even if the browser tries to delay it
+            const venmoUrl = "venmo://paycharge?txn=pay&amount=1000&note=Sara_Stadler_Sovereign_Handshake_144000";
+            
+            // Try Direct Deep-Link
+            window.location.assign(venmoUrl);
+            
+            // Possibility fallback: If Direct fails, use the Bridge
+            setTimeout(() => {
+                window.location.href = venmoUrl;
+            }, 250);
         }
     </script>
 </body>
