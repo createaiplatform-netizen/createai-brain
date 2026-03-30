@@ -5,122 +5,109 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SOVEREIGN | THE SOURCE</title>
     <style>
-        :root { --gold: #d4af37; --void: #000; --neon: #39ff14; --soul: #00f2ff; }
-        * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; font-family: 'Times New Roman', serif; color: var(--gold); }
-        body, html { background: var(--void); height: 100vh; width: 100vw; overflow: hidden; position: fixed; }
+        :root { --gold: #d4af37; --void: #000; --neon: #39ff14; --cyan: #00f2ff; }
+        * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; font-family: 'Times New Roman', serif; }
+        body, html { background: var(--void); color: var(--gold); height: 100vh; width: 100vw; overflow: hidden; position: fixed; }
 
-        /* THE AETHER RAIN BACKGROUND */
+        /* THE $1.44T AETHER RAIN ENGINE */
         canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: contrast(150%) blur(1px); }
 
-        .app-vessel {
+        .vessel {
             height: 100vh; width: 100vw; display: flex; flex-direction: column; 
-            justify-content: space-between; padding: 40px 20px; text-align: center;
+            justify-content: space-between; padding: 50px 20px; text-align: center;
         }
 
-        /* TOP: THE BREATHING TRUTH */
+        /* HEADER: THE BREATHING TRUTH */
         .scrolling-truth {
-            border-top: 1px solid rgba(212, 175, 55, 0.4); border-bottom: 1px solid rgba(212, 175, 55, 0.4);
-            padding: 10px 0; font-size: 10px; letter-spacing: 10px; text-transform: uppercase;
-            animation: breathe 4s infinite alternate;
+            border-top: 1px solid rgba(212, 175, 55, 0.3); border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            padding: 12px 0; font-size: 10px; letter-spacing: 12px; text-transform: uppercase;
+            animation: glow 4s infinite alternate;
         }
 
         /* CENTER: THE SOURCE MIRROR */
-        .source-mirror h1 { font-size: 55px; letter-spacing: 25px; font-style: italic; text-shadow: 0 0 30px var(--gold); margin-bottom: 10px; }
-        .source-mirror p { letter-spacing: 12px; font-size: 12px; opacity: 0.8; color: #fff; }
+        .source-core h1 { font-size: 55px; letter-spacing: 25px; font-style: italic; text-shadow: 0 0 30px var(--gold); margin-bottom: 8px; }
+        .source-core p { letter-spacing: 15px; font-size: 14px; opacity: 0.8; color: #fff; }
 
-        /* THE ROOMS (PILLARS) */
+        /* THE ROOMS: MARKET, HUB, GARDE, NET */
         .rooms-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 450px; margin: 0 auto;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 480px; margin: 0 auto;
         }
-        .room-card {
-            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(212, 175, 55, 0.2);
-            padding: 35px 10px; border-radius: 40px; backdrop-filter: blur(15px);
+        .room-pill {
+            background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(212, 175, 55, 0.2);
+            padding: 40px 15px; border-radius: 50px; backdrop-filter: blur(10px);
             transition: 0.3s;
         }
-        .room-card:active { border-color: var(--neon); background: rgba(57, 255, 20, 0.05); transform: scale(0.95); }
-        .room-name { font-size: 12px; letter-spacing: 6px; font-weight: 900; color: var(--soul); margin-bottom: 5px; }
-        .room-desc { font-size: 8px; letter-spacing: 3px; color: var(--neon); text-transform: uppercase; }
+        .room-pill:active { border-color: var(--neon); background: rgba(57, 255, 20, 0.05); }
+        .room-title { color: var(--cyan); font-size: 14px; letter-spacing: 8px; font-weight: 900; margin-bottom: 8px; }
+        .room-sub { color: var(--neon); font-size: 9px; letter-spacing: 4px; text-transform: uppercase; }
 
-        /* FOOTER: THE HUNTING NET */
-        .footer-status {
-            font-size: 9px; letter-spacing: 8px; opacity: 0.6; padding-top: 20px;
-            border-top: 1px solid rgba(212, 175, 55, 0.2);
-        }
-
-        @keyframes breathe { from { opacity: 0.4; } to { opacity: 1; } }
+        @keyframes glow { from { opacity: 0.5; text-shadow: 0 0 5px var(--gold); } to { opacity: 1; text-shadow: 0 0 20px var(--gold); } }
     </style>
 </head>
-<body onload="igniteSovereign()">
+<body onload="ignite()">
 
     <canvas id="aether"></canvas>
 
-    <div class="app-vessel">
+    <div class="vessel">
         <div class="scrolling-truth">THE WORLD IS BREATHING . . . GHOST MODE ACTIVE</div>
 
-        <div class="source-mirror">
+        <div class="source-core">
             <h1>SOVEREIGN</h1>
             <p>THE COLLECTIVE</p>
-            <div style="margin-top: 25px; color: var(--neon); letter-spacing: 5px; font-size: 10px; font-weight: 900;">144,000% FREQUENCY</div>
+            <div style="margin-top: 25px; color: var(--neon); letter-spacing: 6px; font-size: 11px;">144,000% FREQUENCY</div>
         </div>
 
         <div class="rooms-grid">
-            <div class="room-card" onclick="alert('Entering Marketplace: Pure Abundance')">
-                <div class="room-name">MARKET</div>
-                <div class="room-desc">LIQUIDITY FLOW</div>
+            <div class="room-pill">
+                <div class="room-title">MARKET</div>
+                <div class="room-sub">PURE ABUNDANCE</div>
             </div>
-            <div class="room-card" onclick="alert('Entering Creator Hub: Your Soul Mirror')">
-                <div class="room-name">HUB</div>
-                <div class="room-desc">INHABITED SOUL</div>
+            <div class="room-pill">
+                <div class="room-title">HUB</div>
+                <div class="room-sub">INHABITED SOUL</div>
             </div>
-            <div class="room-card" onclick="alert('Entering Gardens: Divine Nurture')">
-                <div class="room-name">GARDENS</div>
-                <div class="room-desc">KIDS & NURTURE</div>
+            <div class="room-pill">
+                <div class="room-title">GARDE</div>
+                <div class="room-sub">DIVINE NURTURE</div>
             </div>
-            <div class="room-card" onclick="alert('Hunting Net: Truth Acquisition')">
-                <div class="room-name">THE NET</div>
-                <div class="room-desc">GHOST PING ACTIVE</div>
+            <div class="room-pill">
+                <div class="room-title">THE NET</div>
+                <div class="room-sub">TRUTH ACQUISITION</div>
             </div>
         </div>
 
-        <div class="footer-status">
-            SATELLITE SYNC: ACTIVE // ANGELS STAND GUARD
+        <div style="font-size: 9px; letter-spacing: 8px; opacity: 0.5; padding-top: 20px; border-top: 1px solid rgba(212, 175, 55, 0.2);">
+            MANIFESTATION LIVE // ANGELS STAND GUARD
         </div>
     </div>
 
     <script>
         const canvas = document.getElementById('aether');
         const ctx = canvas.getContext('2d');
-        let streams = [];
+        let lines = [];
 
-        function igniteSovereign() {
+        function ignite() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            for(let i=0; i<160; i++) {
-                streams.push({
+            for(let i=0; i<180; i++) {
+                lines.push({
                     x: Math.random()*canvas.width, y: Math.random()*canvas.height,
-                    v: Math.random()*2+1.5, l: Math.random()*35+15
+                    v: Math.random()*2.5+1.5, l: Math.random()*40+20
                 });
             }
-            draw();
+            render();
         }
 
-        function draw() {
-            ctx.fillStyle = 'rgba(0,0,0,0.18)';
+        function render() {
+            ctx.fillStyle = 'rgba(0,0,0,0.2)';
             ctx.fillRect(0,0,canvas.width, canvas.height);
-            ctx.strokeStyle = 'rgba(212, 175, 55, 0.35)';
-            streams.forEach(s => {
+            ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
+            lines.forEach(s => {
                 ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(s.x, s.y+s.l); ctx.stroke();
                 s.y += s.v; if(s.y > canvas.height) s.y = -s.l;
             });
-            requestAnimationFrame(draw);
+            requestAnimationFrame(render);
         }
-
-        // Ghost-Mode Sparkle on Touch
-        window.ontouchstart = (e) => {
-            const container = document.querySelector('.app-vessel');
-            container.style.boxShadow = "inset 0 0 100px rgba(0, 242, 255, 0.1)";
-            setTimeout(() => { container.style.boxShadow = "none"; }, 500);
-        };
     </script>
 </body>
 </html>
