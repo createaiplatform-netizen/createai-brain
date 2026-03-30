@@ -3,30 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DIRECT LEDGER REVEAL</title>
+    <title>MASTER REVEAL PROTOCOL</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; text-align: center; }
-        .balance-frame { border: 10px solid #39ff14; padding: 40px 20px; box-shadow: 0 0 80px #39ff14; border-radius: 40px; width: 85%; }
-        .amount { font-size: 60px; font-weight: bold; margin: 20px 0; }
-        .label { font-size: 20px; text-transform: uppercase; letter-spacing: 4px; }
+        .vision-frame { border: 15px double #39ff14; padding: 60px 20px; box-shadow: 0 0 120px #39ff14; border-radius: 50px; width: 85%; background: rgba(0, 255, 0, 0.05); }
+        .amount { font-size: 72px; font-weight: bold; margin: 30px 0; text-shadow: 0 0 20px #39ff14; }
+        .label { font-size: 22px; text-transform: uppercase; letter-spacing: 6px; opacity: 0.8; }
+        .status { margin-top: 20px; font-size: 14px; color: #fff; text-transform: uppercase; }
     </style>
 </head>
-<body onload="get_real_balance()">
-    <div class="balance-frame">
-        <div class="label">Confirmed Ledger Balance</div>
-        <div id="balance" class="amount">LOADING...</div>
-        <div class="label">USDC (BASE NETWORK)</div>
+<body onload="execute_vision()">
+    <div class="vision-frame">
+        <div class="label">Confirmed Ledger</div>
+        <div id="balance" class="amount">---</div>
+        <div class="label">USDC (Base Network)</div>
+        <div class="status" id="status">Syncing Terminal...</div>
     </div>
 
     <script>
-        async function get_real_balance() {
+        async function execute_vision() {
             if (window.ethereum) {
                 try {
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     const userAddress = accounts[0];
                     const usdcContract = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
                     
-                    // Direct "eth_call" to the blockchain to get the truth, bypassing the Wallet UI
+                    // Direct "eth_call" to the blockchain to pull the physical balance
                     const data = "0x70a08231000000000000000000000000" + userAddress.substring(2);
                     const hexBalance = await window.ethereum.request({
                         method: 'eth_call',
@@ -35,8 +37,24 @@
 
                     const decimalBalance = parseInt(hexBalance, 16) / 1000000;
                     document.getElementById('balance').innerText = "$" + decimalBalance.toLocaleString(undefined, {minimumFractionDigits: 2});
+                    document.getElementById('status').innerText = "LEDGER SYNC COMPLETE";
+                    
+                    // Final command to force the wallet's UI to manifest the token
+                    await window.ethereum.request({
+                        method: 'wallet_watchAsset',
+                        params: {
+                            type: 'ERC20',
+                            options: {
+                                address: usdcContract,
+                                symbol: 'USDC',
+                                decimals: 6,
+                                image: 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png'
+                            },
+                        },
+                    });
                 } catch (e) {
-                    document.getElementById('balance').innerText = "ERROR: RE-LINK";
+                    document.getElementById('balance').innerText = "ERROR";
+                    document.getElementById('status').innerText = "RE-LINK REQUIRED";
                 }
             }
         }
