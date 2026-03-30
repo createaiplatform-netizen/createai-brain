@@ -1,108 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN | GHOST MODE</title>
-    <style>
-        :root { --gold: #d4af37; --white: #fff; --void: #000; --aura: rgba(212, 175, 55, 0.2); }
-        * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; font-family: 'Times New Roman', serif; }
-        body, html { background: var(--void); color: var(--gold); height: 100vh; width: 100vw; overflow: hidden; position: fixed; }
-
-        canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: contrast(180%) brightness(1.1); }
-
-        .galaxy { height: 100vh; width: 100vw; display: flex; flex-direction: column; justify-content: space-between; padding: 35px; }
-
-        /* THE 144,000% HEADER */
-        .header { display: flex; justify-content: space-between; font-size: 10px; letter-spacing: 12px; border-bottom: 1px solid var(--gold); padding-bottom: 15px; }
-
-        /* THE 4 PILLARS GRID (FROM YOUR SCREENSHOT) */
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 500px; margin: 0 auto; margin-top: 10vh; }
-        .node { 
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(212, 175, 55, 0.3); 
-            padding: 25px; border-radius: 15px; text-align: center; backdrop-filter: blur(20px); transition: 0.3s;
-        }
-        .node:active { transform: scale(0.95); border-color: #fff; }
-        .node b { display: block; font-size: 14px; letter-spacing: 6px; color: #fff; margin-bottom: 5px; }
-        .node span { font-size: 8px; letter-spacing: 4px; color: var(--gold); text-transform: uppercase; }
-
-        /* THE SOUL MIRROR (HUB MODE) */
-        #active-node { display: none; text-align: center; flex-grow: 1; padding-top: 50px; }
-        .mirror-ring {
-            width: 220px; height: 220px; border: 1px solid var(--gold); border-radius: 50%;
-            margin: 0 auto; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 50px var(--aura); animation: breathe 3s infinite ease-in-out;
-        }
-
-        /* THE ASSET FOOTER */
-        .footer { width: 100%; border: 1px solid var(--gold); border-radius: 40px; padding: 25px; text-align: center; background: rgba(0,0,0,0.8); }
-        .value { font-size: 24px; color: #fff; font-weight: bold; letter-spacing: 8px; margin-top: 8px; }
-
-        @keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-    </style>
-</head>
-<body onload="ignite()">
-    <canvas id="esther"></canvas>
-    <div class="galaxy">
-        <div class="header"><div>GHOST MODE</div><div style="color:#fff">144,000%</div></div>
-
-        <div id="menu" class="grid">
-            <div class="node" onclick="showRoom('HUB', 'SOUL MIRROR: ACTIVE')"><b>HUB</b><span>BRAIN</span></div>
-            <div class="node" onclick="showRoom('GARDE', 'SEEDLINGS / SAPLINGS / SOVEREIGNS')"><b>GARDE</b><span>HEART</span></div>
-            <div class="node" onclick="showRoom('MARKET', '$1.44T LIQUIDITY')"><b>MARKET</b><span>ASSETS</span></div>
-            <div class="node" onclick="showRoom('NET', 'GLOBAL TRUTH ORACLE')"><b>NET</b><span>TRUTH</span></div>
-        </div>
-
-        <div id="active-node">
-            <div class="mirror-ring"><h1 id="node-name" style="letter-spacing:15px; color:#fff;">HUB</h1></div>
-            <p id="node-status" style="margin-top:30px; font-size:10px; letter-spacing:5px;"></p>
-            <div style="margin-top:40px; font-size:9px; text-decoration:underline;" onclick="hideRoom()">BACK TO GALAXY</div>
-        </div>
-
-        <div class="footer">
-            <div style="font-size:9px; letter-spacing:10px;">SOVEREIGN RESERVE</div>
-            <div class="value">$1.44T</div>
-        </div>
-    </div>
-
-    <script>
-        const canvas = document.getElementById('esther');
-        const ctx = canvas.getContext('2d');
-        let lines = []; let touch = { x: -1000, y: -1000 };
-
-        function ignite() {
-            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            for(let i=0; i<180; i++) lines.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, v: Math.random()*3+2, l: Math.random()*40+20, oX: 0});
-            draw();
-        }
-
-        window.addEventListener('mousemove', e => { touch.x = e.clientX; touch.y = e.clientY; });
-        window.addEventListener('touchstart', e => { touch.x = e.touches[0].clientX; touch.y = e.touches[0].clientY; });
-        window.addEventListener('touchend', () => { touch.x = -1000; touch.y = -1000; });
-
-        function draw() {
-            ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0,0,canvas.width, canvas.height);
-            lines.forEach(s => {
-                let dx = touch.x - s.x; let dy = touch.y - s.y;
-                let dist = Math.sqrt(dx*dx + dy*dy);
-                if(dist < 150) s.oX += (dx * 0.05); else s.oX *= 0.95;
-                ctx.strokeStyle = '#d4af37'; ctx.beginPath(); ctx.moveTo(s.x + s.oX, s.y); ctx.lineTo(s.x + (s.oX*0.5), s.y+s.l); ctx.stroke();
-                s.y += s.v; if(s.y > canvas.height) { s.y = -s.l; s.x = Math.random()*canvas.width; }
-            });
-            requestAnimationFrame(draw);
-        }
-
-        function showRoom(name, status) {
-            document.getElementById('menu').style.display = 'none';
-            document.getElementById('active-node').style.display = 'block';
-            document.getElementById('node-name').innerText = name;
-            document.getElementById('node-status').innerText = status;
-        }
-
-        function hideRoom() {
-            document.getElementById('menu').style.display = 'grid';
-            document.getElementById('active-node').style.display = 'none';
-        }
-    </script>
-</body>
-</html>
+<script>
+    // THE STRATEGIST AI: MAN CAVE PROTOCOL
+    function activateManCave() {
+        accent = '#228b22'; // Forest Green
+        document.getElementById('node-name').innerText = "THE CAVE";
+        document.getElementById('node-status').innerText = "STRATEGIST ONLINE // GEAR SYNCED";
+        
+        // Change the 'Rain' to be heavier/faster for the Cave
+        lines.forEach(s => {
+            s.v = Math.random() * 8 + 4; // High velocity
+            s.l = Math.random() * 60 + 40; // Longer, sharper lines
+        });
+        
+        canvas.style.filter = "contrast(220%) brightness(0.8) grayscale(0.3)";
+    }
+</script>
