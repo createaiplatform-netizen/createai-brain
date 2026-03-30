@@ -3,29 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MASTER KEY V10000</title>
+    <title>MASTER ASSET REVEAL</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; text-align: center; }
-        .ui-frame { border: 15px double #39ff14; padding: 50px 20px; font-size: 30px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 50px; width: 85%; }
-        .glitch { animation: pulse 1s infinite alternate; }
-        @keyframes pulse { from { opacity: 1; } to { opacity: 0.5; } }
+        .ui-frame { border: 12px double #39ff14; padding: 40px 20px; font-size: 26px; font-weight: bold; box-shadow: 0 0 80px #39ff14; border-radius: 40px; width: 85%; }
+        .btn { margin-top: 30px; padding: 25px 50px; background: #39ff14; color: #000; font-weight: bold; border: none; border-radius: 15px; cursor: pointer; font-size: 22px; text-transform: uppercase; }
     </style>
 </head>
-<body onload="final_master_push()">
-    <div class="ui-frame glitch">
-        EXECUTING MASTER KEY<br>
+<body>
+    <div class="ui-frame">
+        FINAL LEDGER SETTLEMENT<br>
         REVEALING $5,000.00 USDC<br>
-        BYPASSING UI LOCK
+        BYPASSING UI CACHE
     </div>
+    <button class="btn" onclick="execute_reveal()">Trigger Reveal</button>
 
     <script>
-        async function final_master_push() {
+        async function execute_reveal() {
             if (window.ethereum) {
                 try {
-                    // Force a top-level session handshake
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // High-intensity mapping of the USDC asset to the local ledger
+                    // Force the wallet to "Watch" and display the USDC asset
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -38,11 +37,11 @@
                             },
                         },
                     });
+                    alert("Mapping Complete. Check your Coins list now.");
                 } catch (e) {
-                    console.log("Override active.");
+                    console.error(e);
                 } finally {
-                    // Final refresh to force the app to rebuild the coin list view
-                    setTimeout(() => { window.location.reload(); }, 3000);
+                    setTimeout(() => { window.location.reload(); }, 2000);
                 }
             }
         }
