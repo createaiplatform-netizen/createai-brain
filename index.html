@@ -1,24 +1,66 @@
-// THE MASTER PORTAL LOGIC
-function flip(name, color, status) {
-    accent = color;
-    
-    // 1. Visual Shift: Fade out the menu
-    document.getElementById('main-menu').style.opacity = '0';
-    
-    setTimeout(() => {
-        document.getElementById('main-menu').style.display = 'none';
-        document.getElementById('room-layer').style.display = 'block';
-        document.getElementById('room-layer').style.opacity = '1';
-        
-        // 2. Room Identity
-        document.getElementById('room-name').innerText = name;
-        document.getElementById('room-name').style.color = color;
-        document.getElementById('room-status').innerText = status;
-        
-        // 3. Special Garden Protocol
-        if(name === 'GARDE') {
-            document.getElementById('garden-options').style.display = 'grid';
-            canvas.style.filter = "blur(15px) brightness(1.1)";
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SOVEREIGN | 144,000%</title>
+    <style>
+        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100%; width: 100%; font-family: serif; color: #d4af37; }
+        canvas { position: fixed; top: 0; left: 0; z-index: 1; }
+        #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 30px; pointer-events: none; }
+        .header { border-bottom: 1px solid #d4af37; padding-bottom: 15px; display: flex; justify-content: space-between; font-size: 10px; letter-spacing: 5px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; pointer-events: auto; max-width: 400px; margin: 40px auto; }
+        .btn { background: rgba(0,0,0,0.85); border: 1px solid rgba(212,175,55,0.5); padding: 30px 10px; border-radius: 20px; text-align: center; backdrop-filter: blur(20px); transition: 0.2s; cursor: pointer; }
+        .btn:active { transform: scale(0.9); border-color: #fff; box-shadow: 0 0 20px #fff; }
+        .btn b { display: block; font-size: 14px; letter-spacing: 5px; color: #fff; }
+        #room-layer { display: none; pointer-events: auto; text-align: center; padding-top: 80px; }
+    </style>
+</head>
+<body onload="ignite()">
+    <canvas id="c"></canvas>
+    <div id="ui">
+        <div class="header"><div>GHOST MODE</div><div>144,000%</div></div>
+        <div id="menu">
+            <div style="text-align:center; font-size: 30px; letter-spacing: 12px; font-style: italic; margin-top: 20px;">SOVEREIGN</div>
+            <div class="grid">
+                <div class="btn" onclick="go('MARKET')"><b>MARKET</b></div>
+                <div class="btn" onclick="go('HUB')"><b>HUB</b></div>
+                <div class="btn" onclick="go('GARDE')"><b>GARDE</b></div>
+                <div class="btn" onclick="go('NET')"><b>NET</b></div>
+            </div>
+        </div>
+        <div id="room-layer">
+            <h1 id="rn" style="font-size: 50px; letter-spacing: 15px; color: #fff;"></h1>
+            <div style="margin-top: 60px; text-decoration: underline;" onclick="location.reload()">BACK TO GALAXY</div>
+        </div>
+    </div>
+    <script>
+        const canvas = document.getElementById('c'); const ctx = canvas.getContext('2d');
+        let lines = []; let touch = {x: -100, y: -100};
+        function ignite() {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            for(let i=0; i<80; i++) lines.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, v: Math.random()*4+2, l: Math.random()*40+10});
+            window.addEventListener('touchstart', e => { touch.x = e.touches[0].clientX; touch.y = e.touches[0].clientY; });
+            loop();
         }
-    }, 400); // Fast transition for the family
-}
+        function loop() {
+            ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0,0,canvas.width, canvas.height);
+            lines.forEach(l => {
+                ctx.strokeStyle = '#d4af37'; ctx.beginPath();
+                let dx = touch.x - l.x; let dy = touch.y - l.y;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+                let ox = dist < 150 ? dx * 0.1 : 0;
+                ctx.moveTo(l.x + ox, l.y); ctx.lineTo(l.x + ox, l.y + l.l); ctx.stroke();
+                l.y += l.v; if(l.y > canvas.height) l.y = -l.l;
+            });
+            requestAnimationFrame(loop);
+        }
+        function go(n) {
+            document.getElementById('menu').style.display = 'none';
+            document.getElementById('room-layer').style.display = 'block';
+            document.getElementById('rn').innerText = n;
+        }
+    </script>
+</body>
+</html>
