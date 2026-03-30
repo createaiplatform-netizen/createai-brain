@@ -3,169 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>THE SOURCE | THE MIRROR</title>
+    <title>SOVEREIGN | THE COLLECTIVE</title>
     <style>
-        :root { --gold: #ffd700; --neon: #39ff14; --soul: #00f2ff; --void: #000; }
-        * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; font-family: 'Syncopate', sans-serif; }
-        body, html { background: var(--void); color: #fff; height: 100vh; width: 100vw; overflow: hidden; }
+        :root { --gold: #d4af37; --aether: #f3e5ab; --void: #0a0a0a; }
+        * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; font-family: 'Times New Roman', serif; }
+        body, html { background: var(--void); color: var(--gold); height: 100vh; width: 100vw; overflow: hidden; }
 
-        /* THE SACRED AURA - DEEP CONTRAST & LIQUID FLOW */
-        canvas { 
-            position: fixed; top: 0; left: 0; z-index: -1; 
-            filter: contrast(180%) brightness(1.1) blur(25px); 
-            mix-blend-mode: screen;
-        }
+        /* THE AETHER RAIN - THE 1.44T LIQUIDITY FLOW */
+        canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: blur(1px); }
 
-        .miracle-container {
+        .omnibus {
             height: 100vh; width: 100vw; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center;
-            background: radial-gradient(circle at center, rgba(57, 255, 20, 0.05) 0%, transparent 80%);
-            transition: 2s ease-in-out;
+            align-items: center; justify-content: space-between; padding: 60px 20px;
+            background: radial-gradient(circle at center, rgba(212, 175, 55, 0.05) 0%, transparent 80%);
         }
 
-        /* THE BREATHING CORE */
-        .frequency-center {
-            text-align: center;
-            animation: holy-breath 6s infinite ease-in-out;
-            pointer-events: none;
+        /* HEADER: THE WORLD IS BREATHING */
+        .top-status {
+            width: 100%; border-top: 1px solid var(--gold); border-bottom: 1px solid var(--gold);
+            padding: 10px 0; text-align: center; font-size: 10px; letter-spacing: 8px;
+            text-transform: uppercase; font-weight: 300;
         }
 
-        h1 { 
-            font-size: clamp(40px, 15vw, 100px); 
-            letter-spacing: 45px; 
-            color: var(--neon); 
-            text-shadow: 0 0 120px var(--neon), 0 0 30px #fff; 
-            font-weight: 900;
-            margin-bottom: 10px;
+        /* THE OMNI CORE */
+        .core-mirror { text-align: center; position: relative; }
+        .omni-text {
+            font-size: clamp(40px, 15vw, 120px); letter-spacing: 25px;
+            opacity: 0.15; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); width: 100%;
+        }
+        
+        .main-title {
+            font-size: clamp(30px, 10vw, 70px); letter-spacing: 15px;
+            font-style: italic; position: relative; z-index: 2;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
         }
 
-        .manifested-amount {
-            font-size: clamp(80px, 25vw, 220px);
-            font-weight: 900;
-            letter-spacing: -12px;
-            color: #fff;
-            line-height: 0.8;
-            text-shadow: 0 0 100px rgba(0, 242, 255, 0.5);
+        /* THE TRANSCENDENT CAPITAL */
+        .capital-display {
+            margin-top: 40px; font-size: clamp(24px, 6vw, 45px);
+            letter-spacing: 5px; font-weight: 300;
         }
 
-        .absolute-tag {
-            color: var(--gold); 
-            letter-spacing: 25px; 
-            font-size: 16px; 
-            font-weight: 900; 
-            text-transform: uppercase; 
-            margin-top: 40px;
-            text-shadow: 0 0 40px var(--gold);
+        /* FOOTER: SECTOR DATA */
+        .sector-footer {
+            width: 100%; max-width: 800px; display: flex; justify-content: space-between;
+            border-top: 1px solid rgba(212, 175, 55, 0.3); padding-top: 20px;
+            font-size: 9px; letter-spacing: 4px; text-transform: uppercase;
         }
 
-        /* THE HEAVEN LINK - FLOATING AT THE TOP */
-        .heaven-link {
-            position: absolute; top: 60px;
-            letter-spacing: 20px; font-size: 12px; color: var(--soul);
-            text-shadow: 0 0 20px var(--soul);
-            font-weight: 900; text-transform: uppercase;
-        }
+        .stat-box { text-align: center; }
+        .stat-label { opacity: 0.6; margin-bottom: 5px; }
+        .stat-value { font-weight: bold; color: #fff; }
 
-        @keyframes holy-breath {
-            0%, 100% { transform: scale(0.92); opacity: 0.6; filter: blur(3px); }
-            50% { transform: scale(1.08); opacity: 1; filter: blur(0px); }
-        }
     </style>
 </head>
-<body onload="igniteMiracle()">
+<body onload="initGenesis()">
 
-    <canvas id="miracle-field"></canvas>
+    <canvas id="aether-canvas"></canvas>
 
-    <div class="miracle-container">
-        <div class="heaven-link">HEAVEN_ON_EARTH_LINK</div>
+    <div class="omnibus">
+        <div class="top-status">TRANSCENDED . . . THE WORLD IS BREATHING . . .</div>
 
-        <div class="frequency-center">
-            <h1>THE SOURCE</h1>
-            <div class="manifested-amount">$5,000.00</div>
-            <div class="absolute-tag">144,000% ABSOLUTE</div>
+        <div class="core-mirror">
+            <div class="omni-text">OMNI</div>
+            <h1 class="main-title">SOVEREIGN</h1>
+            <p style="letter-spacing: 12px; margin-top: 10px; font-size: 14px;">The Collective</p>
+            <div class="capital-display">$1.44T _ & _ BEYOND</div>
         </div>
 
-        <div style="position: absolute; bottom: 60px; letter-spacing: 12px; font-size: 10px; color: var(--gold); opacity: 0.7; font-weight: 900;">
-            THE SOUL IS REIFIED // TOUCH THE LIGHT
+        <div class="sector-footer">
+            <div class="stat-box">
+                <div class="stat-label">POPULATION</div>
+                <div class="stat-value">144,000</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">STATUS</div>
+                <div class="stat-value">TRANSCENDENT</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">CAPITAL</div>
+                <div class="stat-value">$1.44T</div>
+            </div>
         </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('miracle-field');
+        const canvas = document.getElementById('aether-canvas');
         const ctx = canvas.getContext('2d');
-        let atoms = [];
-        let stardust = [];
-        let touch = { x: null, y: null };
+        let particles = [];
 
-        function igniteMiracle() {
+        function initGenesis() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            // Creation of the 144,000 Presence
-            for(let i=0; i<40; i++) atoms.push(new Atom());
-            render();
-        }
-
-        class Atom {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.baseR = Math.random() * 250 + 100;
-                this.r = this.baseR;
-                this.vx = (Math.random() - 0.5) * 0.4;
-                this.vy = (Math.random() - 0.5) * 0.4;
-                this.color = Math.random() > 0.5 ? '#39ff14' : '#00f2ff';
-                this.life = Math.random() * Math.PI * 2;
-            }
-            update() {
-                this.life += 0.008;
-                this.r = this.baseR + Math.sin(this.life) * 60;
-                this.x += this.vx; this.y += this.vy;
-                
-                if(this.x < -200) this.x = canvas.width + 200;
-                if(this.x > canvas.width + 200) this.x = -200;
-                if(this.y < -200) this.y = canvas.height + 200;
-                if(this.y > canvas.height + 200) this.y = -200;
-
-                if(touch.x) {
-                    let dx = touch.x - this.x; let dy = touch.y - this.y;
-                    let dist = Math.sqrt(dx*dx + dy*dy);
-                    if(dist < 500) { this.x -= dx/120; this.y -= dy/120; }
-                }
-            }
-        }
-
-        function spawnStardust(x, y) {
-            for(let i=0; i<12; i++) {
-                stardust.push({
-                    x: x, y: y,
-                    vx: (Math.random()-0.5)*18, vy: (Math.random()-0.5)*18,
-                    alpha: 1.0, size: Math.random()*7
+            for(let i = 0; i < 150; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    length: Math.random() * 20 + 10,
+                    speed: Math.random() * 2 + 1,
+                    opacity: Math.random()
                 });
             }
+            draw();
         }
 
-        window.onmousemove = e => { touch.x = e.clientX; touch.y = e.clientY; spawnStardust(e.clientX, e.clientY); };
-        window.ontouchmove = e => { touch.x = e.touches[0].clientX; touch.y = e.touches[0].clientY; spawnStardust(touch.x, touch.y); };
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
+            ctx.lineWidth = 1;
 
-        function render() {
-            ctx.fillStyle = 'rgba(0,0,0,0.1)';
-            ctx.fillRect(0,0,canvas.width, canvas.height);
+            particles.forEach(p => {
+                ctx.beginPath();
+                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(p.x, p.y + p.length);
+                ctx.stroke();
 
-            atoms.forEach(a => {
-                a.update();
-                ctx.beginPath(); ctx.arc(a.x, a.y, a.r, 0, Math.PI*2);
-                ctx.fillStyle = a.color + '08'; ctx.fill();
+                p.y += p.speed;
+                if(p.y > canvas.height) {
+                    p.y = -p.length;
+                    p.x = Math.random() * canvas.width;
+                }
             });
 
-            stardust.forEach((s, i) => {
-                s.x += s.vx; s.y += s.vy; s.alpha -= 0.015;
-                if(s.alpha <= 0) stardust.splice(i, 1);
-                ctx.beginPath(); ctx.arc(s.x, s.y, s.size, 0, Math.PI*2);
-                ctx.fillStyle = `rgba(255, 215, 0, ${s.alpha})`; ctx.fill();
-            });
-
-            requestAnimationFrame(render);
+            requestAnimationFrame(draw);
         }
+
+        // Touch Interaction: Creating the Genesis Pulse
+        window.onclick = () => {
+            const container = document.querySelector('.omnibus');
+            container.style.backgroundColor = 'rgba(212, 175, 55, 0.15)';
+            setTimeout(() => {
+                container.style.backgroundColor = 'transparent';
+            }, 500);
+        };
     </script>
 </body>
 </html>
