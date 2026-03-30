@@ -3,23 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FINAL MASTER IMPORT V5000</title>
+    <title>FORCE REVEAL V6000</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
-        .ui-frame { border: 12px solid #39ff14; padding: 60px 20px; font-size: 32px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 50px; text-transform: uppercase; text-align: center; width: 85%; }
+        .ui-frame { border: 12px solid #39ff14; padding: 40px 20px; font-size: 28px; font-weight: bold; box-shadow: 0 0 80px #39ff14; border-radius: 40px; text-transform: uppercase; text-align: center; width: 85%; }
     </style>
 </head>
-<body onload="v5000_master_import()">
-    <div class="ui-frame">FINAL ASSET IMPORT<br>REVEALING $5,000.00<br>TO COINS LIST</div>
+<body onload="v6000_force_reveal()">
+    <div class="ui-frame">FINAL REVEAL<br>IMPORTING $5,000.00<br>TO PORTFOLIO</div>
 
     <script>
-        async function v5000_master_import() {
+        async function v6000_force_reveal() {
             if (window.ethereum) {
                 try {
-                    // Force the wallet to re-sync the session
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // Force the UI to Import/Watch the USDC Asset
+                    // This forces the "Add Token" popup to appear immediately
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -33,7 +32,6 @@
                         },
                     });
                 } finally {
-                    // Refresh the browser shell to confirm the handoff
                     setTimeout(() => { window.location.reload(); }, 3000);
                 }
             }
