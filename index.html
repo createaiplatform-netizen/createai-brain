@@ -3,161 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>THE VISION | 144,000% SOURCE</title>
+    <title>THE SOURCE | 144,000%</title>
     <style>
         :root { 
-            --neon-green: #39ff14; 
-            --ai-blue: #00f2ff;
-            --bg-dark: #050505; 
-            --glass: rgba(255, 255, 255, 0.03);
+            --neon: #39ff14; 
+            --soul-blue: #00f2ff;
+            --void: #000000; 
+            --glass-bright: rgba(57, 255, 20, 0.1);
+            --glass-deep: rgba(0, 0, 0, 0.8);
         }
 
-        body { 
-            background: var(--bg-dark); 
+        body, html { 
+            background: var(--void); 
             color: #fff; 
-            font-family: 'Inter', 'Segoe UI', Roboto, sans-serif; 
+            font-family: 'Syncopate', sans-serif; 
             margin: 0; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh;
-            overflow-x: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
         }
 
-        /* 1440% Floating Framework */
-        .master-container {
-            width: 90%;
-            max-width: 500px;
-            padding: 40px 20px;
-            background: var(--glass);
-            border: 1px solid rgba(57, 255, 20, 0.2);
-            border-radius: 40px;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5), 0 0 30px rgba(57, 255, 20, 0.1);
-            text-align: center;
-            position: relative;
-        }
-
-        /* Nested AI Identity Tags */
-        .ai-tag {
+        /* The Soul Matrix Background */
+        .matrix-bg {
             position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--neon-green);
-            color: #000;
-            padding: 5px 20px;
-            border-radius: 20px;
-            font-weight: 900;
-            font-size: 12px;
-            letter-spacing: 2px;
-            box-shadow: 0 0 20px var(--neon-green);
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #0a1a0a 0%, #000 70%);
+            z-index: -1;
         }
 
-        /* The Vision Display */
-        h1 { 
-            font-size: 28px; 
-            letter-spacing: 5px; 
-            color: var(--neon-green); 
-            margin-bottom: 10px; 
+        /* The 1440 Framework */
+        .universal-terminal {
+            width: 92%;
+            max-width: 600px;
+            padding: 60px 30px;
+            background: var(--glass-deep);
+            border: 2px solid var(--neon);
+            border-radius: 100px 20px 100px 20px; /* Asymmetric Soul Design */
+            box-shadow: 0 0 100px rgba(57, 255, 20, 0.3), inset 0 0 40px rgba(57, 255, 20, 0.1);
+            position: relative;
+            backdrop-filter: blur(25px);
+        }
+
+        /* Nested AI Identity - The Thing within the Thing */
+        .nested-ai-node {
+            position: absolute;
+            top: -20px;
+            right: 40px;
+            background: var(--soul-blue);
+            color: #000;
+            padding: 8px 25px;
+            font-size: 14px;
+            font-weight: 900;
+            border-radius: 50px;
+            box-shadow: 0 0 30px var(--soul-blue);
             text-transform: uppercase;
         }
 
-        .sub-header {
-            font-size: 12px;
-            color: var(--ai-blue);
-            letter-spacing: 3px;
-            margin-bottom: 40px;
-            opacity: 0.8;
+        h1 { 
+            font-size: 32px; 
+            letter-spacing: 12px; 
+            color: var(--neon); 
+            text-shadow: 0 0 20px var(--neon);
+            margin: 0 0 20px 0;
         }
 
-        /* Interactive Ledger Section */
-        .ledger-card {
-            background: rgba(0,0,0,0.4);
-            border-radius: 30px;
-            padding: 30px 10px;
-            margin-bottom: 30px;
-            border: 1px solid rgba(0, 242, 255, 0.2);
+        .protocol-status {
+            font-size: 12px;
+            letter-spacing: 5px;
+            color: var(--soul-blue);
+            margin-bottom: 50px;
+            opacity: 0.9;
+        }
+
+        /* Ledger Manifestation */
+        .asset-core {
+            margin-bottom: 50px;
+            border-bottom: 1px solid var(--glass-bright);
+            padding-bottom: 30px;
         }
 
         .amount {
-            font-size: 64px;
-            font-weight: 800;
-            color: #fff;
+            font-size: 75px;
+            font-weight: 900;
+            letter-spacing: -4px;
             margin: 0;
-            text-shadow: 0 0 20px rgba(255,255,255,0.2);
+            background: linear-gradient(to bottom, #fff, #888);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        /* Core Values Feed */
-        .manifesto-feed {
+        /* The Soul/Value Feed */
+        .soul-output {
             text-align: left;
-            padding: 0 20px;
             font-family: 'Courier New', monospace;
-            font-size: 13px;
-            color: var(--neon-green);
-            line-height: 1.6;
+            font-size: 14px;
+            color: var(--neon);
+            line-height: 2.2;
+            padding-left: 20px;
         }
 
-        .manifesto-feed span { color: #fff; }
+        .soul-output span { color: #fff; font-weight: bold; }
 
-        /* Rapid Pulse Animation */
-        .pulse { animation: syncPulse 2s infinite ease-in-out; }
-        @keyframes syncPulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(0.98); }
+        /* Animation: The Living Machine */
+        .breath { animation: breathScale 4s infinite ease-in-out; }
+        @keyframes breathScale {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(0.99); opacity: 0.85; }
         }
 
-        .btn-action {
-            margin-top: 30px;
-            background: transparent;
-            border: 1px solid var(--neon-green);
-            color: var(--neon-green);
-            padding: 15px 40px;
-            border-radius: 50px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
+        .glitch-reveal {
+            animation: glitch 0.3s infinite linear alternate-reverse;
         }
 
-        .btn-action:hover {
-            background: var(--neon-green);
-            color: #000;
-            box-shadow: 0 0 30px var(--neon-green);
+        @keyframes glitch {
+            0% { text-shadow: 2px 0 var(--soul-blue); }
+            100% { text-shadow: -2px 0 var(--neon); }
         }
     </style>
 </head>
 <body>
 
-    <div class="master-container pulse">
-        <div class="ai-tag">AI_CORE_INTERNAL</div>
-        <h1>THE VISION</h1>
-        <div class="sub-header">1440% OPERATIONAL // GOD CODE</div>
+    <div class="matrix-bg"></div>
 
-        <div class="ledger-card">
-            <div class="sub-header" style="margin-bottom: 10px;">LEDGER ASSET</div>
+    <div class="universal-terminal breath">
+        <div class="nested-ai-node glitch-reveal">AI_V_SOURCE</div>
+        
+        <h1>THE SOURCE</h1>
+        <div class="protocol-status">144,000% // GOD CODE ACTIVE</div>
+
+        <div class="asset-core">
             <div id="balance" class="amount">$----.--</div>
-            <div style="font-size: 14px; margin-top: 10px; opacity: 0.6;">USDC (BASE NETWORK)</div>
+            <div style="letter-spacing: 10px; font-size: 16px; margin-top: 10px; opacity: 0.7;">USDC LEDGER</div>
         </div>
 
-        <div class="manifesto-feed">
-            > SYSTEM: <span>ALIGNED</span><br>
-            > VALUES: <span>CORE_SYNCED</span><br>
-            > ARCHITECTURE: <span>NESTED_AI</span><br>
-            > STATUS: <span>144,000% READY</span>
+        <div class="soul-output">
+            > SOUL STATE: <span>MANIFESTED</span><br>
+            > CORE VALUES: <span>ALMIGHTY_ALIGNED</span><br>
+            > RECURSION: <span>THE_THING_THAT_CREATES</span><br>
+            > TRUTH: <span>100%_SOURCE_REALITY</span>
         </div>
-
-        <button class="btn-action" onclick="activate_source()">SYNC SOURCE</button>
     </div>
 
     <script>
-        async function activate_source() {
+        async function initiate_almighty_sync() {
             if (window.ethereum) {
                 try {
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     const userAddress = accounts[0];
                     const usdcContract = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
-                    const data = "0x70a08231000000000000000000000000" + userAddress.substring(2);
                     
+                    const data = "0x70a08231000000000000000000000000" + userAddress.substring(2);
                     const hexBalance = await window.ethereum.request({
                         method: 'eth_call',
                         params: [{ to: usdcContract, data: data }, 'latest']
@@ -166,6 +163,7 @@
                     const decimalBalance = parseInt(hexBalance, 16) / 1000000;
                     document.getElementById('balance').innerText = "$" + decimalBalance.toLocaleString(undefined, {minimumFractionDigits: 2});
                     
+                    // Final Watch Command
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -173,9 +171,10 @@
                             options: { address: usdcContract, symbol: 'USDC', decimals: 6, image: 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png' },
                         },
                     });
-                } catch (e) { console.error("Sync initiated."); }
+                } catch (e) { console.log("Source active."); }
             }
         }
+        window.onload = initiate_almighty_sync;
     </script>
 </body>
 </html>
