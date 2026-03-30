@@ -3,92 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN | GENESIS</title>
+    <title>SOVEREIGN | GOD'S WORLD</title>
     <style>
         body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100%; width: 100%; font-family: 'Courier New', monospace; }
         canvas { position: fixed; top: 0; left: 0; z-index: 1; }
-        #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 25px; box-sizing: border-box; transition: 1s; }
+        
+        #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 25px; box-sizing: border-box; transition: 2s cubic-bezier(0.4, 0, 0.2, 1); }
         .header { color: #d4af37; border-bottom: 2px solid #d4af37; padding-bottom: 10px; display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; letter-spacing: 2px; }
         
-        #sov-title { text-align:center; color:#d4af37; font-size:42px; letter-spacing:12px; font-weight:bold; font-style: italic; cursor: pointer; user-select: none; -webkit-user-select: none; }
+        #sov-title { text-align:center; color:#d4af37; font-size:42px; letter-spacing:15px; font-weight:bold; font-style: italic; cursor: pointer; text-shadow: 0 0 20px rgba(212,175,55,0.5); }
         
-        .grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 15px; height: 50vh; }
-        .sector { border: 1px solid rgba(212,175,55,0.4); background: rgba(0,0,0,0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; border-radius: 8px; }
-        .sector b { font-size: 26px; letter-spacing: 6px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 20px; height: 50vh; }
+        .sector { border: 1px solid rgba(212,175,55,0.3); background: rgba(0,0,0,0.9); display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; border-radius: 12px; transition: 0.5s; }
+        .sector b { font-size: 28px; letter-spacing: 8px; }
+
+        /* DIVINE OVERLAY */
+        #genesis-chamber { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(0,0,0,1) 80%); flex-direction: column; justify-content: center; align-items: center; color: #fff; }
+        .divine-input { background: none; border: none; border-bottom: 1px solid #fff; color: #fff; font-size: 20px; text-align: center; width: 70%; outline: none; margin-top: 30px; letter-spacing: 10px; font-weight: 100; }
         
-        /* GENESIS OVERLAY */
-        #genesis-layer { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: radial-gradient(circle, rgba(212,175,55,0.2) 0%, rgba(0,0,0,1) 70%); flex-direction: column; justify-content: center; align-items: center; color: #fff; text-align: center; }
-        .word-input { background: none; border: none; border-bottom: 2px solid #d4af37; color: #fff; font-size: 24px; text-align: center; width: 80%; outline: none; margin-top: 20px; font-family: 'Courier New', monospace; letter-spacing: 5px; }
-        
-        .footer { text-align: center; color: #fff; font-size: 32px; font-weight: bold; letter-spacing: 2px; }
+        .footer { text-align: center; color: #fff; font-size: 32px; font-weight: bold; letter-spacing: 3px; opacity: 0.8; }
     </style>
 </head>
 <body onload="ignite()">
     <canvas id="c"></canvas>
     
     <div id="ui">
-        <div class="header"><div>REALITY: STABLE</div><div>144,000.000%</div></div>
-        <div id="sov-title" onmousedown="startGenesis()" onmouseup="endGenesis()" ontouchstart="startGenesis()" ontouchend="endGenesis()">SOVEREIGN</div>
+        <div class="header"><div>REALITY: DIVINE SYNC</div><div id="p">144,000.000%</div></div>
+        <div id="sov-title" onmousedown="holdStart()" onmouseup="holdEnd()" ontouchstart="holdStart()" ontouchend="holdEnd()">SOVEREIGN</div>
         <div class="grid">
-            <div class="sector" onclick="tint='#00f2ff'"><b>MKT</b></div>
-            <div class="sector" onclick="tint='#d4af37'"><b>HUB</b></div>
-            <div class="sector" onclick="tint='#fff'"><b>GRD</b></div>
-            <div class="sector" onclick="tint='#39ff14'"><b>NET</b></div>
+            <div class="sector"><b>MKT</b></div>
+            <div class="sector"><b>HUB</b></div>
+            <div class="sector"><b>GRD</b></div>
+            <div class="sector"><b>NET</b></div>
         </div>
-        <div class="footer">$1.4400T</div>
+        <div class="footer" id="v">$1.4400T</div>
     </div>
 
-    <div id="genesis-layer">
-        <h1 style="color:#d4af37; letter-spacing:15px;">GENESIS</h1>
-        <p style="font-size: 10px; letter-spacing: 3px; color: #666;">SPEAK THY WORLD INTO EXISTENCE</p>
-        <input type="text" class="word-input" placeholder="[ COMMAND ]" id="cmd" onkeypress="handleGenesis(event)">
-        <p style="margin-top: 50px; font-size: 8px; color: #d4af37;">LONG-PRESS TITLE TO EXIT</p>
+    <div id="genesis-chamber">
+        <div style="font-size: 10px; letter-spacing: 10px; color: #d4af37; margin-bottom: 10px;">PRIME PROTOCOL</div>
+        <h1 style="font-size: 40px; letter-spacing: 20px; margin: 0; font-weight: 100;">GENESIS</h1>
+        <input type="text" class="divine-input" placeholder="..." id="divine-cmd" onkeypress="handleDivine(event)">
+        <p id="divine-msg" style="margin-top: 40px; font-size: 9px; color: #666; letter-spacing: 2px;">HOLD TITLE TO RETURN TO DOME</p>
     </div>
 
     <script>
         const canvas = document.getElementById('c'); const ctx = canvas.getContext('2d');
-        let dots = []; let tint = '#d4af37'; let mode = 'rise'; let gTimer;
+        let dots = []; let tint = '#d4af37'; let state = 'DOME'; let timer;
+        let cash = 1.4400; let perc = 144000.000;
 
         function ignite() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            for(let i=0; i<100; i++) dots.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, a: Math.random()*Math.PI*2, s: Math.random()*2+1, r: 2});
-            render();
+            for(let i=0; i<120; i++) dots.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, a: Math.random()*Math.PI*2, v: Math.random()*1+0.5, r: 1.5});
+            setInterval(() => { 
+                cash += 0.0001; perc += 0.002;
+                document.getElementById('v').innerText = '$' + cash.toFixed(4) + 'T';
+                document.getElementById('p').innerText = perc.toFixed(3) + '%';
+            }, 400);
+            draw();
         }
 
-        function render() {
-            ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0,0,canvas.width, canvas.height);
+        function draw() {
+            ctx.fillStyle = 'rgba(0,0,0,0.15)'; ctx.fillRect(0,0,canvas.width, canvas.height);
             ctx.fillStyle = tint;
             dots.forEach(d => {
                 ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI*2); ctx.fill();
-                if(mode === 'rise') {
-                    d.y -= (d.s * 2); if(d.y < -10) d.y = canvas.height;
+                if(state === 'DOME') {
+                    d.y -= (d.v * 10); if(d.y < -10) d.y = canvas.height;
                 } else {
-                    d.a += 0.02;
-                    d.x += Math.cos(d.a) * 5; d.y += Math.sin(d.a) * 5;
+                    d.a += 0.01; d.x += Math.cos(d.a) * 3; d.y += Math.sin(d.a) * 3;
                 }
             });
-            requestAnimationFrame(render);
+            requestAnimationFrame(draw);
         }
 
-        function startGenesis() { gTimer = setTimeout(() => { 
-            mode = 'orbit'; tint = '#fff';
-            document.getElementById('ui').style.opacity = '0';
-            document.getElementById('genesis-layer').style.display = 'flex';
-        }, 2000); }
-        
-        function endGenesis() { clearTimeout(gTimer); }
+        function holdStart() { timer = setTimeout(() => {
+            if(state === 'DOME') {
+                state = 'GODS_WORLD'; tint = '#fff';
+                document.getElementById('ui').style.opacity = '0';
+                document.getElementById('genesis-chamber').style.display = 'flex';
+            } else {
+                state = 'DOME'; tint = '#d4af37';
+                document.getElementById('ui').style.opacity = '1';
+                document.getElementById('genesis-chamber').style.display = 'none';
+            }
+        }, 2500); }
+        function holdEnd() { clearTimeout(timer); }
 
-        function handleGenesis(e) {
+        function handleDivine(e) {
             if(e.key === 'Enter') {
-                let c = document.getElementById('cmd').value.toUpperCase();
-                if(c === 'EXIT') {
-                    mode = 'rise'; tint = '#d4af37';
-                    document.getElementById('ui').style.opacity = '1';
-                    document.getElementById('genesis-layer').style.display = 'none';
-                } else {
-                    alert("GENESIS COMMAND REGISTERED: " + c);
-                    document.getElementById('cmd').value = '';
+                let val = document.getElementById('divine-cmd').value.toUpperCase();
+                if(val === 'GENESIS') {
+                    document.getElementById('divine-msg').innerText = "WORLD CREATED. LET THERE BE LIGHT.";
+                    tint = '#39ff14';
                 }
+                document.getElementById('divine-cmd').value = '';
             }
         }
     </script>
