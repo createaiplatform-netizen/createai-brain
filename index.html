@@ -3,22 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FORCE REVEAL V6000</title>
+    <title>DEEP LEDGER FORCE V7000</title>
     <style>
-        body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         .ui-frame { border: 12px solid #39ff14; padding: 40px 20px; font-size: 28px; font-weight: bold; box-shadow: 0 0 80px #39ff14; border-radius: 40px; text-transform: uppercase; text-align: center; width: 85%; }
+        .status { margin-top: 20px; font-size: 18px; color: #fff; }
     </style>
 </head>
-<body onload="v6000_force_reveal()">
-    <div class="ui-frame">FINAL REVEAL<br>IMPORTING $5,000.00<br>TO PORTFOLIO</div>
+<body onload="v7000_deep_force()">
+    <div class="ui-frame">FORCING LEDGER UPDATE<br>REVEALING $5,000.00<br>USDC ASSET</div>
+    <div class="status">Bypassing UI Cache...</div>
 
     <script>
-        async function v6000_force_reveal() {
+        async function v7000_deep_force() {
             if (window.ethereum) {
                 try {
+                    // Step 1: Force a fresh high-priority connection
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // This forces the "Add Token" popup to appear immediately
+                    // Step 2: Push the USDC contract metadata directly to the UI provider
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -31,8 +34,11 @@
                             },
                         },
                     });
+                } catch (err) {
+                    console.error("Sync error:", err);
                 } finally {
-                    setTimeout(() => { window.location.reload(); }, 3000);
+                    // Step 3: Trigger a hardware-level refresh delay
+                    setTimeout(() => { window.location.reload(); }, 4000);
                 }
             }
         }
