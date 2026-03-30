@@ -3,86 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN | EVOLUTION</title>
+    <title>144,000% | SOVEREIGN</title>
     <style>
-        :root { --gold: #d4af37; --cyan: #00f2ff; --red: #ff3131; --white: #fff; }
-        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100%; width: 100%; font-family: serif; }
-        canvas { position: fixed; top: 0; left: 0; z-index: 1; transition: filter 1s; }
-        
+        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100%; width: 100%; font-family: serif; color: #d4af37; }
+        canvas { position: fixed; top: 0; left: 0; z-index: 1; transition: filter 0.5s; }
         #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 30px; pointer-events: none; }
-        .header { border-bottom: 1px solid var(--gold); padding-bottom: 15px; display: flex; justify-content: space-between; font-size: 10px; letter-spacing: 5px; color: var(--gold); }
+        .header { border-bottom: 1px solid #d4af37; padding-bottom: 15px; display: flex; justify-content: space-between; font-size: 10px; letter-spacing: 5px; }
         
-        /* NAVIGATION */
+        /* THE COMMAND PILLARS */
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; pointer-events: auto; max-width: 400px; margin: 40px auto; }
-        .btn { background: rgba(0,0,0,0.8); border: 1px solid rgba(212,175,55,0.4); padding: 25px 10px; border-radius: 15px; text-align: center; backdrop-filter: blur(10px); color: var(--gold); cursor: pointer; }
-        .btn b { display: block; font-size: 14px; letter-spacing: 4px; color: #fff; }
-        
-        /* THE STAGE */
-        #stage { display: none; pointer-events: auto; text-align: center; color: #fff; flex-grow: 1; padding-top: 50px; }
-        #stage h1 { font-size: 50px; letter-spacing: 20px; font-style: italic; margin-bottom: 10px; }
-        .back { margin-top: 40px; font-size: 10px; text-decoration: underline; color: var(--gold); letter-spacing: 3px; }
+        .btn { background: rgba(0,0,0,0.9); border: 2px solid #d4af37; padding: 30px 10px; border-radius: 15px; text-align: center; color: #fff; transition: 0.2s; cursor: pointer; }
+        .btn:active { background: #fff; color: #000; transform: scale(1.2); }
+        .btn b { display: block; font-size: 14px; letter-spacing: 5px; }
 
-        .footer { border: 1px solid var(--gold); border-radius: 40px; padding: 20px; text-align: center; background: rgba(0,0,0,0.9); pointer-events: auto; }
+        /* THE ROOM OVERLAY */
+        #room { display: none; pointer-events: auto; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; background: rgba(0,0,0,0.9); text-align: center; justify-content: center; align-items: center; flex-direction: column; }
+        #room h1 { font-size: 60px; letter-spacing: 20px; font-style: italic; margin-bottom: 20px; color: #fff; }
     </style>
 </head>
-<body onload="init()">
+<body onload="ignite()">
     <canvas id="c"></canvas>
+    
     <div id="ui">
-        <div class="header"><div>GHOST MODE</div><div id="freq">144,000%</div></div>
-        
-        <div id="menu">
-            <div style="text-align:center; font-size: 30px; letter-spacing: 15px; color: var(--gold); margin-top: 20px;">SOVEREIGN</div>
-            <div class="grid">
-                <div class="btn" onclick="morph('MARKET', 'CYAN')"><b>MARKET</b><span>$1.44T</span></div>
-                <div class="btn" onclick="morph('HUB', 'GOLD')"><b>HUB</b><span>MIRROR</span></div>
-                <div class="btn" onclick="morph('GARDE', 'WHITE')"><b>GARDE</b><span>FAMILY</span></div>
-                <div class="btn" onclick="morph('PULSE', 'RED')"><b>PULSE</b><span>HEALTH</span></div>
-            </div>
+        <div class="header"><div>GHOST MODE</div><div>144,000%</div></div>
+        <div style="text-align:center; font-size: 30px; letter-spacing: 15px; margin-top: 20px;">SOVEREIGN</div>
+        <div class="grid">
+            <div class="btn" onclick="openRoom('MARKET', '#00f2ff')"><b>MARKET</b></div>
+            <div class="btn" onclick="openRoom('HUB', '#d4af37')"><b>HUB</b></div>
+            <div class="btn" onclick="openRoom('GARDE', '#fff')"><b>GARDE</b></div>
+            <div class="btn" onclick="openRoom('NET', '#39ff14')"><b>NET</b></div>
         </div>
+        <div style="text-align:center; border: 1px solid #d4af37; padding: 20px; border-radius: 40px; color: #fff; font-size: 20px; font-weight: bold;">$1.44T</div>
+    </div>
 
-        <div id="stage">
-            <h1 id="cur-name">ROOM</h1>
-            <p id="cur-status" style="letter-spacing: 5px; font-size: 10px;"></p>
-            <div class="back" onclick="location.reload()">CLOSE PORTAL</div>
-        </div>
-
-        <div class="footer"><div style="font-size: 22px; color: #fff; font-weight: bold;">$1,440,000,000,000</div></div>
+    <div id="room" onclick="this.style.display='none'">
+        <h1 id="rn">ROOM</h1>
+        <div style="text-decoration: underline; font-size: 12px; letter-spacing: 5px; color: #d4af37;">CLOSE PORTAL</div>
     </div>
 
     <script>
         const canvas = document.getElementById('c'); const ctx = canvas.getContext('2d');
-        let parts = []; let mode = 'GOLD'; let touch = {x:-100, y:-100};
+        let lines = []; let touch = {x: -100, y: -100}; let accent = '#d4af37';
 
-        function init() {
+        function ignite() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            for(let i=0; i<100; i++) parts.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, v: Math.random()*3+2, l: Math.random()*40});
+            for(let i=0; i<100; i++) lines.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, v: Math.random()*4+2, l: Math.random()*40+10, oX: 0});
             window.addEventListener('touchstart', e => { touch.x = e.touches[0].clientX; touch.y = e.touches[0].clientY; });
-            update();
+            loop();
         }
 
-        function morph(name, colorMode) {
-            mode = colorMode;
-            document.getElementById('menu').style.display = 'none';
-            document.getElementById('stage').style.display = 'block';
-            document.getElementById('cur-name').innerText = name;
-            document.getElementById('cur-name').style.color = (colorMode === 'CYAN') ? '#00f2ff' : (colorMode === 'RED') ? '#ff3131' : (colorMode === 'GOLD') ? '#d4af37' : '#fff';
-            canvas.style.filter = "hue-rotate(90deg) brightness(2)"; // Force a visual "POP"
-        }
-
-        function update() {
+        function loop() {
             ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0,0,canvas.width, canvas.height);
-            parts.forEach(p => {
-                ctx.lineWidth = 2;
-                if(mode === 'GOLD') { ctx.strokeStyle = '#d4af37'; p.y += p.v; }
-                if(mode === 'CYAN') { ctx.strokeStyle = '#00f2ff'; p.x += p.v; } // Moves sideways
-                if(mode === 'RED') { ctx.strokeStyle = '#ff3131'; p.y -= p.v; } // Moves UP
-                if(mode === 'WHITE') { ctx.strokeStyle = '#fff'; ctx.lineWidth = 4; p.y += p.v*2; } // Thick & Fast
-                
-                ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x, p.y + p.l); ctx.stroke();
-                if(p.y > canvas.height) p.y = -p.l; if(p.y < -p.l) p.y = canvas.height;
-                if(p.x > canvas.width) p.x = 0;
+            lines.forEach(l => {
+                let dx = touch.x - l.x; let dy = touch.y - l.y;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+                if(dist < 150) l.oX += (dx * 0.1); else l.oX *= 0.9;
+                ctx.strokeStyle = accent; ctx.beginPath(); ctx.moveTo(l.x + l.oX, l.y); ctx.lineTo(l.x + (l.oX*0.5), l.y + l.l); ctx.stroke();
+                l.y += l.v; if(l.y > canvas.height) l.y = -l.l;
             });
-            requestAnimationFrame(update);
+            requestAnimationFrame(loop);
+        }
+
+        function openRoom(name, color) {
+            accent = color;
+            document.getElementById('room').style.display = 'flex';
+            document.getElementById('rn').innerText = name;
+            document.getElementById('rn').style.color = color;
         }
     </script>
 </body>
