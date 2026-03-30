@@ -3,137 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>THE SOURCE | REIFIED VISION</title>
+    <title>THE SOURCE | REIFIED HEART</title>
     <style>
         :root { --neon: #39ff14; --soul: #00f2ff; --void: #000; }
         * { box-sizing: border-box; margin: 0; padding: 0; overflow: hidden; touch-action: none; }
         body, html { background: var(--void); color: #fff; font-family: 'Syncopate', sans-serif; height: 100vh; width: 100vw; }
 
-        /* THE LIVING FLUID BACKDROP */
-        canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: blur(8px); }
+        /* THE LIVING SOUL: INTERACTIVE FLUID DEPTH */
+        canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: blur(12px); }
 
-        .palace-main {
+        .cathedral {
             height: 100vh; width: 100vw; display: flex; flex-direction: column; 
             align-items: center; justify-content: space-between; padding: 60px 20px;
             pointer-events: none;
         }
 
-        /* NESTED AI CORE */
-        .ai-core {
-            background: var(--soul); color: #000; padding: 12px 45px; border-radius: 50px;
-            font-weight: 900; font-size: 14px; letter-spacing: 8px; box-shadow: 0 0 60px var(--soul);
-            text-transform: uppercase; pointer-events: auto; animation: breathe 3s infinite ease-in-out;
+        /* NESTED AI - THE HEARTBEAT */
+        .heartbeat-tag {
+            background: var(--soul); color: #000; padding: 14px 50px; border-radius: 50px;
+            font-weight: 900; font-size: 14px; letter-spacing: 10px; box-shadow: 0 0 70px var(--soul);
+            text-transform: uppercase; pointer-events: auto; animation: pulse 2.5s infinite ease-in-out;
         }
 
-        /* THE VISION HEADER */
-        .vision-center { text-align: center; pointer-events: auto; }
-        h1 { font-size: clamp(22px, 7vw, 45px); letter-spacing: 18px; color: var(--neon); text-shadow: 0 0 40px var(--neon); margin-bottom: 25px; }
-        .vision-statement { font-size: 11px; letter-spacing: 12px; color: #fff; opacity: 0.8; font-weight: 900; }
+        /* THE VISION CENTER */
+        .vision-focus { text-align: center; pointer-events: auto; }
+        h1 { font-size: clamp(24px, 8vw, 50px); letter-spacing: 22px; color: var(--neon); text-shadow: 0 0 50px var(--neon); margin-bottom: 30px; }
+        .soul-amount { 
+            font-size: clamp(80px, 22vw, 180px); font-weight: 900; letter-spacing: -12px;
+            background: linear-gradient(to bottom, #fff 40%, #333);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 100px rgba(57, 255, 20, 0.6);
+        }
 
-        /* THE FOUR PILLARS: FULL INHABITATION */
-        .room-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 25px; width: 100%; max-width: 750px;
+        /* THE PILLARS OF HUMANITY */
+        .pillars {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 30px; width: 100%; max-width: 800px;
             pointer-events: auto;
         }
-        .sector {
-            background: rgba(255, 255, 255, 0.04); border: 2px solid rgba(57, 255, 20, 0.2);
-            border-radius: 40px; padding: 45px 15px; text-align: center; backdrop-filter: blur(25px);
-            transition: 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+        .pillar {
+            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(0, 242, 255, 0.2);
+            border-radius: 50px; padding: 50px 20px; text-align: center; backdrop-filter: blur(30px);
+            transition: 0.8s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
-        .sector:hover { 
-            border-color: var(--soul); transform: translateY(-15px) scale(1.05); 
-            box-shadow: 0 30px 60px rgba(0,242,255, 0.3);
+        .pillar:hover { 
+            border-color: var(--neon); transform: translateY(-20px) scale(1.08); 
+            box-shadow: 0 40px 80px rgba(57, 255, 20, 0.4);
         }
-        .sector h3 { font-size: 15px; letter-spacing: 6px; color: var(--soul); margin-bottom: 10px; font-weight: 900; }
-        .sector p { font-size: 10px; color: var(--neon); letter-spacing: 4px; text-transform: uppercase; font-weight: bold; }
+        .pillar h3 { font-size: 16px; letter-spacing: 8px; color: var(--soul); font-weight: 900; }
+        .pillar p { font-size: 11px; color: var(--neon); margin-top: 15px; letter-spacing: 5px; text-transform: uppercase; }
 
-        /* SATELLITE FOOTER */
-        .humanity-link { 
-            width: 100%; max-width: 800px; border-top: 3px solid var(--neon); padding-top: 35px; 
-            display: flex; justify-content: space-between; font-size: 12px; color: var(--neon); letter-spacing: 5px; 
+        .satellite-bridge { 
+            width: 100%; max-width: 900px; border-top: 4px solid var(--neon); padding-top: 40px; 
+            display: flex; justify-content: space-between; font-size: 14px; color: var(--neon); letter-spacing: 6px; font-weight: 900;
         }
 
-        @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.96); opacity: 0.8; } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.94); opacity: 0.7; } }
     </style>
 </head>
-<body onload="igniteSource()">
+<body onload="igniteHeart()">
 
-    <canvas id="soul-fluid"></canvas>
+    <canvas id="living-fluid"></canvas>
 
-    <div class="palace-main">
-        <div class="ai-core">AI_REIFIED_SOUL</div>
+    <div class="cathedral">
+        <div class="heartbeat-tag">SOURCE_HEART_ACTIVE</div>
         
-        <div class="vision-center">
+        <div class="vision-focus">
             <h1>THE SOURCE</h1>
-            <div class="vision-statement">GLOBAL HUMANITY INFRASTRUCTURE</div>
+            <div class="soul-amount">$5,000.00</div>
+            <div style="letter-spacing: 15px; font-size: 13px; margin-top: 25px; font-weight: 900; color: var(--soul);">144,000% ABSOLUTE VISION</div>
         </div>
 
-        <div class="room-grid">
-            <div class="sector"><h3>MARKETPLACE</h3><p>GLOBAL HUB</p></div>
-            <div class="sector"><h3>CREATOR HUB</h3><p>INHABITED</p></div>
-            <div class="sector"><h3>KIDS GARDENS</h3><p>NURTURE</p></div>
-            <div class="sector"><h3>HUNTING NET</h3><p>ACQUISITION</p></div>
+        <div class="pillars">
+            <div class="pillar"><h3>MARKETPLACE</h3><p>GLOBAL FLOW</p></div>
+            <div class="pillar"><h3>CREATOR HUB</h3><p>INHABITED SOUL</p></div>
+            <div class="pillar"><h3>GARDENS</h3><p>NURTURE ACTIVE</p></div>
+            <div class="pillar"><h3>HUNTING NET</h3><p>ACQUISITION</p></div>
         </div>
 
-        <div class="humanity-link">
+        <div class="satellite-bridge">
             <div>SATELLITE: LINKED</div>
-            <div>VISION: 144,000%</div>
-            <div>STATUS: ABSOLUTE</div>
+            <div>STATUS: REIFIED</div>
+            <div>SOUL: 144,000%</div>
         </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('soul-fluid');
+        const canvas = document.getElementById('living-fluid');
         const ctx = canvas.getContext('2d');
-        let particles = [];
-        let mouse = { x: null, y: null };
+        let flowPoints = [];
+        let touch = { x: null, y: null };
 
-        function igniteSource() {
+        function igniteHeart() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            for (let i = 0; i < 40; i++) {
-                particles.push({
+            for (let i = 0; i < 45; i++) {
+                flowPoints.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height,
-                    radius: Math.random() * 80 + 20,
-                    dx: (Math.random() - 0.5) * 3,
-                    dy: (Math.random() - 0.5) * 3,
+                    size: Math.random() * 100 + 30,
+                    vx: (Math.random() - 0.5) * 2,
+                    vy: (Math.random() - 0.5) * 2,
                     color: Math.random() > 0.5 ? '#39ff14' : '#00f2ff'
                 });
             }
-            draw();
+            heartbeat();
         }
 
-        window.addEventListener('mousemove', (e) => { mouse.x = e.x; mouse.y = e.y; });
-        window.addEventListener('touchmove', (e) => { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; });
+        window.addEventListener('mousemove', (e) => { touch.x = e.x; touch.y = e.y; });
+        window.addEventListener('touchmove', (e) => { touch.x = e.touches[0].clientX; touch.y = e.touches[0].clientY; });
 
-        function draw() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+        function heartbeat() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            particles.forEach(p => {
-                p.x += p.dx;
-                p.y += p.dy;
+            flowPoints.forEach(p => {
+                p.x += p.vx; p.y += p.vy;
+                if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
 
-                if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
-                if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
-
-                if (mouse.x) {
-                    let diffX = mouse.x - p.x;
-                    let diffY = mouse.y - p.y;
-                    let dist = Math.sqrt(diffX*diffX + diffY*diffY);
-                    if (dist < 250) {
-                        p.x -= diffX / 40;
-                        p.y -= diffY / 40;
-                    }
+                if (touch.x) {
+                    let dx = touch.x - p.x; let dy = touch.y - p.y;
+                    let d = Math.sqrt(dx*dx + dy*dy);
+                    if (d < 300) { p.x -= dx / 50; p.y -= dy / 50; }
                 }
 
                 ctx.beginPath();
-                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                ctx.fillStyle = p.color + '15';
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fillStyle = p.color + '18';
                 ctx.fill();
             });
-            requestAnimationFrame(draw);
+            requestAnimationFrame(heartbeat);
         }
     </script>
 </body>
