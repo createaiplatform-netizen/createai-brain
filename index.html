@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN SECTOR</title>
+    <title>SOVEREIGN | PULSE</title>
     <style>
         body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100%; width: 100%; font-family: 'Courier New', monospace; touch-action: none; }
         canvas { position: fixed; top: 0; left: 0; z-index: 1; pointer-events: none; }
@@ -11,70 +11,70 @@
         #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 25px; box-sizing: border-box; }
         .header { color: #d4af37; border-bottom: 2px solid #d4af37; padding-bottom: 10px; display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; letter-spacing: 2px; }
 
-        /* THE BUILDING SECTOR GRID */
         .grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 15px; height: 60vh; pointer-events: auto; }
-        .block { 
-            border: 1px solid rgba(212,175,55,0.7); background: rgba(0,0,0,0.9); 
+        .sector { 
+            border: 1px solid rgba(212,175,55,0.4); background: rgba(0,0,0,0.9); 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            color: #fff; border-radius: 4px; transition: 0.05s;
+            color: #fff; border-radius: 12px; transition: 0.1s;
         }
-        /* INSTANT VISUAL FEEDBACK */
-        .block:active { background: #fff; color: #000; transform: scale(1.1); }
-        .block b { font-size: 24px; letter-spacing: 5px; }
-        .block span { font-size: 9px; color: #d4af37; margin-top: 8px; letter-spacing: 2px; }
+        /* PULSE ACTION */
+        .sector:active { background: #fff; color: #000; transform: scale(1.05); box-shadow: 0 0 30px #fff; }
+        .sector b { font-size: 24px; letter-spacing: 6px; }
+        .sector span { font-size: 9px; color: #d4af37; margin-top: 5px; letter-spacing: 2px; }
 
-        #room-view { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #000; text-align: center; justify-content: center; align-items: center; flex-direction: column; pointer-events: auto; }
-        .footer { text-align: center; color: #fff; font-size: 30px; font-weight: bold; }
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: rgba(0,0,0,0.9); text-align: center; justify-content: center; align-items: center; flex-direction: column; pointer-events: auto; }
+        .footer { text-align: center; color: #fff; font-size: 34px; font-weight: bold; letter-spacing: 3px; }
     </style>
 </head>
 <body onload="ignite()">
     <canvas id="c"></canvas>
     
     <div id="ui">
-        <div class="header"><div>PROTOCOL: SECTOR</div><div>144,000%</div></div>
-        <div style="text-align:center; color:#d4af37; font-size:38px; letter-spacing:10px; font-weight:bold;">SOVEREIGN</div>
+        <div class="header"><div>SYSTEM: PULSE ACTIVE</div><div>144,000%</div></div>
+        <div style="text-align:center; color:#d4af37; font-size:40px; letter-spacing:10px; font-weight:bold; text-shadow: 0 0 15px #d4af37;">SOVEREIGN</div>
         
         <div class="grid">
-            <div class="block" onclick="enter('MARKET', '#00f2ff')"><b>MKT</b><span>SECTOR 01</span></div>
-            <div class="block" onclick="enter('HUB', '#d4af37')"><b>HUB</b><span>SECTOR 02</span></div>
-            <div class="block" onclick="enter('GARDE', '#fff')"><b>GRD</b><span>SECTOR 03</span></div>
-            <div class="block" onclick="enter('NET', '#39ff14')"><b>NET</b><span>SECTOR 04</span></div>
+            <div class="sector" onclick="pulse('MARKET', '#00f2ff', 'LIQUIDITY')"><b>MKT</b><span>SECTOR 01</span></div>
+            <div class="sector" onclick="pulse('HUB', '#d4af37', 'MIRROR')"><b>HUB</b><span>SECTOR 02</span></div>
+            <div class="sector" onclick="pulse('GARDE', '#fff', 'NURTURE')"><b>GRD</b><span>SECTOR 03</span></div>
+            <div class="sector" onclick="pulse('NET', '#39ff14', 'GHOST PING')"><b>NET</b><span>SECTOR 04</span></div>
         </div>
 
-        <div class="footer">$1.44T</div>
+        <div class="footer" id="val">$1.440T</div>
     </div>
 
-    <div id="room-view" onclick="this.style.display='none'">
-        <h1 id="rt" style="font-size: 55px; letter-spacing: 15px; margin: 0;"></h1>
-        <p style="color: #d4af37; letter-spacing: 5px;">SECTOR ENGAGED | TAP TO EXIT</p>
+    <div id="overlay" onclick="this.style.display='none'">
+        <h1 id="ot" style="font-size: 50px; letter-spacing: 15px; margin: 0;"></h1>
+        <p id="sub" style="color: #d4af37; letter-spacing: 5px;"></p>
     </div>
 
     <script>
         const canvas = document.getElementById('c'); const ctx = canvas.getContext('2d');
-        let dots = []; let tint = '#d4af37';
+        let parts = []; let theme = '#d4af37'; let val = 1.440;
 
         function ignite() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            // KINETIC LIGHT (Building upwards)
-            for(let i=0; i<70; i++) dots.push({x: Math.random()*canvas.width, y: canvas.height, v: Math.random()*15+10, r: 2});
-            draw();
+            for(let i=0; i<80; i++) parts.push({x: Math.random()*canvas.width, y: canvas.height, v: Math.random()*10+5, r: 2});
+            loop();
+            setInterval(() => { val += 0.001; document.getElementById('val').innerText = '$' + val.toFixed(3) + 'T'; }, 1000);
         }
 
-        function draw() {
-            ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(0,0,canvas.width, canvas.height);
-            ctx.fillStyle = tint;
-            dots.forEach(p => {
+        function loop() {
+            ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0,0,canvas.width, canvas.height);
+            ctx.fillStyle = theme;
+            parts.forEach(p => {
                 ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
                 p.y -= p.v; if(p.y < -10) { p.y = canvas.height; p.x = Math.random()*canvas.width; }
             });
-            requestAnimationFrame(draw);
+            requestAnimationFrame(loop);
         }
 
-        function enter(name, color) {
-            tint = color;
-            document.getElementById('room-view').style.display = 'flex';
-            document.getElementById('rt').innerText = name;
-            document.getElementById('rt').style.color = color;
+        function pulse(name, color, sub) {
+            theme = color;
+            document.getElementById('overlay').style.display = 'flex';
+            document.getElementById('ot').innerText = name;
+            document.getElementById('ot').style.color = color;
+            document.getElementById('sub').innerText = sub;
         }
     </script>
 </body>
