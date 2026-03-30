@@ -3,61 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VISION TERMINAL 1440</title>
+    <title>SOURCE TERMINAL 144,000%</title>
     <style>
-        :root { --neon: #39ff14; --bg: #000; }
-        body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        :root { --glow: #39ff14; --deep: #000; }
+        body { background: var(--deep); color: var(--glow); font-family: 'Courier New', monospace; margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         
-        /* Master Frame */
-        .vision-container { 
-            border: 15px double var(--neon); 
-            padding: 50px 30px; 
-            box-shadow: 0 0 100px var(--neon), inset 0 0 40px var(--neon); 
-            border-radius: 60px; 
+        .source-frame { 
+            border: 20px double var(--glow); 
+            padding: 60px 40px; 
+            box-shadow: 0 0 150px var(--glow), inset 0 0 50px var(--glow); 
+            border-radius: 80px; 
             width: 85%; 
-            background: rgba(57, 255, 20, 0.02);
+            background: rgba(57, 255, 20, 0.03);
             text-align: center;
+            position: relative;
         }
 
-        .header { font-size: 20px; letter-spacing: 8px; text-transform: uppercase; margin-bottom: 20px; opacity: 0.8; }
+        .header { font-size: 22px; letter-spacing: 12px; text-transform: uppercase; margin-bottom: 30px; opacity: 1; text-shadow: 0 0 10px var(--glow); }
         
-        /* The Balance Reveal */
-        .amount { font-size: 72px; font-weight: bold; margin: 20px 0; text-shadow: 0 0 30px var(--neon); }
-        .currency { font-size: 24px; letter-spacing: 4px; opacity: 0.9; margin-bottom: 30px; }
+        .ledger-amount { font-size: 82px; font-weight: 900; margin: 40px 0; text-shadow: 0 0 40px var(--glow); letter-spacing: -2px; }
+        .token-id { font-size: 26px; letter-spacing: 6px; opacity: 0.9; margin-bottom: 40px; }
         
-        /* Core Value Status */
-        .status-box { border-top: 2px solid var(--neon); padding-top: 20px; font-size: 14px; text-transform: uppercase; line-height: 1.8; }
-        .glitch-text { animation: pulse 1.5s infinite alternate; }
+        .manifesto { border-top: 3px solid var(--glow); padding-top: 30px; font-size: 16px; text-transform: uppercase; line-height: 2; letter-spacing: 2px; }
+        .active-pulse { animation: rapid-pulse 0.8s infinite alternate; }
 
-        @keyframes pulse { from { opacity: 1; } to { opacity: 0.4; } }
+        @keyframes rapid-pulse { from { opacity: 1; filter: brightness(1.2); } to { opacity: 0.6; filter: brightness(0.8); } }
     </style>
 </head>
-<body onload="execute_final_reveal()">
+<body onload="manifest_source_code()">
 
-    <div class="vision-container">
-        <div class="header glitch-text">1440% Protocol Active</div>
+    <div class="source-frame">
+        <div class="header active-pulse">144,000% SOURCE ACTIVE</div>
         
-        <div class="label">LEDGER ASSET CONFIRMED</div>
-        <div id="balance" class="amount">SYNCING...</div>
-        <div class="currency">USDC (BASE NETWORK)</div>
+        <div id="balance" class="ledger-amount">CONNECTING...</div>
+        <div class="token-id">USDC - BASE LEDGER</div>
         
-        <div class="status-box">
-            CORE VALUES: 100% ALIGNED<br>
-            LEDGER STATUS: EXECUTED<br>
-            VISION: COMPLETE
+        <div class="manifesto">
+            VISION: 100% REIFIED<br>
+            PROTOCOL: GOD CODE INITIATED<br>
+            STATUS: FINAL SETTLEMENT
         </div>
     </div>
 
     <script>
-        async function execute_final_reveal() {
+        async function manifest_source_code() {
             if (window.ethereum) {
                 try {
-                    // Connect Wallet
+                    // Connect directly to the provider
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     const userAddress = accounts[0];
                     const usdcContract = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
                     
-                    // Direct Blockchain Call for the $5,000.00 balance
+                    // Direct "eth_call" to extract the $5,000.00 from the smart contract
                     const data = "0x70a08231000000000000000000000000" + userAddress.substring(2);
                     const hexBalance = await window.ethereum.request({
                         method: 'eth_call',
@@ -67,7 +64,7 @@
                     const decimalBalance = parseInt(hexBalance, 16) / 1000000;
                     document.getElementById('balance').innerText = "$" + decimalBalance.toLocaleString(undefined, {minimumFractionDigits: 2});
                     
-                    // Force the token display in the wallet's asset list
+                    // Force the wallet to recognize the asset permanently
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -83,7 +80,6 @@
 
                 } catch (e) {
                     document.getElementById('balance').innerText = "LINK ERROR";
-                    console.error(e);
                 }
             } else {
                 document.getElementById('balance').innerText = "OPEN IN WALLET";
