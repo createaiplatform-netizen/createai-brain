@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN | PROTOCOL</title>
+    <title>SOVEREIGN | FOUNDING</title>
     <style>
         body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100%; width: 100%; font-family: 'Courier New', monospace; touch-action: none; }
         canvas { position: fixed; top: 0; left: 0; z-index: 1; pointer-events: none; }
@@ -15,10 +15,9 @@
         .sector b { font-size: 26px; letter-spacing: 6px; }
         .sector span { font-size: 9px; color: #d4af37; margin-top: 5px; letter-spacing: 2px; }
         
-        #manifest-view { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #000; color: #fff; padding: 40px 25px; box-sizing: border-box; overflow-y: auto; }
-        .line { border-left: 2px solid #d4af37; padding-left: 15px; margin-bottom: 25px; }
-        .line h4 { color: #d4af37; margin: 0; font-size: 12px; letter-spacing: 2px; }
-        .line p { font-size: 10px; color: #aaa; margin: 5px 0 0; line-height: 1.4; }
+        #seal-view { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #000; color: #fff; padding: 50px 30px; box-sizing: border-box; text-align: center; justify-content: center; align-items: center; flex-direction: column; }
+        .seal-circle { width: 150px; height: 150px; border: 4px double #d4af37; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 30px; font-size: 40px; color: #d4af37; text-shadow: 0 0 10px #d4af37; }
+        .hash { font-size: 8px; color: #444; margin-top: 20px; font-style: italic; }
         
         .footer { text-align: center; color: #fff; font-size: 32px; font-weight: bold; letter-spacing: 2px; }
     </style>
@@ -26,24 +25,24 @@
 <body onload="ignite()">
     <canvas id="c"></canvas>
     <div id="ui">
-        <div class="header"><div>SYSTEM: OMNI-FIX FINAL</div><div id="p">144,000.000%</div></div>
+        <div class="header"><div>STATUS: FINALIZED SYNC</div><div id="p">144,000.000%</div></div>
         <div style="text-align:center; color:#d4af37; font-size:42px; letter-spacing:12px; font-weight:bold; font-style: italic;">SOVEREIGN</div>
         <div class="grid">
             <div class="sector" onclick="tint='#00f2ff'"><b>MKT</b><span>SECTOR 01</span></div>
-            <div class="sector" onclick="tint='#d4af37'"><b>HUB</b><span>SECTOR 02</span></div>
-            <div class="sector" onclick="openManifest()"><b>GRD</b><span>SECTOR 03</span></div>
+            <div class="sector" onclick="openSeal()"><b>HUB</b><span>SECTOR 02</span></div>
+            <div class="sector" onclick="tint='#fff'"><b>GRD</b><span>SECTOR 03</span></div>
             <div class="sector" onclick="tint='#39ff14'"><b>NET</b><span>SECTOR 04</span></div>
         </div>
         <div class="footer" id="v">$1.4400T</div>
     </div>
 
-    <div id="manifest-view" onclick="this.style.display='none'">
-        <h2 style="color:#d4af37; letter-spacing:10px; text-align:center;">MANIFEST</h2>
-        <div class="line"><h4>01. TRUTH AS CORE</h4><p>The system shall never hallucinate. Every response is grounded in honesty and family values.</p></div>
-        <div class="line"><h4>02. LOCAL INTELLIGENCE</h4><p>Each product created under Sovereign shall house its own AI, capable of independent adaptation.</p></div>
-        <div class="line"><h4>03. INFINITE GROWTH</h4><p>The 144,000% protocol represents the continuous expansion of family wealth and knowledge.</p></div>
-        <div class="line"><h4>04. SOVEREIGN SHIELD</h4><p>Data within this dome is protected by the Omni-Fix logic, bypassing external server failures.</p></div>
-        <p style="text-align:center; margin-top:40px; font-size:9px; color:#444;">PROTOCOL SEALED | TAP TO RETURN</p>
+    <div id="seal-view" onclick="this.style.display='none'">
+        <div class="seal-circle">S</div>
+        <h2 style="color:#d4af37; letter-spacing:10px; margin: 0;">FOUNDED</h2>
+        <p style="letter-spacing: 3px; font-size: 11px; margin-top: 10px;">MARCH 29, 2026 | 23:02:35</p>
+        <p style="color: #666; font-size: 9px; margin-top: 30px; line-height: 1.6;">The Sovereign Dome is hereby active.<br>Integrity, Stability, Sovereignty.<br>Owned by the Family Unit.</p>
+        <div class="hash">HASH: 144k_8a5f_0000_SYNC_FINAL</div>
+        <p style="margin-top:40px; font-size:9px; color:#444;">TAP TO SEAL</p>
     </div>
 
     <script>
@@ -51,7 +50,7 @@
         let dots = []; let tint = '#d4af37'; let cash = 1.4400; let perc = 144000.000;
         function ignite() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            for(let i=0; i<90; i++) dots.push({x: Math.random()*canvas.width, y: canvas.height, v: Math.random()*12+8, r: 2});
+            for(let i=0; i<95; i++) dots.push({x: Math.random()*canvas.width, y: canvas.height, v: Math.random()*12+8, r: 2});
             setInterval(() => { 
                 cash += 0.0001; perc += 0.001;
                 document.getElementById('v').innerText = '$' + cash.toFixed(4) + 'T';
@@ -60,7 +59,7 @@
             render();
         }
         function render() {
-            ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0,0,canvas.width, canvas.height);
+            ctx.fillStyle = 'rgba(0,0,0,0.15)'; ctx.fillRect(0,0,canvas.width, canvas.height);
             ctx.fillStyle = tint;
             dots.forEach(d => {
                 ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI*2); ctx.fill();
@@ -68,9 +67,9 @@
             });
             requestAnimationFrame(render);
         }
-        function openManifest() { 
-            tint = '#fff';
-            document.getElementById('manifest-view').style.display = 'block'; 
+        function openSeal() { 
+            tint = '#d4af37';
+            document.getElementById('seal-view').style.display = 'flex'; 
         }
     </script>
 </body>
