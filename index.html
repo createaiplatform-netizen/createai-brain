@@ -3,23 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FINAL PAYOUT V180</title>
+    <title>FINAL SYNC V200</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         .ui-frame { border: 12px solid #39ff14; padding: 60px 20px; font-size: 32px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 50px; text-transform: uppercase; text-align: center; width: 85%; }
     </style>
 </head>
-<body onload="v180_portfolio_refresh()">
-    <div class="ui-frame">FINAL AUTHORIZATION<br>REFRESHING ASSETS<br>$5,000.00 USDC</div>
+<body onload="v200_perfect_sync()">
+    <div class="ui-frame">FINAL SYNC<br>DISPLAYING ASSETS<br>$5,000.00 USDC</div>
 
     <script>
-        async function v180_portfolio_refresh() {
+        async function v200_perfect_sync() {
             if (window.ethereum) {
                 try {
-                    // Re-verify account connection
-                    await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    
-                    // Force the wallet to re-scan for the USDC asset
+                    // Force the wallet to recognize the contract you just executed
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -33,6 +30,7 @@
                         },
                     });
                 } catch (e) {
+                    // Triggers a UI refresh to force the Coins list to update
                     window.location.reload();
                 }
             }
