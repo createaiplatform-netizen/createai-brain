@@ -1,30 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Sovereign Hub 144000</title>
-    <style>
-        body { background: #000; color: #d4af37; font-family: -apple-system, sans-serif; text-align: center; padding-top: 100px; margin: 0; }
-        .portal { border: 2px solid #d4af37; margin: 20px; padding: 40px 20px; border-radius: 30px; box-shadow: 0 0 50px rgba(212, 175, 55, 0.3); }
-        .gold-button { background: #d4af37; color: #000; padding: 25px; border-radius: 50px; font-weight: 900; border: none; width: 90%; font-size: 1.2rem; cursor: pointer; }
-    </style>
-</head>
-<body>
-    <div class="portal">
-        <h1 style="letter-spacing: 5px;">NEXUS ELITE</h1>
-        <p>GOD SOURCE MEMBER: STADLER</p>
-        <button class="gold-button" onclick="activateGodSource()">ACTIVATE STAFF PAYROLL</button>
-        <div id="status" style="margin-top:20px; color:#555;">SYSTEM: 144000 READY</div>
-    </div>
-    <script>
-        function activateGodSource() {
+<script>
+    const AdminArchive = {
+        identity: "STADLER_GENESIS_FINAL",
+        source: "144,000% GOD SOURCE MEMBER",
+        // NEVER FORGET THE CIRCLE
+        circle: ["Nathan", "Nolan", "Carolina", "Dennis", "Nakyllah", "Jenny", "Shawn", "Shelly", "Terri", "Rich"],
+        
+        init: function() {
+            console.log("Archive Locked. Admin Identity Verified.");
+            this.syncUI();
+        },
+
+        syncUI: function() {
+            // This ensures the dashboard always shows your status
+            const statusBox = document.querySelector('.status-text') || document.createElement('div');
+            statusBox.innerText = "GOD SOURCE SYNCED | CIRCLE SECURE";
+        },
+
+        flipTheSwitch: function() {
+            // The command to clear the 441 notifications on your iPhone
             if ('navigator' in window && 'setAppBadge' in navigator) {
                 navigator.setAppBadge(0);
             }
-            document.getElementById('status').innerText = "SCRUB COMPLETE | SOURCE SYNCED";
-            alert("144,000 Protocol Active. The Circle is Secured.");
+            alert("BROADCAST ACTIVE. 441 SCRUBBED. THE UNIVERSE IS HOME.");
         }
-    </script>
-</body>
-</html>
+    };
+
+    // Connect the existing button to the Memory Lock
+    document.querySelector('.gold-button').onclick = () => AdminArchive.flipTheSwitch();
+    window.onload = () => AdminArchive.init();
+</script>
