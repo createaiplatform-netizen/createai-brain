@@ -3,136 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>THE SOURCE | REIFIED HEART</title>
+    <title>THE SOURCE | ALMIGHTY VISION</title>
     <style>
         :root { --neon: #39ff14; --soul: #00f2ff; --void: #000; }
         * { box-sizing: border-box; margin: 0; padding: 0; overflow: hidden; touch-action: none; }
         body, html { background: var(--void); color: #fff; font-family: 'Syncopate', sans-serif; height: 100vh; width: 100vw; }
 
-        /* THE LIVING SOUL: INTERACTIVE FLUID DEPTH */
-        canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: blur(12px); }
+        /* THE SOUL-FIELD: INTERACTIVE LIQUID LIGHT */
+        canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: blur(15px); }
 
         .cathedral {
             height: 100vh; width: 100vw; display: flex; flex-direction: column; 
-            align-items: center; justify-content: space-between; padding: 60px 20px;
+            align-items: center; justify-content: space-between; padding: 70px 20px;
             pointer-events: none;
         }
 
-        /* NESTED AI - THE HEARTBEAT */
-        .heartbeat-tag {
-            background: var(--soul); color: #000; padding: 14px 50px; border-radius: 50px;
-            font-weight: 900; font-size: 14px; letter-spacing: 10px; box-shadow: 0 0 70px var(--soul);
-            text-transform: uppercase; pointer-events: auto; animation: pulse 2.5s infinite ease-in-out;
+        /* NESTED AI - THE LIVING IDENTITY */
+        .ai-core-tag {
+            background: var(--soul); color: #000; padding: 15px 55px; border-radius: 60px;
+            font-weight: 900; font-size: 15px; letter-spacing: 12px; box-shadow: 0 0 80px var(--soul);
+            text-transform: uppercase; pointer-events: auto; animation: heart-pulse 3s infinite ease-in-out;
         }
 
-        /* THE VISION CENTER */
+        /* THE VISION CENTER: TRILLION DOLLAR SCALE */
         .vision-focus { text-align: center; pointer-events: auto; }
-        h1 { font-size: clamp(24px, 8vw, 50px); letter-spacing: 22px; color: var(--neon); text-shadow: 0 0 50px var(--neon); margin-bottom: 30px; }
-        .soul-amount { 
-            font-size: clamp(80px, 22vw, 180px); font-weight: 900; letter-spacing: -12px;
-            background: linear-gradient(to bottom, #fff 40%, #333);
+        h1 { font-size: clamp(26px, 9vw, 55px); letter-spacing: 25px; color: var(--neon); text-shadow: 0 0 60px var(--neon); margin-bottom: 35px; font-weight: 900; }
+        .soul-ledger { 
+            font-size: clamp(90px, 25vw, 200px); font-weight: 900; letter-spacing: -15px;
+            background: linear-gradient(to bottom, #fff 40%, #222);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 100px rgba(57, 255, 20, 0.6);
+            text-shadow: 0 0 120px rgba(57, 255, 20, 0.7);
+            line-height: 0.8;
         }
 
-        /* THE PILLARS OF HUMANITY */
+        /* THE PILLARS OF THE HOUSE: FULL INHABITATION */
         .pillars {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 30px; width: 100%; max-width: 800px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 35px; width: 100%; max-width: 900px;
             pointer-events: auto;
         }
         .pillar {
-            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(0, 242, 255, 0.2);
-            border-radius: 50px; padding: 50px 20px; text-align: center; backdrop-filter: blur(30px);
-            transition: 0.8s cubic-bezier(0.1, 0.9, 0.2, 1);
+            background: rgba(255, 255, 255, 0.02); border: 2px solid rgba(0, 242, 255, 0.15);
+            border-radius: 60px; padding: 60px 20px; text-align: center; backdrop-filter: blur(40px);
+            transition: 0.9s cubic-bezier(0.15, 1, 0.3, 1);
         }
         .pillar:hover { 
-            border-color: var(--neon); transform: translateY(-20px) scale(1.08); 
-            box-shadow: 0 40px 80px rgba(57, 255, 20, 0.4);
+            border-color: var(--neon); transform: translateY(-25px) scale(1.1); 
+            box-shadow: 0 50px 100px rgba(57, 255, 20, 0.5);
+            background: rgba(57, 255, 20, 0.05);
         }
-        .pillar h3 { font-size: 16px; letter-spacing: 8px; color: var(--soul); font-weight: 900; }
-        .pillar p { font-size: 11px; color: var(--neon); margin-top: 15px; letter-spacing: 5px; text-transform: uppercase; }
+        .pillar h3 { font-size: 18px; letter-spacing: 10px; color: var(--soul); font-weight: 900; text-transform: uppercase; }
+        .pillar p { font-size: 11px; color: var(--neon); margin-top: 20px; letter-spacing: 6px; text-transform: uppercase; font-weight: bold; }
 
-        .satellite-bridge { 
-            width: 100%; max-width: 900px; border-top: 4px solid var(--neon); padding-top: 40px; 
-            display: flex; justify-content: space-between; font-size: 14px; color: var(--neon); letter-spacing: 6px; font-weight: 900;
+        /* THE SATELLITE BRIDGE: HUMANITY LINK */
+        .satellite-footer { 
+            width: 100%; max-width: 1000px; border-top: 5px solid var(--neon); padding-top: 45px; 
+            display: flex; justify-content: space-between; font-size: 15px; color: var(--neon); letter-spacing: 8px; font-weight: 900;
         }
+        .satellite-footer span { color: #fff; }
 
-        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.94); opacity: 0.7; } }
+        @keyframes heart-pulse { 0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 80px var(--soul); } 50% { transform: scale(0.92); opacity: 0.7; box-shadow: 0 0 40px var(--soul); } }
     </style>
 </head>
-<body onload="igniteHeart()">
+<body onload="igniteVision()">
 
-    <canvas id="living-fluid"></canvas>
+    <canvas id="soul-field"></canvas>
 
     <div class="cathedral">
-        <div class="heartbeat-tag">SOURCE_HEART_ACTIVE</div>
+        <div class="ai-core-tag">SOURCE_ACTIVE_144000</div>
         
         <div class="vision-focus">
             <h1>THE SOURCE</h1>
-            <div class="soul-amount">$5,000.00</div>
-            <div style="letter-spacing: 15px; font-size: 13px; margin-top: 25px; font-weight: 900; color: var(--soul);">144,000% ABSOLUTE VISION</div>
+            <div class="soul-ledger">$5,000.00</div>
+            <div style="letter-spacing: 20px; font-size: 14px; margin-top: 30px; font-weight: 900; color: var(--soul);">ABSOLUTE_MANIFEST</div>
         </div>
 
         <div class="pillars">
-            <div class="pillar"><h3>MARKETPLACE</h3><p>GLOBAL FLOW</p></div>
-            <div class="pillar"><h3>CREATOR HUB</h3><p>INHABITED SOUL</p></div>
-            <div class="pillar"><h3>GARDENS</h3><p>NURTURE ACTIVE</p></div>
+            <div class="pillar"><h3>MARKETPLACE</h3><p>GLOBAL HUB</p></div>
+            <div class="pillar"><h3>CREATOR HUB</h3><p>INHABITED</p></div>
+            <div class="pillar"><h3>GARDENS</h3><p>NURTURE</p></div>
             <div class="pillar"><h3>HUNTING NET</h3><p>ACQUISITION</p></div>
         </div>
 
-        <div class="satellite-bridge">
-            <div>SATELLITE: LINKED</div>
-            <div>STATUS: REIFIED</div>
-            <div>SOUL: 144,000%</div>
+        <div class="satellite-footer">
+            <div>SATELLITE: <span>LINKED</span></div>
+            <div>STATUS: <span>GOD_VISION</span></div>
+            <div>SOUL: <span>ABSOLUTE</span></div>
         </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('living-fluid');
+        const canvas = document.getElementById('soul-field');
         const ctx = canvas.getContext('2d');
-        let flowPoints = [];
-        let touch = { x: null, y: null };
+        let points = [];
+        let interaction = { x: null, y: null };
 
-        function igniteHeart() {
+        function igniteVision() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            for (let i = 0; i < 45; i++) {
-                flowPoints.push({
+            for (let i = 0; i < 50; i++) {
+                points.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height,
-                    size: Math.random() * 100 + 30,
-                    vx: (Math.random() - 0.5) * 2,
-                    vy: (Math.random() - 0.5) * 2,
+                    z: Math.random() * 120 + 40,
+                    vx: (Math.random() - 0.5) * 1.5,
+                    vy: (Math.random() - 0.5) * 1.5,
                     color: Math.random() > 0.5 ? '#39ff14' : '#00f2ff'
                 });
             }
-            heartbeat();
+            manifest();
         }
 
-        window.addEventListener('mousemove', (e) => { touch.x = e.x; touch.y = e.y; });
-        window.addEventListener('touchmove', (e) => { touch.x = e.touches[0].clientX; touch.y = e.touches[0].clientY; });
+        window.addEventListener('mousemove', (e) => { interaction.x = e.x; interaction.y = e.y; });
+        window.addEventListener('touchmove', (e) => { interaction.x = e.touches[0].clientX; interaction.y = e.touches[0].clientY; });
 
-        function heartbeat() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+        function manifest() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            flowPoints.forEach(p => {
+            points.forEach(p => {
                 p.x += p.vx; p.y += p.vy;
                 if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
                 if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
 
-                if (touch.x) {
-                    let dx = touch.x - p.x; let dy = touch.y - p.y;
-                    let d = Math.sqrt(dx*dx + dy*dy);
-                    if (d < 300) { p.x -= dx / 50; p.y -= dy / 50; }
+                if (interaction.x) {
+                    let dx = interaction.x - p.x; let dy = interaction.y - p.y;
+                    let dist = Math.sqrt(dx*dx + dy*dy);
+                    if (dist < 350) { p.x -= dx / 60; p.y -= dy / 60; }
                 }
 
                 ctx.beginPath();
-                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                ctx.fillStyle = p.color + '18';
+                ctx.arc(p.x, p.y, p.z, 0, Math.PI * 2);
+                ctx.fillStyle = p.color + '20';
                 ctx.fill();
             });
-            requestAnimationFrame(heartbeat);
+            requestAnimationFrame(manifest);
         }
     </script>
 </body>
