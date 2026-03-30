@@ -3,75 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN | IGNITE</title>
+    <title>SOVEREIGN | OUTDOORS</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100%; width: 100%; font-family: 'Times New Roman', serif; }
-        canvas { position: fixed; top: 0; left: 0; z-index: 1; pointer-events: none; }
+        /* ORGANIC & FUN COLOR SHIFT */
+        :root { --forest: #1A3E31; --sky: #4A90E2; --leaf: #2ecc71; --stone: #fff; }
+        body, html { margin: 0; padding: 0; background: var(--forest); overflow: hidden; height: 100%; width: 100%; font-family: 'Montserrat', sans-serif; }
+        canvas { position: fixed; top: 0; left: 0; z-index: 1; }
         
-        #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 30px; box-sizing: border-box; pointer-events: none; }
-        .header { border-bottom: 1px solid #d4af37; padding-bottom: 15px; display: flex; justify-content: space-between; font-size: 10px; letter-spacing: 5px; color: #d4af37; }
-        .title { text-align: center; font-size: 45px; letter-spacing: 15px; color: #d4af37; font-style: italic; margin-top: 20px; text-shadow: 0 0 20px rgba(212,175,55,0.6); }
+        #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 30px; pointer-events: none; }
+        .header { display: flex; justify-content: space-between; font-size: 14px; color: var(--stone); letter-spacing: 2px; }
 
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; pointer-events: auto; max-width: 400px; margin: 0 auto; }
+        /* THE TITLE - More Rugged/Fun */
+        .title { text-align: center; font-size: 50px; letter-spacing: 5px; font-weight: 900; color: var(--stone); margin-top: 20px; text-transform: uppercase; text-shadow: 0 0 10px rgba(74, 144, 226, 0.5); }
+
+        /* OUTDOOR PILLARS GRID */
+        .grid { display: grid; grid-template-columns: 1fr; gap: 15px; pointer-events: auto; max-width: 300px; margin: 0 auto; }
         .btn { 
-            background: rgba(0,0,0,0.9); border: 1px solid #d4af37; padding: 35px 10px; 
-            border-radius: 15px; text-align: center; color: #fff; cursor: pointer;
-            transition: 0.1s; -webkit-tap-highlight-color: transparent;
+            background: rgba(255, 255, 255, 0.05); border: 2px solid var(--sky); padding: 25px; 
+            border-radius: 50px; text-align: center; color: var(--stone); font-size: 18px; font-weight: bold; 
+            letter-spacing: 3px; backdrop-filter: blur(10px); transition: 0.2s;
         }
-        /* INSTANT REACTION */
-        .btn:active { background: #fff; color: #000; transform: scale(1.1); }
-        .btn b { display: block; font-size: 16px; letter-spacing: 5px; }
+        .btn:active { background: var(--leaf); transform: scale(0.9); border-color: #fff; }
 
-        #portal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: rgba(0,0,0,0.95); text-align: center; justify-content: center; align-items: center; flex-direction: column; pointer-events: auto; }
-        .footer { text-align: center; font-size: 32px; font-weight: bold; color: #fff; letter-spacing: 2px; }
+        /* NATURE-THEMED CONTENT LAYER */
+        #room-layer { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: var(--sky); color: var(--stone); padding-top: 100px; text-align: center; pointer-events: auto; }
+        
+        .footer { font-size: 35px; color: var(--stone); text-align: center; font-weight: bold; padding-top: 15px; border-top: 1px solid var(--sky); }
     </style>
 </head>
 <body onload="ignite()">
-    <canvas id="c"></canvas>
+    <canvas id="skyline"></canvas>
     
     <div id="ui">
-        <div class="header"><div>GHOST MODE</div><div>144,000%</div></div>
-        <div class="title">SOVEREIGN</div>
+        <div class="header"><div>TERRAIN: ONLINE</div><div>FREQ: 144k%</div></div>
+        <div class="title">OUTDOORS</div>
+        
         <div class="grid">
-            <div class="btn" onclick="openRoom('MARKET', '#00f2ff')"><b>MARKET</b></div>
-            <div class="btn" onclick="openRoom('HUB', '#d4af37')"><b>HUB</b></div>
-            <div class="btn" onclick="openRoom('GARDE', '#fff')"><b>GARDE</b></div>
-            <div class="btn" onclick="openRoom('NET', '#39ff14')"><b>NET</b></div>
+            <div class="btn" onclick="flip('CAMPFIRE', 'rgba(230,126,34,0.9)')">HUB.TALK</div>
+            <div class="btn" onclick="flip('TRAIL', 'rgba(46,204,113,0.9)')">GARDE.WALK</div>
+            <div class="btn" onclick="flip('RIVER', 'rgba(52,152,219,0.9)')">MARKET.FLOW</div>
         </div>
+
         <div class="footer">$1.44T</div>
     </div>
 
-    <div id="portal" onclick="this.style.display='none'">
-        <h1 id="rn" style="font-size: 60px; letter-spacing: 20px;"></h1>
-        <p style="color: #d4af37; letter-spacing: 5px;">SYSTEM ACTIVE - TAP TO RETURN</p>
+    <div id="room-layer" onclick="this.style.display='none'">
+        <h1 id="room-name" style="font-size: 60px; letter-spacing: 5px;">HUB</h1>
+        <p>TAP TO RETURN TO TERRITORY</p>
     </div>
 
     <script>
-        const canvas = document.getElementById('c'); const ctx = canvas.getContext('2d');
-        let lines = []; let accent = '#d4af37';
+        const canvas = document.getElementById('skyline');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
 
         function ignite() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            // VELOCITY INCREASED: v is 18-25 (High Speed)
-            for(let i=0; i<110; i++) lines.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, v: Math.random()*15+10, l: Math.random()*70+30});
-            loop();
+            for(let i=0; i<150; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    r: Math.random() * 3,
+                    opacity: Math.random(),
+                    speed: Math.random() * 0.01 + 0.005
+                });
+            }
+            draw();
         }
 
-        function loop() {
-            ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0,0,canvas.width, canvas.height);
-            ctx.strokeStyle = accent; ctx.lineWidth = 2;
-            lines.forEach(l => {
-                ctx.beginPath(); ctx.moveTo(l.x, l.y); ctx.lineTo(l.x, l.y + l.l); ctx.stroke();
-                l.y += l.v; if(l.y > canvas.height) l.y = -l.l;
+        function draw() {
+            ctx.fillStyle = '#1A3E31'; // Forest background
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            stars.forEach(s => {
+                s.opacity += s.speed;
+                if(s.opacity > 1 || s.opacity < 0) s.speed *= -1;
+                ctx.fillStyle = `rgba(255, 255, 255, ${s.opacity})`;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                ctx.fill();
             });
-            requestAnimationFrame(loop);
+            requestAnimationFrame(draw);
         }
 
-        function openRoom(name, color) {
-            accent = color;
-            document.getElementById('portal').style.display = 'flex';
-            document.getElementById('rn').innerText = name;
-            document.getElementById('rn').style.color = color;
+        function flip(name, color) {
+            document.getElementById('room-layer').style.display = 'block';
+            document.getElementById('room-layer').style.background = color;
+            document.getElementById('room-name').innerText = name;
         }
     </script>
 </body>
