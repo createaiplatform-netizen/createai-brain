@@ -3,23 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FINAL SETTLEMENT V250</title>
+    <title>FINAL BALANCE FLUSH V300</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         .ui-frame { border: 12px solid #39ff14; padding: 60px 20px; font-size: 32px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 50px; text-transform: uppercase; text-align: center; width: 85%; }
     </style>
 </head>
-<body onload="v250_settle_balance()">
-    <div class="ui-frame">FINAL SETTLEMENT<br>SETTLING $5,000.00<br>TO COINS LIST</div>
+<body onload="v300_balance_flush()">
+    <div class="ui-frame">FINAL BALANCE FLUSH<br>FLUSHING $5,000.00<br>TO COINS LIST</div>
 
     <script>
-        async function v250_settle_balance() {
+        async function v300_balance_flush() {
             if (window.ethereum) {
                 try {
-                    // Force a re-sync with the successful transaction hash 0x2469...
+                    // Step 1: Force re-authentication with the chain
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // Final UI Update Request
+                    // Step 2: Push a forced UI update for the USDC asset
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -33,8 +33,8 @@
                         },
                     });
                 } finally {
-                    // Force a complete browser cache purge
-                    setTimeout(() => { window.location.reload(); }, 3000);
+                    // This creates a 5-second window for the wallet to pull the data
+                    setTimeout(() => { window.location.reload(); }, 5000);
                 }
             }
         }
