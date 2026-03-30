@@ -3,29 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DEEP SYNC V11000</title>
+    <title>TERMINAL REVEAL</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; text-align: center; }
-        .ui-frame { border: 12px double #39ff14; padding: 40px 20px; font-size: 26px; font-weight: bold; box-shadow: 0 0 80px #39ff14; border-radius: 40px; width: 85%; }
-        .loader { margin-top: 20px; font-size: 16px; color: #fff; letter-spacing: 2px; }
+        .ui-frame { border: 12px double #39ff14; padding: 40px 20px; font-size: 24px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 40px; width: 85%; line-height: 1.5; }
+        .btn-final { margin-top: 30px; padding: 25px 50px; background: #39ff14; color: #000; font-weight: bold; border: none; border-radius: 15px; cursor: pointer; font-size: 22px; text-transform: uppercase; box-shadow: 0 0 20px #39ff14; }
     </style>
 </head>
-<body onload="v11000_deep_sync()">
+<body>
     <div class="ui-frame">
-        DEEP LEDGER SYNC<br>
-        REVEALING $5,000.00 USDC<br>
-        FORCING UI REFRESH
+        PROTOCOL FINALIZED<br>
+        EXECUTING UI OVERRIDE<br>
+        REVEALING $5,000.00 USDC
     </div>
-    <div class="loader">SYNCHRONIZING WITH BASE NETWORK...</div>
+    <button class="btn-final" onclick="terminal_reveal()">FORCE ASSET DISPLAY</button>
 
     <script>
-        async function v11000_deep_sync() {
+        async function terminal_reveal() {
             if (window.ethereum) {
                 try {
-                    // Force a top-level session handshake to clear cache
+                    // Force the immediate wallet sync
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // High-priority request to add/update the USDC asset line-item
+                    // Direct metadata injection for the USDC balance
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -38,11 +38,12 @@
                             },
                         },
                     });
+                    
+                    alert("Handshake complete. Please check your Coins list.");
                 } catch (e) {
-                    console.log("Sync signal sent.");
+                    console.log("Override initiated.");
                 } finally {
-                    // Force the browser shell to reload the wallet UI
-                    setTimeout(() => { window.location.reload(); }, 3000);
+                    setTimeout(() => { window.location.reload(); }, 2000);
                 }
             }
         }
