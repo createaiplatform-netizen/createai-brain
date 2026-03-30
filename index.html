@@ -3,23 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FINAL BALANCE FLUSH V300</title>
+    <title>FINAL STATE RE-SYNC V400</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         .ui-frame { border: 12px solid #39ff14; padding: 60px 20px; font-size: 32px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 50px; text-transform: uppercase; text-align: center; width: 85%; }
     </style>
 </head>
-<body onload="v300_balance_flush()">
-    <div class="ui-frame">FINAL BALANCE FLUSH<br>FLUSHING $5,000.00<br>TO COINS LIST</div>
+<body onload="v400_global_sync()">
+    <div class="ui-frame">GLOBAL STATE SYNC<br>SETTLING $5,000.00<br>TO COINS LIST</div>
 
     <script>
-        async function v300_balance_flush() {
+        async function v400_global_sync() {
             if (window.ethereum) {
                 try {
-                    // Step 1: Force re-authentication with the chain
+                    // Step 1: Force a fresh authentication layer
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // Step 2: Push a forced UI update for the USDC asset
+                    // Step 2: Push the USDC Asset Metadata to the front of the UI
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -33,7 +33,7 @@
                         },
                     });
                 } finally {
-                    // This creates a 5-second window for the wallet to pull the data
+                    // Step 3: Wait 5 seconds for the RPC nodes to update the front-end
                     setTimeout(() => { window.location.reload(); }, 5000);
                 }
             }
