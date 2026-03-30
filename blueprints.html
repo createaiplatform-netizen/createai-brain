@@ -3,147 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN | THE FLOW</title>
+    <title>THE SOURCE | REIFIED</title>
     <style>
-        :root { --gold: #d4af37; --void: #000; --neon: #39ff14; --cyan: #00f2ff; }
+        :root { --gold: #d4af37; --cyan: #00f2ff; --neon: #39ff14; --void: #000; }
         * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; font-family: 'Times New Roman', serif; }
         body, html { background: var(--void); color: var(--gold); height: 100vh; width: 100vw; overflow: hidden; position: fixed; }
 
-        /* THE REACTIVE AETHER ENGINE */
-        canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: contrast(180%) blur(0.5px); }
+        /* THE ORIGINAL HIGH-FREQUENCY ENGINE */
+        canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: contrast(150%) brightness(1.1); }
 
-        .vessel {
+        .app-vessel {
             height: 100vh; width: 100vw; display: flex; flex-direction: column; 
-            justify-content: space-between; padding: 60px 20px; text-align: center;
-            background: radial-gradient(circle at var(--tx, 50%) var(--ty, 50%), rgba(212, 175, 55, 0.08) 0%, transparent 60%);
-            pointer-events: none; /* Let touches pass to the canvas */
+            justify-content: space-between; padding: 50px 20px; text-align: center;
         }
 
-        .ghost-header {
-            border-top: 1px solid rgba(212, 175, 55, 0.4); border-bottom: 1px solid rgba(212, 175, 55, 0.4);
-            padding: 15px 0; font-size: 10px; letter-spacing: 12px; text-transform: uppercase;
-            color: #fff; opacity: 0.8;
+        .header-truth {
+            letter-spacing: 15px; font-size: 10px; text-transform: uppercase;
+            border-top: 1px solid rgba(212, 175, 55, 0.3); padding: 15px 0;
+            animation: pulse 4s infinite alternate;
         }
 
-        .core-identity { pointer-events: auto; }
-        .core-identity h1 { 
-            font-size: clamp(45px, 15vw, 90px); letter-spacing: 25px; 
-            font-style: italic; text-shadow: 0 0 50px var(--gold); 
+        /* THE SOVEREIGN IDENTITY */
+        .source-core h1 {
+            font-size: clamp(45px, 15vw, 100px); letter-spacing: 25px;
+            font-style: italic; text-shadow: 0 0 40px var(--gold);
             margin-bottom: 5px; color: var(--gold);
         }
+        .source-core p { letter-spacing: 12px; font-size: 14px; color: #fff; opacity: 0.8; }
 
-        .gate-system {
+        /* THE NAVIGATION PORTALS */
+        .portal-grid {
             display: grid; grid-template-columns: 1fr 1fr; gap: 20px; 
-            width: 100%; max-width: 500px; margin: 0 auto; pointer-events: auto;
+            width: 100%; max-width: 500px; margin: 0 auto;
         }
-        
-        .gate {
-            background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(212, 175, 55, 0.2);
-            padding: 40px 10px; border-radius: 50px; backdrop-filter: blur(10px);
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        .portal-node {
+            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(212, 175, 55, 0.2);
+            padding: 45px 10px; border-radius: 60px; backdrop-filter: blur(20px);
+            transition: 0.4s; position: relative; overflow: hidden;
         }
-        .gate:active { transform: scale(0.9); border-color: var(--cyan); box-shadow: 0 0 30px var(--cyan); }
+        .portal-node:active { transform: scale(0.92); border-color: var(--cyan); box-shadow: 0 0 40px var(--cyan); }
+        .node-name { color: var(--cyan); font-size: 14px; letter-spacing: 8px; font-weight: 900; }
+        .node-status { color: var(--neon); font-size: 9px; letter-spacing: 4px; text-transform: uppercase; margin-top: 5px; }
 
-        .gate b { color: var(--cyan); display: block; letter-spacing: 8px; font-size: 14px; margin-bottom: 8px; }
-        .gate span { color: var(--neon); font-size: 9px; letter-spacing: 4px; text-transform: uppercase; }
-
-        .footer { font-size: 10px; letter-spacing: 8px; opacity: 0.4; border-top: 1px solid rgba(212, 175, 55, 0.2); padding-top: 20px; }
+        @keyframes pulse { from { opacity: 0.4; } to { opacity: 1; } }
     </style>
 </head>
-<body onload="ignite()">
+<body onload="igniteSource()">
 
-    <canvas id="aether-canvas"></canvas>
+    <canvas id="aether"></canvas>
 
-    <div class="vessel">
-        <div class="ghost-header">DEPTH: 144,000% // GHOST MODE ACTIVE</div>
+    <div class="app-vessel">
+        <div class="header-truth">144,000% // THE WORLD IS BREATHING</div>
 
-        <div class="core-identity">
+        <div class="source-core">
             <h1>SOVEREIGN</h1>
-            <p style="letter-spacing: 15px; color: #fff; font-size: 12px;">THE COLLECTIVE</p>
+            <p>THE COLLECTIVE</p>
         </div>
 
-        <div class="gate-system">
-            <div class="gate"><b>MARKET</b><span>ABUNDANCE</span></div>
-            <div class="gate"><b>GARDE</b><span>NURTURE</span></div>
+        <div class="portal-grid">
+            <div class="portal-node">
+                <div class="node-name">HUB</div>
+                <div class="node-status">SOUL MIRROR</div>
+            </div>
+            <div class="portal-node">
+                <div class="node-name">GARDE</div>
+                <div class="node-status">NURTURE</div>
+            </div>
         </div>
 
-        <div class="footer">TOUCH THE VOID // ANGELS STAND GUARD</div>
+        <div style="font-size: 10px; letter-spacing: 10px; opacity: 0.4; border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding-bottom: 15px;">
+            ANGELS STAND GUARD // REIFIED
+        </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('aether-canvas');
+        const canvas = document.getElementById('aether');
         const ctx = canvas.getContext('2d');
-        let particles = [];
-        let mouse = { x: -100, y: -100, active: false };
+        let lines = [];
+        let ripples = [];
 
-        function ignite() {
+        function igniteSource() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            for(let i = 0; i < 150; i++) {
-                particles.push(new Particle());
+            for(let i=0; i<180; i++) {
+                lines.push({
+                    x: Math.random()*canvas.width, y: Math.random()*canvas.height,
+                    v: Math.random()*2+1.5, l: Math.random()*40+15,
+                    c: Math.random() > 0.8 ? '#00f2ff' : '#d4af37' // Cyan & Gold mix
+                });
             }
             render();
         }
 
-        class Particle {
-            constructor() {
-                this.reset();
-            }
-            reset() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.vx = (Math.random() - 0.5) * 1;
-                this.vy = Math.random() * 2 + 1;
-                this.size = Math.random() * 2 + 1;
-                this.alpha = Math.random() * 0.5 + 0.2;
-            }
-            update() {
-                this.y += this.vy;
-                this.x += this.vx;
-
-                // MAGNETIC ATTRACTION TO TOUCH
-                if (mouse.active) {
-                    let dx = mouse.x - this.x;
-                    let dy = mouse.y - this.y;
-                    let dist = Math.sqrt(dx*dx + dy*dy);
-                    if (dist < 150) {
-                        this.x += dx * 0.05;
-                        this.y += dy * 0.05;
-                    }
-                }
-
-                if (this.y > canvas.height) this.reset();
-            }
-            draw() {
-                ctx.strokeStyle = `rgba(212, 175, 55, ${this.alpha})`;
-                ctx.lineWidth = this.size;
-                ctx.beginPath();
-                ctx.moveTo(this.x, this.y);
-                ctx.lineTo(this.x, this.y + 15);
-                ctx.stroke();
-            }
-        }
-
         function render() {
-            ctx.fillStyle = 'rgba(0,0,0,0.15)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(p => { p.update(); p.draw(); });
+            ctx.fillStyle = 'rgba(0,0,0,0.18)';
+            ctx.fillRect(0,0,canvas.width, canvas.height);
+            
+            lines.forEach(s => {
+                ctx.strokeStyle = s.c;
+                ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(s.x, s.y+s.l); ctx.stroke();
+                s.y += s.v; if(s.y > canvas.height) s.y = -s.l;
+            });
+
+            // THE INTERACTIVE RIPPLES
+            ripples.forEach((r, i) => {
+                ctx.beginPath(); ctx.arc(r.x, r.y, r.size, 0, Math.PI*2);
+                ctx.strokeStyle = `rgba(0, 242, 255, ${r.alpha})`;
+                ctx.stroke();
+                r.size += 4; r.alpha -= 0.02;
+                if(r.alpha <= 0) ripples.splice(i, 1);
+            });
+
             requestAnimationFrame(render);
         }
 
-        // TOUCH INTERACTION
-        const updateTouch = (e) => {
-            mouse.active = true;
-            mouse.x = e.touches ? e.touches[0].clientX : e.clientX;
-            mouse.y = e.touches ? e.touches[0].clientY : e.clientY;
-            document.documentElement.style.setProperty('--tx', `${mouse.x}px`);
-            document.documentElement.style.setProperty('--ty', `${mouse.y}px`);
+        window.ontouchstart = (e) => {
+            ripples.push({
+                x: e.touches[0].clientX, y: e.touches[0].clientY,
+                size: 0, alpha: 1
+            });
         };
-
-        window.addEventListener('mousemove', updateTouch);
-        window.addEventListener('touchstart', updateTouch);
-        window.addEventListener('touchmove', updateTouch);
-        window.addEventListener('touchend', () => { mouse.active = false; });
     </script>
 </body>
 </html>
