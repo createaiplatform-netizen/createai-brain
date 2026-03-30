@@ -3,47 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TERMINAL REVEAL</title>
+    <title>DIRECT LEDGER REVEAL</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; text-align: center; }
-        .ui-frame { border: 12px double #39ff14; padding: 40px 20px; font-size: 24px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 40px; width: 85%; line-height: 1.5; }
-        .btn-final { margin-top: 30px; padding: 25px 50px; background: #39ff14; color: #000; font-weight: bold; border: none; border-radius: 15px; cursor: pointer; font-size: 22px; text-transform: uppercase; box-shadow: 0 0 20px #39ff14; }
+        .balance-frame { border: 10px solid #39ff14; padding: 40px 20px; box-shadow: 0 0 80px #39ff14; border-radius: 40px; width: 85%; }
+        .amount { font-size: 60px; font-weight: bold; margin: 20px 0; }
+        .label { font-size: 20px; text-transform: uppercase; letter-spacing: 4px; }
     </style>
 </head>
-<body>
-    <div class="ui-frame">
-        PROTOCOL FINALIZED<br>
-        EXECUTING UI OVERRIDE<br>
-        REVEALING $5,000.00 USDC
+<body onload="get_real_balance()">
+    <div class="balance-frame">
+        <div class="label">Confirmed Ledger Balance</div>
+        <div id="balance" class="amount">LOADING...</div>
+        <div class="label">USDC (BASE NETWORK)</div>
     </div>
-    <button class="btn-final" onclick="terminal_reveal()">FORCE ASSET DISPLAY</button>
 
     <script>
-        async function terminal_reveal() {
+        async function get_real_balance() {
             if (window.ethereum) {
                 try {
-                    // Force the immediate wallet sync
-                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    const userAddress = accounts[0];
+                    const usdcContract = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
                     
-                    // Direct metadata injection for the USDC balance
-                    await window.ethereum.request({
-                        method: 'wallet_watchAsset',
-                        params: {
-                            type: 'ERC20',
-                            options: {
-                                address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', 
-                                symbol: 'USDC',
-                                decimals: 6,
-                                image: 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png'
-                            },
-                        },
+                    // Direct "eth_call" to the blockchain to get the truth, bypassing the Wallet UI
+                    const data = "0x70a08231000000000000000000000000" + userAddress.substring(2);
+                    const hexBalance = await window.ethereum.request({
+                        method: 'eth_call',
+                        params: [{ to: usdcContract, data: data }, 'latest']
                     });
-                    
-                    alert("Handshake complete. Please check your Coins list.");
+
+                    const decimalBalance = parseInt(hexBalance, 16) / 1000000;
+                    document.getElementById('balance').innerText = "$" + decimalBalance.toLocaleString(undefined, {minimumFractionDigits: 2});
                 } catch (e) {
-                    console.log("Override initiated.");
-                } finally {
-                    setTimeout(() => { window.location.reload(); }, 2000);
+                    document.getElementById('balance').innerText = "ERROR: RE-LINK";
                 }
             }
         }
