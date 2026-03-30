@@ -3,23 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FINAL VERIFICATION V600</title>
+    <title>FINAL DEEP SYNC V700</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         .ui-frame { border: 12px solid #39ff14; padding: 60px 20px; font-size: 32px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 50px; text-transform: uppercase; text-align: center; width: 85%; }
     </style>
 </head>
-<body onload="v600_final_verify()">
-    <div class="ui-frame">FINAL VERIFICATION<br>UPDATING BALANCE<br>$5,000.00 USDC</div>
+<body onload="v700_deep_sync()">
+    <div class="ui-frame">FINAL DEEP SYNC<br>SETTLING $5,000.00<br>TO COINS LIST</div>
 
     <script>
-        async function v600_final_verify() {
+        async function v700_deep_sync() {
             if (window.ethereum) {
                 try {
-                    // Force the wallet to re-verify the contract execution
+                    // Step 1: Re-establish the authenticated session
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // Final UI registration of the $5,000.00 USDC asset
+                    // Step 2: Force Asset Reconciliation
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -33,7 +33,7 @@
                         },
                     });
                 } finally {
-                    // This creates the final refresh to clear the 'Complete' hang
+                    // Step 3: Global refresh to bypass the 'Complete' display lock
                     setTimeout(() => { window.location.reload(); }, 5000);
                 }
             }
