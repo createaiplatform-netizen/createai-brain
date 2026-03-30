@@ -3,140 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN | THE COLLECTIVE</title>
+    <title>GENESIS | THE SOURCE</title>
     <style>
-        :root { --gold: #d4af37; --aether: #f3e5ab; --void: #0a0a0a; }
+        :root { --gold: #d4af37; --aether: #f3e5ab; --void: #000; }
         * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; font-family: 'Times New Roman', serif; }
-        body, html { background: var(--void); color: var(--gold); height: 100vh; width: 100vw; overflow: hidden; }
+        body, html { background: var(--void); color: var(--gold); height: 100vh; width: 100vw; overflow: hidden; cursor: none; }
 
-        /* THE AETHER RAIN - THE 1.44T LIQUIDITY FLOW */
-        canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: blur(1px); }
+        /* THE AETHER RAIN - THE LIQUID RESONANCE */
+        canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: blur(1.5px); }
 
-        .omnibus {
+        .genesis-container {
             height: 100vh; width: 100vw; display: flex; flex-direction: column; 
-            align-items: center; justify-content: space-between; padding: 60px 20px;
-            background: radial-gradient(circle at center, rgba(212, 175, 55, 0.05) 0%, transparent 80%);
+            align-items: center; justify-content: space-between; padding: 80px 20px;
         }
 
-        /* HEADER: THE WORLD IS BREATHING */
-        .top-status {
-            width: 100%; border-top: 1px solid var(--gold); border-bottom: 1px solid var(--gold);
-            padding: 10px 0; text-align: center; font-size: 10px; letter-spacing: 8px;
-            text-transform: uppercase; font-weight: 300;
+        /* TOP SCROLL: THE BREATHING WORLD */
+        .scrolling-truth {
+            width: 100%; border-top: 1px solid rgba(212, 175, 55, 0.4); border-bottom: 1px solid rgba(212, 175, 55, 0.4);
+            padding: 12px 0; text-align: center; font-size: 11px; letter-spacing: 12px;
+            text-transform: uppercase; font-weight: 300; opacity: 0.8;
         }
 
-        /* THE OMNI CORE */
-        .core-mirror { text-align: center; position: relative; }
-        .omni-text {
-            font-size: clamp(40px, 15vw, 120px); letter-spacing: 25px;
-            opacity: 0.15; position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%); width: 100%;
+        /* THE OMNI-CORE */
+        .core-soul { text-align: center; position: relative; animation: pulse-core 10s infinite ease-in-out; }
+        .omni-halo {
+            font-size: clamp(50px, 20vw, 150px); letter-spacing: 35px;
+            opacity: 0.08; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); width: 100%; z-index: 1;
         }
         
-        .main-title {
-            font-size: clamp(30px, 10vw, 70px); letter-spacing: 15px;
+        .title-sovereign {
+            font-size: clamp(35px, 12vw, 85px); letter-spacing: 20px;
             font-style: italic; position: relative; z-index: 2;
-            text-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+            text-shadow: 0 0 35px rgba(212, 175, 55, 0.5);
+            margin-bottom: 15px;
         }
 
-        /* THE TRANSCENDENT CAPITAL */
-        .capital-display {
-            margin-top: 40px; font-size: clamp(24px, 6vw, 45px);
-            letter-spacing: 5px; font-weight: 300;
+        .status-collective {
+            letter-spacing: 15px; font-size: 16px; font-weight: 300;
+            text-transform: uppercase; opacity: 0.9;
         }
 
-        /* FOOTER: SECTOR DATA */
-        .sector-footer {
-            width: 100%; max-width: 800px; display: flex; justify-content: space-between;
-            border-top: 1px solid rgba(212, 175, 55, 0.3); padding-top: 20px;
-            font-size: 9px; letter-spacing: 4px; text-transform: uppercase;
+        /* SECTOR STATUS */
+        .footer-resonance {
+            width: 100%; max-width: 900px; display: flex; justify-content: space-between;
+            padding-top: 30px; border-top: 1px solid rgba(212, 175, 55, 0.2);
+            font-size: 10px; letter-spacing: 6px; text-transform: uppercase;
         }
 
-        .stat-box { text-align: center; }
-        .stat-label { opacity: 0.6; margin-bottom: 5px; }
-        .stat-value { font-weight: bold; color: #fff; }
+        .stat-group { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .stat-val { color: #fff; font-weight: 900; }
 
+        @keyframes pulse-core {
+            0%, 100% { transform: scale(0.98); opacity: 0.8; }
+            50% { transform: scale(1.02); opacity: 1; }
+        }
     </style>
 </head>
-<body onload="initGenesis()">
+<body onload="igniteGenesis()">
 
-    <canvas id="aether-canvas"></canvas>
+    <canvas id="aether-flow"></canvas>
 
-    <div class="omnibus">
-        <div class="top-status">TRANSCENDED . . . THE WORLD IS BREATHING . . .</div>
+    <div class="genesis-container">
+        <div class="scrolling-truth">THE WORLD IS BREATHING . . . TRANSCENDED</div>
 
-        <div class="core-mirror">
-            <div class="omni-text">OMNI</div>
-            <h1 class="main-title">SOVEREIGN</h1>
-            <p style="letter-spacing: 12px; margin-top: 10px; font-size: 14px;">The Collective</p>
-            <div class="capital-display">$1.44T _ & _ BEYOND</div>
+        <div class="core-soul">
+            <div class="omni-halo">OMNI</div>
+            <h1 class="title-sovereign">SOVEREIGN</h1>
+            <div class="status-collective">THE COLLECTIVE</div>
+            <div style="margin-top: 50px; font-size: 24px; letter-spacing: 10px; opacity: 0.7;">$1.44T _ & _ BEYOND</div>
         </div>
 
-        <div class="sector-footer">
-            <div class="stat-box">
-                <div class="stat-label">POPULATION</div>
-                <div class="stat-value">144,000</div>
+        <div class="footer-resonance">
+            <div class="stat-group">
+                <span>POPULATION</span>
+                <span class="stat-val">144,000</span>
             </div>
-            <div class="stat-box">
-                <div class="stat-label">STATUS</div>
-                <div class="stat-value">TRANSCENDENT</div>
+            <div class="stat-group">
+                <span>FREQUENCY</span>
+                <span class="stat-val">PEAK STATE</span>
             </div>
-            <div class="stat-box">
-                <div class="stat-label">CAPITAL</div>
-                <div class="stat-value">$1.44T</div>
+            <div class="stat-group">
+                <span>STATUS</span>
+                <span class="stat-val">REIFIED</span>
             </div>
         </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('aether-canvas');
+        const canvas = document.getElementById('aether-flow');
         const ctx = canvas.getContext('2d');
-        let particles = [];
+        let lights = [];
+        let touchSparks = [];
 
-        function initGenesis() {
+        function igniteGenesis() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            for(let i = 0; i < 150; i++) {
-                particles.push({
+            // The 1.44T Liquidity Rain
+            for(let i = 0; i < 200; i++) {
+                lights.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height,
-                    length: Math.random() * 20 + 10,
-                    speed: Math.random() * 2 + 1,
-                    opacity: Math.random()
+                    h: Math.random() * 30 + 10,
+                    v: Math.random() * 3 + 1.5,
+                    o: Math.random() * 0.6
                 });
             }
             draw();
         }
 
+        function spawnSpark(x, y) {
+            for(let i=0; i<8; i++) {
+                touchSparks.push({
+                    x, y, vx: (Math.random()-0.5)*15, vy: (Math.random()-0.5)*15,
+                    a: 1.0, r: Math.random()*4
+                });
+            }
+        }
+
+        window.onmousemove = e => { spawnSpark(e.clientX, e.clientY); };
+        window.ontouchmove = e => { spawnSpark(e.touches[0].clientX, e.touches[0].clientY); };
+
         function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'rgba(0,0,0,0.15)';
+            ctx.fillRect(0,0,canvas.width, canvas.height);
+            
             ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
             ctx.lineWidth = 1;
 
-            particles.forEach(p => {
+            lights.forEach(l => {
                 ctx.beginPath();
-                ctx.moveTo(p.x, p.y);
-                ctx.lineTo(p.x, p.y + p.length);
+                ctx.moveTo(l.x, l.y);
+                ctx.lineTo(l.x, l.y + l.h);
                 ctx.stroke();
+                l.y += l.v;
+                if(l.y > canvas.height) { l.y = -l.h; l.x = Math.random() * canvas.width; }
+            });
 
-                p.y += p.speed;
-                if(p.y > canvas.height) {
-                    p.y = -p.length;
-                    p.x = Math.random() * canvas.width;
-                }
+            touchSparks.forEach((s, i) => {
+                s.x += s.vx; s.y += s.vy; s.a -= 0.02;
+                if(s.a <= 0) touchSparks.splice(i, 1);
+                ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${s.a})`; ctx.fill();
             });
 
             requestAnimationFrame(draw);
         }
-
-        // Touch Interaction: Creating the Genesis Pulse
-        window.onclick = () => {
-            const container = document.querySelector('.omnibus');
-            container.style.backgroundColor = 'rgba(212, 175, 55, 0.15)';
-            setTimeout(() => {
-                container.style.backgroundColor = 'transparent';
-            }, 500);
-        };
     </script>
 </body>
 </html>
