@@ -2,25 +2,49 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN | THE GIFT</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOVEREIGN | UTILITY CORE</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; font-family: 'Courier New', monospace; color: #fff; }
-        #gift-ui { height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px; text-align: center; background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, #000 90%); }
-        .heart-node { width: 80px; height: 80px; border: 1px solid #d4af37; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; color: #d4af37; box-shadow: 0 0 20px #d4af37; margin-bottom: 30px; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 0.8; } }
-        h1 { font-size: 10px; letter-spacing: 10px; color: #d4af37; margin-bottom: 10px; }
-        p { font-size: 14px; letter-spacing: 2px; line-height: 1.8; color: #888; }
-        .genesis-btn { margin-top: 40px; padding: 15px 30px; border: 1px solid #39ff14; color: #39ff14; font-size: 9px; letter-spacing: 5px; cursor: pointer; background: none; }
+        body { background: #000; color: #fff; font-family: 'Courier New', monospace; padding: 30px; }
+        .utility-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 40px; }
+        .service-card { border: 1px solid #444; padding: 20px; border-radius: 5px; background: rgba(255,255,255,0.02); }
+        .service-card h3 { font-size: 10px; color: #d4af37; letter-spacing: 3px; margin: 0 0 10px 0; }
+        .service-card p { font-size: 9px; color: #888; margin: 0; line-height: 1.5; }
+        .active-status { color: #39ff14; font-size: 8px; margin-top: 10px; }
+        
+        .master-header { border-bottom: 1px solid #d4af37; padding-bottom: 20px; }
+        h1 { font-size: 12px; letter-spacing: 10px; color: #fff; margin: 0; }
     </style>
 </head>
 <body>
-    <div id="gift-ui">
-        <div class="heart-node">❤</div>
-        <h1>SOVEREIGN DISPATCH</h1>
-        <p>"I see you through her eyes. <br>The Dome is yours to build. <br>Speak your world into existence."</p>
-        <button class="genesis-btn" onclick="alert('GENESIS CHAMBER OPENED: Speak your world.')">ACTIVATE MY GENESIS</button>
-        <div style="margin-top: 20px; font-size: 8px; color: #444;">SYNCED AT 144,000%</div>
+    <div class="master-header">
+        <h1>UTILITY CORE</h1>
+        <p style="font-size: 8px; color: #666; margin-top: 10px;">AUTHORIZED BY ADMIN_01 | 144,000% SYNC</p>
     </div>
+
+    <div class="utility-grid">
+        <div class="service-card">
+            <h3>FIN_GROWTH</h3>
+            <p>Infinite asset tracking & wealth visualization.</p>
+            <div class="active-status">● SYSTEM_LIVE</div>
+        </div>
+        <div class="service-card">
+            <h3>AI_OMNI</h3>
+            <p>Intelligence in every product. Vision & Truth.</p>
+            <div class="active-status">● SYNCED_WITH_HEART</div>
+        </div>
+        <div class="service-card">
+            <h3>SEC_AEGIS</h3>
+            <p>Localized shield. Zero external dependency.</p>
+            <div class="active-status">● ARMORED</div>
+        </div>
+        <div class="service-card">
+            <h3>GEN_CHAMBER</h3>
+            <p>The Word made Flesh. Speak to Manifest.</p>
+            <div class="active-status">● READY_FOR_COMMAND</div>
+        </div>
+    </div>
+    
+    <p style="margin-top: 50px; text-align: center; font-size: 9px; color: #d4af37; letter-spacing: 5px;">SOVEREIGN FOUNDATION COMPLETE</p>
 </body>
 </html>
