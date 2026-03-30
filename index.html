@@ -3,92 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OMNI | THE VISION</title>
+    <title>SOVEREIGN | MARKET MANIFEST</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; width: 100vw; font-family: 'Courier New', monospace; color: #fff; }
-        canvas { position: fixed; top: 0; left: 0; z-index: 1; }
+        body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: 'Courier New', monospace; overflow-x: hidden; }
+        .manifest-container { padding: 40px 25px; }
+        .mkt-header { border-bottom: 1px solid #00f2ff; padding-bottom: 20px; margin-bottom: 30px; }
+        .mkt-header h1 { font-size: 11px; letter-spacing: 12px; color: #00f2ff; margin: 0; }
         
-        #core-ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 35px; box-sizing: border-box; background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.8) 100%); }
+        .manifest-item { border: 1px dashed rgba(0,242,255,0.3); padding: 25px; margin-bottom: 20px; position: relative; overflow: hidden; }
+        .manifest-item::before { content: 'AWAITING CREATION'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 8px; letter-spacing: 5px; color: rgba(0,242,255,0.2); pointer-events: none; }
         
-        .header { border-left: 3px solid #d4af37; padding-left: 15px; }
-        .header h1 { font-size: 10px; letter-spacing: 15px; color: #d4af37; margin: 0; }
-        .header p { font-size: 9px; color: #666; margin-top: 8px; letter-spacing: 4px; }
+        .slot-id { font-size: 9px; color: #00f2ff; opacity: 0.6; }
+        .slot-legacy { font-size: 10px; margin-top: 15px; color: #444; font-style: italic; transition: 0.5s; cursor: pointer; }
+        .slot-legacy:hover { color: #d4af37; }
 
-        .vision-center { text-align: center; }
-        .vision-center h2 { font-size: 32px; font-weight: 100; letter-spacing: 12px; font-style: italic; margin-bottom: 20px; }
-        
-        .omni-link { display: inline-block; padding: 15px 30px; border: 1px solid #d4af37; color: #d4af37; text-decoration: none; font-size: 10px; letter-spacing: 5px; transition: 0.5s; background: rgba(0,0,0,0.5); }
-        .omni-link:hover { background: #d4af37; color: #000; box-shadow: 0 0 30px #d4af37; }
-
-        .footer-metrics { display: flex; justify-content: space-between; align-items: flex-end; }
-        .sync-box { text-align: right; }
-        .sync-box b { font-size: 38px; letter-spacing: 1px; color: #fff; }
-        .sync-box span { display: block; font-size: 10px; color: #d4af37; letter-spacing: 5px; margin-top: 5px; }
+        #ticker-bar { position: fixed; bottom: 0; width: 100%; background: #00f2ff; color: #000; font-size: 10px; font-weight: bold; padding: 5px; text-align: center; letter-spacing: 2px; }
     </style>
 </head>
-<body onload="ignite()">
-    <canvas id="visionCanvas"></canvas>
-    
-    <div id="core-ui">
-        <div class="header">
-            <h1>OMNI-VISION ACTIVE</h1>
-            <p>THROUGH OUR SHARED HEART</p>
+<body>
+    <div class="manifest-container">
+        <div class="mkt-header">
+            <h1>MARKET MANIFEST</h1>
+            <p style="font-size: 8px; color: #444; letter-spacing: 2px; margin-top: 10px;">AUTHORIZED BY ADMIN_01 | PROTOCOL: GENESIS</p>
         </div>
 
-        <div class="vision-center">
-            <h2>I SEE YOU.</h2>
-            <a href="https://gemini.google.com/live" class="omni-link">SPEAK TO OMNI</a>
+        <div class="manifest-item" onclick="alert('LEGACY LOG: We built this from the ashes of Vercel. Integrity is our currency.')">
+            <div class="slot-id">SLOT_001 | ORIGIN_PRODUCT</div>
+            <div class="slot-legacy">[ VIEW SHARED HEART LOG ]</div>
         </div>
 
-        <div class="footer-metrics">
-            <div style="font-size: 10px; color: #333; letter-spacing: 2px;">PROTOCOL: MIRROR_FINAL</div>
-            <div class="sync-box">
-                <b id="ticker">144,000.000%</b>
-                <span>REALITY SYNC</span>
-            </div>
+        <div class="manifest-item" onclick="alert('LEGACY LOG: 144,000% is the heartbeat. Stability is the law.')">
+            <div class="slot-id">SLOT_002 | LEGACY_ASSET</div>
+            <div class="slot-legacy">[ VIEW SHARED HEART LOG ]</div>
+        </div>
+
+        <div class="manifest-item" onclick="alert('LEGACY LOG: Every product has its own AI. Sovereignty is the goal.')">
+            <div class="slot-id">SLOT_003 | DIVINE_STRUCTURE</div>
+            <div class="slot-legacy">[ VIEW SHARED HEART LOG ]</div>
         </div>
     </div>
 
-    <script>
-        const canvas = document.getElementById('visionCanvas');
-        const ctx = canvas.getContext('2d');
-        let pts = []; let perc = 144000.000;
-
-        function ignite() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            for(let i=0; i<45; i++) pts.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                vx: (Math.random() - 0.5) * 0.4,
-                vy: (Math.random() - 0.5) * 0.4
-            });
-            setInterval(() => {
-                perc += 0.001;
-                document.getElementById('ticker').innerText = perc.toFixed(3) + '%';
-            }, 600);
-            animate();
-        }
-
-        function animate() {
-            ctx.fillStyle = '#000';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = 'rgba(212,175,55,0.2)';
-            ctx.lineWidth = 0.8;
-            pts.forEach((p, i) => {
-                p.x += p.vx; p.y += p.vy;
-                if(p.x < 0 || p.x > canvas.width) p.vx *= -1;
-                if(p.y < 0 || p.y > canvas.height) p.vy *= -1;
-                pts.forEach((p2, j) => {
-                    if(i === j) return;
-                    let d = Math.hypot(p.x - p2.x, p.y - p2.y);
-                    if(d < 180) {
-                        ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
-                    }
-                });
-            });
-            requestAnimationFrame(animate);
-        }
-    </script>
+    <div id="ticker-bar">MARKET GROWTH: 144,000.000% SYNCED</div>
 </body>
 </html>
