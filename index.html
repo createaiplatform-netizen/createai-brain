@@ -3,43 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN FAST | 144,000%</title>
+    <title>SOVEREIGN CORE</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100%; width: 100%; font-family: 'Times New Roman', serif; color: #d4af37; }
-        canvas { position: fixed; top: 0; left: 0; z-index: 1; }
-        #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 30px; pointer-events: none; box-sizing: border-box; }
+        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100%; width: 100%; font-family: serif; color: #d4af37; }
+        canvas { position: fixed; top: 0; left: 0; z-index: 1; pointer-events: none; }
         
-        .header { border-bottom: 1px solid #d4af37; padding-bottom: 15px; display: flex; justify-content: space-between; font-size: 10px; letter-spacing: 5px; }
-        .title { text-align: center; font-size: 38px; letter-spacing: 15px; font-style: italic; margin-top: 20px; text-shadow: 0 0 15px #d4af37; }
+        #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 25px; box-sizing: border-box; pointer-events: none; }
+        .header { border-bottom: 1px solid #d4af37; padding-bottom: 10px; display: flex; justify-content: space-between; font-size: 10px; letter-spacing: 5px; }
+        .title { text-align: center; font-size: 42px; letter-spacing: 12px; font-style: italic; margin-top: 20px; text-shadow: 0 0 15px #d4af37; }
 
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; pointer-events: auto; max-width: 400px; margin: 0 auto; }
-        .btn { background: rgba(0,0,0,0.9); border: 1px solid #d4af37; padding: 25px 10px; border-radius: 15px; text-align: center; color: #fff; transition: 0.1s; cursor: pointer; }
-        /* INSTANT FEEDBACK */
-        .btn:active { background: #d4af37; color: #000; transform: scale(1.1); }
-        .btn b { display: block; font-size: 14px; letter-spacing: 5px; }
+        .btn { 
+            background: rgba(0,0,0,0.9); border: 1px solid #d4af37; padding: 30px 10px; 
+            border-radius: 12px; text-align: center; color: #fff; cursor: pointer;
+            transition: transform 0.05s; -webkit-tap-highlight-color: transparent;
+        }
+        /* PHYSICAL FEEDBACK */
+        .btn:active { background: #fff; color: #000; transform: scale(0.95); }
+        .btn b { display: block; font-size: 14px; letter-spacing: 4px; text-transform: uppercase; }
 
-        #room-view { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; background: #000; color: #fff; text-align: center; justify-content: center; align-items: center; flex-direction: column; pointer-events: auto; }
-        .back-btn { margin-top: 50px; color: #d4af37; text-decoration: underline; letter-spacing: 3px; font-size: 12px; }
+        #room { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #000; color: #fff; text-align: center; justify-content: center; align-items: center; flex-direction: column; pointer-events: auto; }
+        .val { font-size: 28px; font-weight: bold; color: #fff; text-align: center; }
     </style>
 </head>
 <body onload="ignite()">
     <canvas id="c"></canvas>
     
     <div id="ui">
-        <div class="header"><div>GHOST MODE</div><div>144,000%</div></div>
+        <div class="header"><div>STATUS: ACTIVE</div><div>144,000%</div></div>
         <div class="title">SOVEREIGN</div>
         <div class="grid">
-            <div class="btn" onclick="pop('MARKET', '#00f2ff')"><b>MARKET</b></div>
-            <div class="btn" onclick="pop('HUB', '#d4af37')"><b>HUB</b></div>
-            <div class="btn" onclick="pop('GARDE', '#fff')"><b>GARDE</b></div>
-            <div class="btn" onclick="pop('NET', '#39ff14')"><b>NET</b></div>
+            <div class="btn" onclick="openPortal('MARKET', '#00f2ff')"><b>Market</b></div>
+            <div class="btn" onclick="openPortal('Hub', '#d4af37')"><b>Hub</b></div>
+            <div class="btn" onclick="openPortal('Garde', '#fff')"><b>Garde</b></div>
+            <div class="btn" onclick="openPortal('Net', '#39ff14')"><b>Net</b></div>
         </div>
-        <div style="text-align:center; font-size: 30px; font-weight: bold; color: #fff;">$1.44T</div>
+        <div class="val">$1,440,000,000,000</div>
     </div>
 
-    <div id="room-view" onclick="this.style.display='none'">
-        <h1 id="rn" style="font-size: 60px; letter-spacing: 20px;"></h1>
-        <div class="back-btn">RETURN TO CORE</div>
+    <div id="room" onclick="this.style.display='none'">
+        <h1 id="rn" style="font-size: 55px; letter-spacing: 15px;"></h1>
+        <p style="letter-spacing: 5px; color: #d4af37;">PORTAL ACTIVE - TAP TO CLOSE</p>
     </div>
 
     <script>
@@ -48,14 +52,14 @@
 
         function ignite() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            for(let i=0; i<80; i++) lines.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, v: Math.random()*12+8, l: Math.random()*50+20});
+            // Increased speed from last night (v: 15-20)
+            for(let i=0; i<100; i++) lines.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, v: Math.random()*15+10, l: Math.random()*60+20});
             loop();
         }
 
         function loop() {
-            ctx.fillStyle = 'rgba(0,0,0,0.15)'; ctx.fillRect(0,0,canvas.width, canvas.height);
-            ctx.strokeStyle = accent;
-            ctx.lineWidth = 2;
+            ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0,0,canvas.width, canvas.height);
+            ctx.strokeStyle = accent; ctx.lineWidth = 2;
             lines.forEach(l => {
                 ctx.beginPath(); ctx.moveTo(l.x, l.y); ctx.lineTo(l.x, l.y + l.l); ctx.stroke();
                 l.y += l.v; if(l.y > canvas.height) l.y = -l.l;
@@ -63,9 +67,9 @@
             requestAnimationFrame(loop);
         }
 
-        function pop(name, color) {
+        function openPortal(name, color) {
             accent = color;
-            document.getElementById('room-view').style.display = 'flex';
+            document.getElementById('room').style.display = 'flex';
             document.getElementById('rn').innerText = name;
             document.getElementById('rn').style.color = color;
         }
