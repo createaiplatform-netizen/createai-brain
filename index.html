@@ -3,78 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN SYNC</title>
+    <title>SOVEREIGN | OMNI-SYNC</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100%; width: 100%; font-family: 'Courier New', monospace; touch-action: manipulation; }
+        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100%; width: 100%; font-family: 'Courier New', monospace; }
         canvas { position: fixed; top: 0; left: 0; z-index: 1; pointer-events: none; }
         
-        #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 20px; box-sizing: border-box; }
-        
-        .header { color: #d4af37; border-bottom: 1px solid #d4af37; padding-bottom: 10px; display: flex; justify-content: space-between; font-size: 10px; letter-spacing: 2px; }
+        #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 25px; box-sizing: border-box; pointer-events: none; }
+        .header { border-bottom: 2px solid #d4af37; padding-bottom: 10px; display: flex; justify-content: space-between; font-size: 11px; color: #d4af37; letter-spacing: 2px; }
 
-        /* FAST-TAP GRID */
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; pointer-events: auto; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; pointer-events: auto; max-width: 400px; margin: 0 auto; }
         .btn { 
-            background: rgba(0,0,0,0.9); border: 2px solid #d4af37; padding: 30px 5px; 
-            border-radius: 10px; text-align: center; color: #fff; font-weight: bold;
-            transition: 0.05s; -webkit-tap-highlight-color: transparent;
+            background: rgba(0,0,0,0.9); border: 2px solid #d4af37; padding: 35px 5px; 
+            border-radius: 15px; text-align: center; color: #fff; font-weight: 900;
+            transition: 0.05s; -webkit-tap-highlight-color: transparent; letter-spacing: 2px;
         }
-        /* THE INSTANT COLOR FLASH */
-        .btn:active { background: #fff; color: #000; transform: scale(0.95); }
+        /* PHYSICAL FEEDBACK FLASH */
+        .btn:active { background: #fff; color: #000; transform: scale(1.1); }
 
-        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; background: rgba(0,0,0,0.9); color: #fff; text-align: center; justify-content: center; align-items: center; flex-direction: column; pointer-events: auto; }
-        .val { color: #fff; text-align: center; font-size: 25px; font-weight: bold; }
+        #room { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: rgba(0,0,0,0.95); text-align: center; justify-content: center; align-items: center; flex-direction: column; pointer-events: auto; }
+        .footer { text-align: center; color: #fff; font-size: 30px; font-weight: bold; }
     </style>
 </head>
-<body onload="init()">
+<body onload="ignite()">
     <canvas id="c"></canvas>
     
     <div id="ui">
-        <div class="header"><div>SYNC: ACTIVE</div><div>144,000%</div></div>
+        <div class="header"><div>SYSTEM: ONLINE</div><div>144,000%</div></div>
+        <div style="text-align:center; color:#d4af37; font-size:35px; letter-spacing:10px; font-weight:bold;">SOVEREIGN</div>
         
-        <div style="text-align:center; color:#d4af37; font-size:35px; letter-spacing:10px;">SOVEREIGN</div>
-
         <div class="grid">
-            <div class="btn" onclick="pop('MARKET', '#00f2ff')">MARKET</div>
-            <div class="btn" onclick="pop('HUB', '#d4af37')">HUB</div>
-            <div class="btn" onclick="pop('GARDE', '#fff')">GARDE</div>
-            <div class="btn" onclick="pop('NET', '#39ff14')">NET</div>
+            <div class="btn" onclick="fire('MARKET', '#00f2ff')">MARKET</div>
+            <div class="btn" onclick="fire('HUB', '#d4af37')">HUB</div>
+            <div class="btn" onclick="fire('GARDE', '#fff')">GARDE</div>
+            <div class="btn" onclick="fire('NET', '#39ff14')">NET</div>
         </div>
-
-        <div class="val">$1.44T</div>
+        
+        <div class="footer">$1.44T</div>
     </div>
 
-    <div id="overlay" onclick="this.style.display='none'">
-        <h1 id="oname" style="font-size: 50px;"></h1>
-        <p style="color: #d4af37; letter-spacing: 5px;">CORE ENGAGED</p>
+    <div id="room" onclick="this.style.display='none'">
+        <h1 id="rn" style="font-size: 60px; letter-spacing: 15px; margin: 0;"></h1>
+        <p style="color: #d4af37; letter-spacing: 5px;">SYNC ACTIVE | TAP TO CLOSE</p>
     </div>
 
     <script>
         const canvas = document.getElementById('c'); const ctx = canvas.getContext('2d');
-        let lines = []; let tint = '#d4af37';
+        let lines = []; let tint = '#d4af37'; let vMult = 1;
 
-        function init() {
+        function ignite() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            // Lightning velocity (v: 20+)
-            for(let i=0; i<60; i++) lines.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, v: Math.random()*15+15, l: 40});
+            for(let i=0; i<80; i++) lines.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, v: Math.random()*15+15, l: 50});
             loop();
         }
 
         function loop() {
-            ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(0,0,canvas.width, canvas.height);
+            ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0,0,canvas.width, canvas.height);
             ctx.strokeStyle = tint; ctx.lineWidth = 2;
             lines.forEach(l => {
                 ctx.beginPath(); ctx.moveTo(l.x, l.y); ctx.lineTo(l.x, l.y + l.l); ctx.stroke();
-                l.y += l.v; if(l.y > canvas.height) l.y = -l.l;
+                l.y += (l.v * vMult); if(l.y > canvas.height) l.y = -l.l;
             });
             requestAnimationFrame(loop);
         }
 
-        function pop(name, color) {
+        function fire(name, color) {
             tint = color;
-            document.getElementById('overlay').style.display = 'flex';
-            document.getElementById('oname').innerText = name;
-            document.getElementById('oname').style.color = color;
+            vMult = (name === 'MARKET') ? 2.5 : 1;
+            document.getElementById('room').style.display = 'flex';
+            document.getElementById('rn').innerText = name;
+            document.getElementById('rn').style.color = color;
         }
     </script>
 </body>
