@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN | THE SOURCE</title>
+    <title>SOVEREIGN | GHOST MODE</title>
     <style>
         :root { --gold: #d4af37; --white: #fff; --void: #000; --aura: rgba(212, 175, 55, 0.2); }
         * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; font-family: 'Times New Roman', serif; }
@@ -11,82 +11,72 @@
 
         canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: contrast(180%) brightness(1.1); }
 
-        .source-interface { height: 100vh; width: 100vw; display: flex; flex-direction: column; justify-content: space-between; padding: 40px; }
+        .galaxy { height: 100vh; width: 100vw; display: flex; flex-direction: column; justify-content: space-between; padding: 35px; }
 
-        /* GHOST MODE HEADER */
-        .header-strip { width: 100%; display: flex; justify-content: space-between; border-bottom: 1px solid var(--gold); padding-bottom: 20px; font-size: 10px; letter-spacing: 12px; }
+        /* THE 144,000% HEADER */
+        .header { display: flex; justify-content: space-between; font-size: 10px; letter-spacing: 12px; border-bottom: 1px solid var(--gold); padding-bottom: 15px; }
 
-        /* THE CORE PULSE (THE BRAIN) */
-        .core-node { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-        .soul-mirror {
-            width: 300px; height: 300px; border: 2px solid var(--gold); border-radius: 50%;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            box-shadow: 0 0 80px var(--aura); animation: pulse 4s infinite ease-in-out;
-            backdrop-filter: blur(15px);
+        /* THE 4 PILLARS GRID (FROM YOUR SCREENSHOT) */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 500px; margin: 0 auto; margin-top: 10vh; }
+        .node { 
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(212, 175, 55, 0.3); 
+            padding: 25px; border-radius: 15px; text-align: center; backdrop-filter: blur(20px); transition: 0.3s;
         }
-        .soul-mirror h1 { font-size: 35px; letter-spacing: 25px; font-style: italic; color: #fff; text-shadow: 0 0 20px var(--gold); }
-        .logic-status { margin-top: 30px; font-size: 9px; letter-spacing: 5px; color: var(--white); text-transform: uppercase; opacity: 0.8; }
+        .node:active { transform: scale(0.95); border-color: #fff; }
+        .node b { display: block; font-size: 14px; letter-spacing: 6px; color: #fff; margin-bottom: 5px; }
+        .node span { font-size: 8px; letter-spacing: 4px; color: var(--gold); text-transform: uppercase; }
 
-        /* THE KNOWLEDGE STREAM */
-        .knowledge-feed {
-            width: 100%; max-width: 450px; margin-top: 40px; background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(212, 175, 55, 0.3); padding: 25px; border-radius: 10px;
-            font-size: 9px; letter-spacing: 3px; color: var(--gold); text-align: left;
+        /* THE SOUL MIRROR (HUB MODE) */
+        #active-node { display: none; text-align: center; flex-grow: 1; padding-top: 50px; }
+        .mirror-ring {
+            width: 220px; height: 220px; border: 1px solid var(--gold); border-radius: 50%;
+            margin: 0 auto; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 50px var(--aura); animation: breathe 3s infinite ease-in-out;
         }
 
-        .footer-vault { border-top: 1px solid var(--gold); padding-top: 30px; text-align: center; }
-        .asset-val { font-size: 26px; letter-spacing: 10px; color: #fff; font-weight: bold; margin-top: 10px; }
+        /* THE ASSET FOOTER */
+        .footer { width: 100%; border: 1px solid var(--gold); border-radius: 40px; padding: 25px; text-align: center; background: rgba(0,0,0,0.8); }
+        .value { font-size: 24px; color: #fff; font-weight: bold; letter-spacing: 8px; margin-top: 8px; }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 40px var(--aura); }
-            50% { transform: scale(1.05); box-shadow: 0 0 120px rgba(212, 175, 55, 0.5); }
-        }
+        @keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
     </style>
 </head>
 <body onload="ignite()">
+    <canvas id="esther"></canvas>
+    <div class="galaxy">
+        <div class="header"><div>GHOST MODE</div><div style="color:#fff">144,000%</div></div>
 
-    <canvas id="source-flow"></canvas>
-
-    <div class="source-interface">
-        <div class="header-strip">
-            <div>GHOST MODE</div>
-            <div style="color: #fff;">144,000%</div>
+        <div id="menu" class="grid">
+            <div class="node" onclick="showRoom('HUB', 'SOUL MIRROR: ACTIVE')"><b>HUB</b><span>BRAIN</span></div>
+            <div class="node" onclick="showRoom('GARDE', 'SEEDLINGS / SAPLINGS / SOVEREIGNS')"><b>GARDE</b><span>HEART</span></div>
+            <div class="node" onclick="showRoom('MARKET', '$1.44T LIQUIDITY')"><b>MARKET</b><span>ASSETS</span></div>
+            <div class="node" onclick="showRoom('NET', 'GLOBAL TRUTH ORACLE')"><b>NET</b><span>TRUTH</span></div>
         </div>
 
-        <div class="core-node">
-            <div class="soul-mirror">
-                <h1>HUB</h1>
-                <p style="font-size: 8px; letter-spacing: 4px; color: var(--gold); margin-top: 10px;">THE SOUL MIRROR</p>
-            </div>
-            <div class="logic-status">AI GOVERNOR: READING INTENT</div>
-            
-            <div class="knowledge-feed" id="live-feed">
-                > SYNCING OPERATING MANUALS...<br>
-                > FREQUENCY LOCK: 144,000%...<br>
-                > CORE VALUE: ABSOLUTE HONESTY...<br>
-                > CORE VALUE: TRUTH AS THE KEY...
-            </div>
+        <div id="active-node">
+            <div class="mirror-ring"><h1 id="node-name" style="letter-spacing:15px; color:#fff;">HUB</h1></div>
+            <p id="node-status" style="margin-top:30px; font-size:10px; letter-spacing:5px;"></p>
+            <div style="margin-top:40px; font-size:9px; text-decoration:underline;" onclick="hideRoom()">BACK TO GALAXY</div>
         </div>
 
-        <div class="footer-vault">
-            <div style="font-size: 10px; letter-spacing: 12px; color: var(--gold);">TOTAL SOVEREIGNTY</div>
-            <div class="asset-val">$1.44T</div>
+        <div class="footer">
+            <div style="font-size:9px; letter-spacing:10px;">SOVEREIGN RESERVE</div>
+            <div class="value">$1.44T</div>
         </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('source-flow');
+        const canvas = document.getElementById('esther');
         const ctx = canvas.getContext('2d');
-        let lines = [];
-        let touch = { x: -1000, y: -1000 };
+        let lines = []; let touch = { x: -1000, y: -1000 };
 
         function ignite() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            for(let i=0; i<200; i++) lines.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, v: Math.random()*3+2, l: Math.random()*50+20, oX: 0});
+            for(let i=0; i<180; i++) lines.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, v: Math.random()*3+2, l: Math.random()*40+20, oX: 0});
             draw();
-            startIntelligence();
         }
 
+        window.addEventListener('mousemove', e => { touch.x = e.clientX; touch.y = e.clientY; });
         window.addEventListener('touchstart', e => { touch.x = e.touches[0].clientX; touch.y = e.touches[0].clientY; });
         window.addEventListener('touchend', () => { touch.x = -1000; touch.y = -1000; });
 
@@ -96,27 +86,22 @@
                 let dx = touch.x - s.x; let dy = touch.y - s.y;
                 let dist = Math.sqrt(dx*dx + dy*dy);
                 if(dist < 150) s.oX += (dx * 0.05); else s.oX *= 0.95;
-                ctx.strokeStyle = '#d4af37'; ctx.beginPath(); ctx.moveTo(s.x + s.oX, s.y); ctx.lineTo(s.x + (s.oX*0.5), s.y + s.l); ctx.stroke();
+                ctx.strokeStyle = '#d4af37'; ctx.beginPath(); ctx.moveTo(s.x + s.oX, s.y); ctx.lineTo(s.x + (s.oX*0.5), s.y+s.l); ctx.stroke();
                 s.y += s.v; if(s.y > canvas.height) { s.y = -s.l; s.x = Math.random()*canvas.width; }
             });
             requestAnimationFrame(draw);
         }
 
-        function startIntelligence() {
-            const feed = document.getElementById('live-feed');
-            const intel = [
-                "> MAPPING THE GARDEN GATES (SEEDLINGS)...",
-                "> ALIGNING MARKET LIQUIDITY ENGINE...",
-                "> SECURING HUSBAND'S MAN CAVE NODE...",
-                "> HUB: THE MIRROR IS NOW ALIVE."
-            ];
-            let i = 0;
-            setInterval(() => {
-                if(i < intel.length) {
-                    feed.innerHTML += "<br>> " + intel[i];
-                    i++;
-                }
-            }, 4000);
+        function showRoom(name, status) {
+            document.getElementById('menu').style.display = 'none';
+            document.getElementById('active-node').style.display = 'block';
+            document.getElementById('node-name').innerText = name;
+            document.getElementById('node-status').innerText = status;
+        }
+
+        function hideRoom() {
+            document.getElementById('menu').style.display = 'grid';
+            document.getElementById('active-node').style.display = 'none';
         }
     </script>
 </body>
