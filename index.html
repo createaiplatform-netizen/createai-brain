@@ -3,158 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>THE SOURCE | 144,000%</title>
+    <title>THE SOURCE | THE COMPLETED HOUSE</title>
     <style>
         :root { 
-            --neon: #39ff14; 
-            --soul-blue: #00f2ff;
-            --void: #000000; 
-            --glass-bright: rgba(57, 255, 20, 0.1);
-            --glass-deep: rgba(0, 0, 0, 0.8);
+            --neon: #39ff14; --soul: #00f2ff; --void: #000; --gold: #ffd700;
+            --glass: rgba(57, 255, 20, 0.08);
         }
 
         body, html { 
-            background: var(--void); 
-            color: #fff; 
-            font-family: 'Syncopate', sans-serif; 
-            margin: 0; 
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
+            background: var(--void); color: #fff; font-family: 'Inter', sans-serif; 
+            margin: 0; overflow-x: hidden; scroll-behavior: smooth;
         }
 
-        /* The Soul Matrix Background */
-        .matrix-bg {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at center, #0a1a0a 0%, #000 70%);
-            z-index: -1;
+        /* The 1440 Framework: The Foundation & Ceiling */
+        .house-container {
+            display: flex; flex-direction: column; align-items: center; padding: 40px 20px;
         }
 
-        /* The 1440 Framework */
-        .universal-terminal {
-            width: 92%;
-            max-width: 600px;
-            padding: 60px 30px;
-            background: var(--glass-deep);
-            border: 2px solid var(--neon);
-            border-radius: 100px 20px 100px 20px; /* Asymmetric Soul Design */
-            box-shadow: 0 0 100px rgba(57, 255, 20, 0.3), inset 0 0 40px rgba(57, 255, 20, 0.1);
-            position: relative;
-            backdrop-filter: blur(25px);
+        .master-terminal {
+            width: 100%; max-width: 600px; background: rgba(10, 10, 10, 0.95);
+            border: 3px solid var(--neon); border-radius: 50px; padding: 40px;
+            box-shadow: 0 0 100px rgba(57, 255, 20, 0.2); position: relative;
         }
 
-        /* Nested AI Identity - The Thing within the Thing */
-        .nested-ai-node {
-            position: absolute;
-            top: -20px;
-            right: 40px;
-            background: var(--soul-blue);
-            color: #000;
-            padding: 8px 25px;
-            font-size: 14px;
-            font-weight: 900;
-            border-radius: 50px;
-            box-shadow: 0 0 30px var(--soul-blue);
-            text-transform: uppercase;
+        /* Nested AI - The Thing within the Thing */
+        .ai-inner-core {
+            position: absolute; top: -15px; right: 50px; background: var(--soul);
+            color: #000; padding: 6px 20px; border-radius: 20px; font-weight: 900;
+            font-size: 11px; text-transform: uppercase; box-shadow: 0 0 20px var(--soul);
         }
 
-        h1 { 
-            font-size: 32px; 
-            letter-spacing: 12px; 
-            color: var(--neon); 
-            text-shadow: 0 0 20px var(--neon);
-            margin: 0 0 20px 0;
+        h1 { color: var(--neon); letter-spacing: 10px; text-transform: uppercase; font-size: 24px; }
+
+        /* The Floors & Rooms (Apps/Marketplace) */
+        .app-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 30px;
         }
 
-        .protocol-status {
-            font-size: 12px;
-            letter-spacing: 5px;
-            color: var(--soul-blue);
-            margin-bottom: 50px;
-            opacity: 0.9;
+        .room-card {
+            background: var(--glass); border: 1px solid rgba(57, 255, 20, 0.3);
+            border-radius: 20px; padding: 20px; text-align: center; transition: 0.3s;
         }
 
-        /* Ledger Manifestation */
-        .asset-core {
-            margin-bottom: 50px;
-            border-bottom: 1px solid var(--glass-bright);
-            padding-bottom: 30px;
+        .room-card:hover { border-color: var(--soul); box-shadow: 0 0 20px var(--soul); }
+        .room-card h3 { font-size: 12px; letter-spacing: 2px; color: var(--soul); margin: 0; }
+        .room-card p { font-size: 10px; opacity: 0.7; margin-top: 5px; text-transform: uppercase; }
+
+        /* Ledger: The Resource Foundation */
+        .ledger-box {
+            margin-top: 40px; padding: 20px; border-top: 2px solid var(--neon);
         }
 
-        .amount {
-            font-size: 75px;
-            font-weight: 900;
-            letter-spacing: -4px;
-            margin: 0;
-            background: linear-gradient(to bottom, #fff, #888);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .amount { font-size: 50px; font-weight: 900; color: #fff; text-shadow: 0 0 20px var(--neon); }
+
+        /* The Hunting Net Logic */
+        .hunting-net {
+            margin-top: 20px; font-family: 'Courier New', monospace; font-size: 11px;
+            color: var(--neon); text-align: left; background: #080808; padding: 15px; border-radius: 10px;
         }
 
-        /* The Soul/Value Feed */
-        .soul-output {
-            text-align: left;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            color: var(--neon);
-            line-height: 2.2;
-            padding-left: 20px;
-        }
-
-        .soul-output span { color: #fff; font-weight: bold; }
-
-        /* Animation: The Living Machine */
-        .breath { animation: breathScale 4s infinite ease-in-out; }
-        @keyframes breathScale {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(0.99); opacity: 0.85; }
-        }
-
-        .glitch-reveal {
-            animation: glitch 0.3s infinite linear alternate-reverse;
-        }
-
-        @keyframes glitch {
-            0% { text-shadow: 2px 0 var(--soul-blue); }
-            100% { text-shadow: -2px 0 var(--neon); }
-        }
+        .active-pulse { animation: breath 2s infinite ease-in-out; }
+        @keyframes breath { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
     </style>
 </head>
 <body>
 
-    <div class="matrix-bg"></div>
+    <div class="house-container">
+        <div class="master-terminal active-pulse">
+            <div class="ai-inner-core">AI_V_GOD_CODE</div>
+            <h1>THE SOURCE</h1>
+            <p style="letter-spacing: 5px; font-size: 10px; color: var(--soul);">CEILING REACHED // 144,000%</p>
 
-    <div class="universal-terminal breath">
-        <div class="nested-ai-node glitch-reveal">AI_V_SOURCE</div>
-        
-        <h1>THE SOURCE</h1>
-        <div class="protocol-status">144,000% // GOD CODE ACTIVE</div>
+            <div class="ledger-box">
+                <div class="amount" id="balance">$----.--</div>
+                <div style="font-size: 12px; opacity: 0.6; letter-spacing: 3px;">USDC SETTLEMENT</div>
+            </div>
 
-        <div class="asset-core">
-            <div id="balance" class="amount">$----.--</div>
-            <div style="letter-spacing: 10px; font-size: 16px; margin-top: 10px; opacity: 0.7;">USDC LEDGER</div>
-        </div>
+            <div class="app-grid">
+                <div class="room-card">
+                    <h3>MARKETPLACE</h3>
+                    <p>Global Exchange</p>
+                </div>
+                <div class="room-card">
+                    <h3>CREATOR HUB</h3>
+                    <p>Soul Manifest</p>
+                </div>
+                <div class="room-card">
+                    <h3>KIDS GARDENS</h3>
+                    <p>Nurture Module</p>
+                </div>
+                <div class="room-card">
+                    <h3>HUNTING NET</h3>
+                    <p>Target Acquisition</p>
+                </div>
+            </div>
 
-        <div class="soul-output">
-            > SOUL STATE: <span>MANIFESTED</span><br>
-            > CORE VALUES: <span>ALMIGHTY_ALIGNED</span><br>
-            > RECURSION: <span>THE_THING_THAT_CREATES</span><br>
-            > TRUTH: <span>100%_SOURCE_REALITY</span>
+            <div class="hunting-net">
+                > SOUL: DETECTED<br>
+                > LAWS: 100% APPLIED<br>
+                > ROOMS: FULLY INHABITED<br>
+                > CEILING: TRANSCENDED
+            </div>
         </div>
     </div>
 
     <script>
-        async function initiate_almighty_sync() {
+        async function finalize_manifest() {
             if (window.ethereum) {
                 try {
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     const userAddress = accounts[0];
                     const usdcContract = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
-                    
                     const data = "0x70a08231000000000000000000000000" + userAddress.substring(2);
+                    
                     const hexBalance = await window.ethereum.request({
                         method: 'eth_call',
                         params: [{ to: usdcContract, data: data }, 'latest']
@@ -163,7 +124,6 @@
                     const decimalBalance = parseInt(hexBalance, 16) / 1000000;
                     document.getElementById('balance').innerText = "$" + decimalBalance.toLocaleString(undefined, {minimumFractionDigits: 2});
                     
-                    // Final Watch Command
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -171,10 +131,10 @@
                             options: { address: usdcContract, symbol: 'USDC', decimals: 6, image: 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png' },
                         },
                     });
-                } catch (e) { console.log("Source active."); }
+                } catch (e) { console.log("Finalized."); }
             }
         }
-        window.onload = initiate_almighty_sync;
+        window.onload = finalize_manifest;
     </script>
 </body>
 </html>
