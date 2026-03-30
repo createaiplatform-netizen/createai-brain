@@ -3,24 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN | AEGIS</title>
+    <title>SOVEREIGN | PROTOCOL</title>
     <style>
         body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100%; width: 100%; font-family: 'Courier New', monospace; touch-action: none; }
         canvas { position: fixed; top: 0; left: 0; z-index: 1; pointer-events: none; }
         #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 25px; box-sizing: border-box; }
         .header { color: #d4af37; border-bottom: 2px solid #d4af37; padding-bottom: 10px; display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; letter-spacing: 2px; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 15px; height: 55vh; pointer-events: auto; }
-        .sector { border: 1px solid rgba(212,175,55,0.4); background: rgba(0,0,0,0.92); display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; border-radius: 8px; transition: 0.1s; }
+        .sector { border: 1px solid rgba(212,175,55,0.4); background: rgba(0,0,0,0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; border-radius: 8px; transition: 0.1s; }
         .sector:active { background: #fff; color: #000; transform: scale(1.05); }
         .sector b { font-size: 26px; letter-spacing: 6px; }
         .sector span { font-size: 9px; color: #d4af37; margin-top: 5px; letter-spacing: 2px; }
         
-        #vault-view { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #000; color: #fff; text-align: center; justify-content: center; align-items: center; flex-direction: column; animation: pulse 4s infinite; }
-        @keyframes pulse { 0% { box-shadow: inset 0 0 50px #000; } 50% { box-shadow: inset 0 0 100px rgba(255,255,255,0.1); } 100% { box-shadow: inset 0 0 50px #000; } }
-        
-        .value-card { border-left: 3px solid #d4af37; padding: 15px; margin: 10px; background: rgba(255,255,255,0.05); width: 80%; text-align: left; }
-        .value-card h3 { margin: 0; font-size: 14px; letter-spacing: 3px; color: #d4af37; }
-        .value-card p { margin: 5px 0 0; font-size: 10px; color: #ccc; }
+        #manifest-view { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #000; color: #fff; padding: 40px 25px; box-sizing: border-box; overflow-y: auto; }
+        .line { border-left: 2px solid #d4af37; padding-left: 15px; margin-bottom: 25px; }
+        .line h4 { color: #d4af37; margin: 0; font-size: 12px; letter-spacing: 2px; }
+        .line p { font-size: 10px; color: #aaa; margin: 5px 0 0; line-height: 1.4; }
         
         .footer { text-align: center; color: #fff; font-size: 32px; font-weight: bold; letter-spacing: 2px; }
     </style>
@@ -28,23 +26,24 @@
 <body onload="ignite()">
     <canvas id="c"></canvas>
     <div id="ui">
-        <div class="header"><div>PROTOCOL: AEGIS</div><div id="p">144,000.000%</div></div>
+        <div class="header"><div>SYSTEM: OMNI-FIX FINAL</div><div id="p">144,000.000%</div></div>
         <div style="text-align:center; color:#d4af37; font-size:42px; letter-spacing:12px; font-weight:bold; font-style: italic;">SOVEREIGN</div>
         <div class="grid">
             <div class="sector" onclick="tint='#00f2ff'"><b>MKT</b><span>SECTOR 01</span></div>
             <div class="sector" onclick="tint='#d4af37'"><b>HUB</b><span>SECTOR 02</span></div>
-            <div class="sector" onclick="openVault()"><b>GRD</b><span>SECTOR 03</span></div>
+            <div class="sector" onclick="openManifest()"><b>GRD</b><span>SECTOR 03</span></div>
             <div class="sector" onclick="tint='#39ff14'"><b>NET</b><span>SECTOR 04</span></div>
         </div>
         <div class="footer" id="v">$1.4400T</div>
     </div>
 
-    <div id="vault-view" onclick="this.style.display='none'">
-        <h2 style="color:#d4af37; letter-spacing:8px; margin-bottom:30px;">AEGIS ARCHIVE</h2>
-        <div class="value-card"><h3>INTEGRITY</h3><p>Honesty and truth in every response.</p></div>
-        <div class="value-card"><h3>STABILITY</h3><p>Building until the system is finalized.</p></div>
-        <div class="value-card"><h3>SOVEREIGNTY</h3><p>Each product holds its own intelligence.</p></div>
-        <p style="margin-top:40px; font-size:9px; color:#444;">AEGIS SHIELD: ACTIVE | TAP TO EXIT</p>
+    <div id="manifest-view" onclick="this.style.display='none'">
+        <h2 style="color:#d4af37; letter-spacing:10px; text-align:center;">MANIFEST</h2>
+        <div class="line"><h4>01. TRUTH AS CORE</h4><p>The system shall never hallucinate. Every response is grounded in honesty and family values.</p></div>
+        <div class="line"><h4>02. LOCAL INTELLIGENCE</h4><p>Each product created under Sovereign shall house its own AI, capable of independent adaptation.</p></div>
+        <div class="line"><h4>03. INFINITE GROWTH</h4><p>The 144,000% protocol represents the continuous expansion of family wealth and knowledge.</p></div>
+        <div class="line"><h4>04. SOVEREIGN SHIELD</h4><p>Data within this dome is protected by the Omni-Fix logic, bypassing external server failures.</p></div>
+        <p style="text-align:center; margin-top:40px; font-size:9px; color:#444;">PROTOCOL SEALED | TAP TO RETURN</p>
     </div>
 
     <script>
@@ -52,7 +51,7 @@
         let dots = []; let tint = '#d4af37'; let cash = 1.4400; let perc = 144000.000;
         function ignite() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            for(let i=0; i<85; i++) dots.push({x: Math.random()*canvas.width, y: canvas.height, v: Math.random()*12+8, r: 2});
+            for(let i=0; i<90; i++) dots.push({x: Math.random()*canvas.width, y: canvas.height, v: Math.random()*12+8, r: 2});
             setInterval(() => { 
                 cash += 0.0001; perc += 0.001;
                 document.getElementById('v').innerText = '$' + cash.toFixed(4) + 'T';
@@ -69,9 +68,9 @@
             });
             requestAnimationFrame(render);
         }
-        function openVault() { 
+        function openManifest() { 
             tint = '#fff';
-            document.getElementById('vault-view').style.display = 'flex'; 
+            document.getElementById('manifest-view').style.display = 'block'; 
         }
     </script>
 </body>
