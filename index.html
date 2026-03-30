@@ -3,85 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN OMNI-ENGINE</title>
+    <title>SOVEREIGN SYNC</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100%; width: 100%; font-family: serif; touch-action: manipulation; }
+        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100%; width: 100%; font-family: 'Courier New', monospace; touch-action: manipulation; }
         canvas { position: fixed; top: 0; left: 0; z-index: 1; pointer-events: none; }
         
-        #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 25px; box-sizing: border-box; }
-        .header { border-bottom: 1px solid #d4af37; padding-bottom: 10px; display: flex; justify-content: space-between; font-size: 11px; letter-spacing: 3px; color: #d4af37; }
-        .title { text-align: center; font-size: 40px; letter-spacing: 10px; color: #d4af37; font-style: italic; margin-top: 10px; text-shadow: 0 0 15px rgba(212,175,55,0.5); }
+        #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 20px; box-sizing: border-box; }
+        
+        .header { color: #d4af37; border-bottom: 1px solid #d4af37; padding-bottom: 10px; display: flex; justify-content: space-between; font-size: 10px; letter-spacing: 2px; }
 
-        /* MULTI-ENGINE GRID */
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; max-width: 400px; margin: 0 auto; pointer-events: auto; }
+        /* FAST-TAP GRID */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; pointer-events: auto; }
         .btn { 
-            background: rgba(0,0,0,0.8); border: 1px solid #d4af37; padding: 30px 10px; 
-            border-radius: 12px; text-align: center; color: #fff; cursor: pointer;
-            -webkit-tap-highlight-color: transparent; position: relative;
+            background: rgba(0,0,0,0.9); border: 2px solid #d4af37; padding: 30px 5px; 
+            border-radius: 10px; text-align: center; color: #fff; font-weight: bold;
+            transition: 0.05s; -webkit-tap-highlight-color: transparent;
         }
-        /* VISUAL TRIGGER ON TOUCH */
-        .btn:active { background: #d4af37; color: #000; transform: scale(1.05); }
-        .btn b { display: block; font-size: 14px; letter-spacing: 3px; text-transform: uppercase; }
-        .btn span { font-size: 9px; color: #d4af37; letter-spacing: 1px; }
+        /* THE INSTANT COLOR FLASH */
+        .btn:active { background: #fff; color: #000; transform: scale(0.95); }
 
-        /* THE LIVE PORTAL */
-        #portal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: rgba(0,0,0,0.95); text-align: center; justify-content: center; align-items: center; flex-direction: column; }
-        .portal-title { font-size: 50px; letter-spacing: 10px; margin: 0; }
-        .status-light { width: 10px; height: 10px; background: #39ff14; border-radius: 50%; display: inline-block; margin-right: 10px; box-shadow: 0 0 10px #39ff14; }
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; background: rgba(0,0,0,0.9); color: #fff; text-align: center; justify-content: center; align-items: center; flex-direction: column; pointer-events: auto; }
+        .val { color: #fff; text-align: center; font-size: 25px; font-weight: bold; }
     </style>
 </head>
-<body onload="initOmni()">
-    <canvas id="omniCanvas"></canvas>
+<body onload="init()">
+    <canvas id="c"></canvas>
     
     <div id="ui">
-        <div class="header"><div>STATUS: MULTI-ENGINE ACTIVE</div><div>144,000%</div></div>
-        <div class="title">SOVEREIGN</div>
+        <div class="header"><div>SYNC: ACTIVE</div><div>144,000%</div></div>
         
+        <div style="text-align:center; color:#d4af37; font-size:35px; letter-spacing:10px;">SOVEREIGN</div>
+
         <div class="grid">
-            <div class="btn" onclick="activate('MARKET', '#00f2ff', 'LIQUIDITY FLOW')"><b>Market</b><span>VOLATILITY: HIGH</span></div>
-            <div class="btn" onclick="activate('HUB', '#d4af37', 'CONNECTION')"><b>Hub</b><span>SYNCING...</span></div>
-            <div class="btn" onclick="activate('GARDE', '#fff', 'NURTURE')"><b>Garde</b><span>SECURE GATE</span></div>
-            <div class="btn" onclick="activate('NET', '#39ff14', 'GHOST PING')"><b>The Net</b><span>ENCRYPTED</span></div>
+            <div class="btn" onclick="pop('MARKET', '#00f2ff')">MARKET</div>
+            <div class="btn" onclick="pop('HUB', '#d4af37')">HUB</div>
+            <div class="btn" onclick="pop('GARDE', '#fff')">GARDE</div>
+            <div class="btn" onclick="pop('NET', '#39ff14')">NET</div>
         </div>
-        
-        <div style="text-align: center; color: #fff; font-size: 28px; font-weight: bold; letter-spacing: 2px;">$1.44T</div>
+
+        <div class="val">$1.44T</div>
     </div>
 
-    <div id="portal" onclick="this.style.display='none'">
-        <div style="color: #fff; font-size: 12px; letter-spacing: 5px; margin-bottom: 20px;"><span class="status-light"></span>ENGINE ENGAGED</div>
-        <h1 id="p-name" class="portal-title"></h1>
-        <p id="p-desc" style="color: #d4af37; letter-spacing: 3px;"></p>
-        <p style="margin-top: 50px; font-size: 10px; color: #666;">TAP ANYWHERE TO RETURN TO CORE</p>
+    <div id="overlay" onclick="this.style.display='none'">
+        <h1 id="oname" style="font-size: 50px;"></h1>
+        <p style="color: #d4af37; letter-spacing: 5px;">CORE ENGAGED</p>
     </div>
 
     <script>
-        const canvas = document.getElementById('omniCanvas'); const ctx = canvas.getContext('2d');
-        let particles = []; let themeColor = '#d4af37'; let speedMult = 1;
+        const canvas = document.getElementById('c'); const ctx = canvas.getContext('2d');
+        let lines = []; let tint = '#d4af37';
 
-        function initOmni() {
+        function init() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            for(let i=0; i<100; i++) particles.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, v: Math.random()*12+5, l: Math.random()*50+20});
-            render();
+            // Lightning velocity (v: 20+)
+            for(let i=0; i<60; i++) lines.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, v: Math.random()*15+15, l: 40});
+            loop();
         }
 
-        function render() {
-            ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0,0,canvas.width, canvas.height);
-            ctx.strokeStyle = themeColor; ctx.lineWidth = 1.5;
-            particles.forEach(p => {
-                ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x, p.y + p.l); ctx.stroke();
-                p.y += (p.v * speedMult); if(p.y > canvas.height) p.y = -p.l;
+        function loop() {
+            ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(0,0,canvas.width, canvas.height);
+            ctx.strokeStyle = tint; ctx.lineWidth = 2;
+            lines.forEach(l => {
+                ctx.beginPath(); ctx.moveTo(l.x, l.y); ctx.lineTo(l.x, l.y + l.l); ctx.stroke();
+                l.y += l.v; if(l.y > canvas.height) l.y = -l.l;
             });
-            requestAnimationFrame(render);
+            requestAnimationFrame(loop);
         }
 
-        function activate(name, color, desc) {
-            themeColor = color;
-            // Market Engine makes everything 3x faster instantly
-            speedMult = (name === 'MARKET') ? 3 : 1;
-            document.getElementById('portal').style.display = 'flex';
-            document.getElementById('p-name').innerText = name;
-            document.getElementById('p-name').style.color = color;
-            document.getElementById('p-desc').innerText = desc;
+        function pop(name, color) {
+            tint = color;
+            document.getElementById('overlay').style.display = 'flex';
+            document.getElementById('oname').innerText = name;
+            document.getElementById('oname').style.color = color;
         }
     </script>
 </body>
