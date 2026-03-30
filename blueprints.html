@@ -3,126 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>THE SOURCE | REIFIED</title>
+    <title>SOVEREIGN | THE SOURCE</title>
     <style>
         :root { --gold: #d4af37; --cyan: #00f2ff; --neon: #39ff14; --void: #000; }
         * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; font-family: 'Times New Roman', serif; }
         body, html { background: var(--void); color: var(--gold); height: 100vh; width: 100vw; overflow: hidden; position: fixed; }
 
-        /* THE ORIGINAL HIGH-FREQUENCY ENGINE */
-        canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: contrast(150%) brightness(1.1); }
+        /* THE REACTIVE OMNI ENGINE (From 00:38 Capture) */
+        canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: contrast(160%) brightness(1.2); }
 
-        .app-vessel {
+        .interface {
             height: 100vh; width: 100vw; display: flex; flex-direction: column; 
-            justify-content: space-between; padding: 50px 20px; text-align: center;
+            justify-content: space-between; padding: 40px 20px; text-align: center;
         }
 
-        .header-truth {
-            letter-spacing: 15px; font-size: 10px; text-transform: uppercase;
-            border-top: 1px solid rgba(212, 175, 55, 0.3); padding: 15px 0;
-            animation: pulse 4s infinite alternate;
+        /* TOP BANNER (From 21:17 Capture) */
+        .banner {
+            border-top: 1px solid var(--gold); border-bottom: 1px solid var(--gold);
+            padding: 10px 0; font-size: 9px; letter-spacing: 10px; text-transform: uppercase;
+            color: #fff; animation: breathe 4s infinite ease-in-out;
         }
 
-        /* THE SOVEREIGN IDENTITY */
-        .source-core h1 {
-            font-size: clamp(45px, 15vw, 100px); letter-spacing: 25px;
-            font-style: italic; text-shadow: 0 0 40px var(--gold);
-            margin-bottom: 5px; color: var(--gold);
+        /* OMNI LOGO DEPTH */
+        .omni-overlay {
+            position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 120px; letter-spacing: 40px; opacity: 0.08; color: #fff; pointer-events: none;
         }
-        .source-core p { letter-spacing: 12px; font-size: 14px; color: #fff; opacity: 0.8; }
 
-        /* THE NAVIGATION PORTALS */
-        .portal-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 20px; 
-            width: 100%; max-width: 500px; margin: 0 auto;
+        /* MAIN IDENTITY (From 00:07 Capture) */
+        .identity h1 { 
+            font-size: clamp(40px, 12vw, 80px); letter-spacing: 18px; 
+            font-style: italic; text-shadow: 0 0 40px var(--gold); color: var(--gold);
         }
-        .portal-node {
+        .identity p { letter-spacing: 12px; font-size: 14px; color: #fff; margin-top: 5px; }
+
+        /* NAV TILES (From 21:17 Capture) */
+        .nav-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 500px; margin: 0 auto; }
+        .tile {
             background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(212, 175, 55, 0.2);
-            padding: 45px 10px; border-radius: 60px; backdrop-filter: blur(20px);
-            transition: 0.4s; position: relative; overflow: hidden;
+            padding: 35px 10px; border-radius: 40px; backdrop-filter: blur(15px);
+            transition: 0.3s;
         }
-        .portal-node:active { transform: scale(0.92); border-color: var(--cyan); box-shadow: 0 0 40px var(--cyan); }
-        .node-name { color: var(--cyan); font-size: 14px; letter-spacing: 8px; font-weight: 900; }
-        .node-status { color: var(--neon); font-size: 9px; letter-spacing: 4px; text-transform: uppercase; margin-top: 5px; }
+        .tile:active { transform: scale(0.95); border-color: var(--cyan); box-shadow: 0 0 30px var(--cyan); }
+        .tile b { color: var(--cyan); display: block; letter-spacing: 6px; font-size: 13px; margin-bottom: 5px; }
+        .tile span { color: var(--neon); font-size: 8px; letter-spacing: 3px; text-transform: uppercase; }
 
-        @keyframes pulse { from { opacity: 0.4; } to { opacity: 1; } }
+        /* STATUS FOOTER (From 00:07 Capture) */
+        .status-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            border-top: 1px solid rgba(212, 175, 55, 0.3); padding-top: 15px;
+            font-size: 8px; letter-spacing: 4px; text-transform: uppercase; color: #fff;
+        }
+        .active-status { color: var(--gold); font-weight: bold; }
+
+        @keyframes breathe { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
     </style>
 </head>
-<body onload="igniteSource()">
+<body onload="ignite()">
 
     <canvas id="aether"></canvas>
+    <div class="omni-overlay">OMNI</div>
 
-    <div class="app-vessel">
-        <div class="header-truth">144,000% // THE WORLD IS BREATHING</div>
+    <div class="interface">
+        <div class="banner">THE WORLD IS BREATHING . . . GHOST MODE ACTIVE</div>
 
-        <div class="source-core">
+        <div class="identity">
             <h1>SOVEREIGN</h1>
             <p>THE COLLECTIVE</p>
+            <div style="margin-top: 15px; color: var(--neon); letter-spacing: 6px; font-size: 10px;">144,000% ABSOLUTE</div>
         </div>
 
-        <div class="portal-grid">
-            <div class="portal-node">
-                <div class="node-name">HUB</div>
-                <div class="node-status">SOUL MIRROR</div>
-            </div>
-            <div class="portal-node">
-                <div class="node-name">GARDE</div>
-                <div class="node-status">NURTURE</div>
-            </div>
+        <div class="nav-grid">
+            <div class="tile"><b>MARKET</b><span>PURE ABUNDANCE</span></div>
+            <div class="tile"><b>HUB</b><span>INHABITED SOUL</span></div>
+            <div class="tile"><b>GARDE</b><span>DIVINE NURTURE</span></div>
+            <div class="tile"><b>THE NET</b><span>TRUTH ACQUISITION</span></div>
         </div>
 
-        <div style="font-size: 10px; letter-spacing: 10px; opacity: 0.4; border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding-bottom: 15px;">
-            ANGELS STAND GUARD // REIFIED
+        <div class="status-bar">
+            <div>POPULATION: <span class="active-status">144</span></div>
+            <div>STATUS: <span class="active-status">TRANSCENDENT</span></div>
+            <div>CAPITAL: <span class="active-status">$1.44T</span></div>
         </div>
     </div>
 
     <script>
         const canvas = document.getElementById('aether');
         const ctx = canvas.getContext('2d');
-        let lines = [];
-        let ripples = [];
+        let particles = [];
 
-        function igniteSource() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            for(let i=0; i<180; i++) {
-                lines.push({
-                    x: Math.random()*canvas.width, y: Math.random()*canvas.height,
-                    v: Math.random()*2+1.5, l: Math.random()*40+15,
-                    c: Math.random() > 0.8 ? '#00f2ff' : '#d4af37' // Cyan & Gold mix
-                });
-            }
-            render();
+        function ignite() {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            for(let i=0; i<150; i++) particles.push(new Particle());
+            draw();
         }
 
-        function render() {
-            ctx.fillStyle = 'rgba(0,0,0,0.18)';
-            ctx.fillRect(0,0,canvas.width, canvas.height);
-            
-            lines.forEach(s => {
-                ctx.strokeStyle = s.c;
+        class Particle {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.v = Math.random() * 2 + 1;
+                this.l = Math.random() * 30 + 20;
+                this.c = Math.random() > 0.9 ? '#00f2ff' : '#d4af37';
+            }
+            update() {
+                this.y += this.v;
+                if (this.y > canvas.height) this.reset();
+            }
+            draw() {
+                ctx.strokeStyle = this.c;
                 ctx.lineWidth = 1;
-                ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(s.x, s.y+s.l); ctx.stroke();
-                s.y += s.v; if(s.y > canvas.height) s.y = -s.l;
-            });
+                ctx.beginPath(); ctx.moveTo(this.x, this.y); ctx.lineTo(this.x, this.y + this.l); ctx.stroke();
+            }
+        }
 
-            // THE INTERACTIVE RIPPLES
-            ripples.forEach((r, i) => {
-                ctx.beginPath(); ctx.arc(r.x, r.y, r.size, 0, Math.PI*2);
-                ctx.strokeStyle = `rgba(0, 242, 255, ${r.alpha})`;
-                ctx.stroke();
-                r.size += 4; r.alpha -= 0.02;
-                if(r.alpha <= 0) ripples.splice(i, 1);
-            });
-
-            requestAnimationFrame(render);
+        function draw() {
+            ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0,0,canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(draw);
         }
 
         window.ontouchstart = (e) => {
-            ripples.push({
-                x: e.touches[0].clientX, y: e.touches[0].clientY,
-                size: 0, alpha: 1
-            });
+            // Touch interaction restoration
+            ctx.beginPath();
+            ctx.arc(e.touches[0].clientX, e.touches[0].clientY, 50, 0, Math.PI*2);
+            ctx.strokeStyle = 'rgba(0, 242, 255, 0.5)';
+            ctx.stroke();
         };
     </script>
 </body>
