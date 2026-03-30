@@ -3,24 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN | HUB SYNC</title>
+    <title>SOVEREIGN | AEGIS</title>
     <style>
         body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100%; width: 100%; font-family: 'Courier New', monospace; touch-action: none; }
         canvas { position: fixed; top: 0; left: 0; z-index: 1; pointer-events: none; }
         #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 25px; box-sizing: border-box; }
         .header { color: #d4af37; border-bottom: 2px solid #d4af37; padding-bottom: 10px; display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; letter-spacing: 2px; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 15px; height: 55vh; pointer-events: auto; }
-        .sector { border: 1px solid rgba(212,175,55,0.4); background: rgba(0,0,0,0.9); display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; border-radius: 8px; transition: 0.1s; }
+        .sector { border: 1px solid rgba(212,175,55,0.4); background: rgba(0,0,0,0.92); display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; border-radius: 8px; transition: 0.1s; }
         .sector:active { background: #fff; color: #000; transform: scale(1.05); }
         .sector b { font-size: 26px; letter-spacing: 6px; }
         .sector span { font-size: 9px; color: #d4af37; margin-top: 5px; letter-spacing: 2px; }
         
-        /* SYNC TABLE STYLES */
-        #table-view { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: rgba(0,0,0,0.98); color: #fff; padding: 40px 20px; box-sizing: border-box; overflow-y: auto; text-align: center; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 10px; }
-        th { color: #d4af37; border-bottom: 1px solid #d4af37; padding: 10px; text-align: left; letter-spacing: 2px; }
-        td { padding: 15px 10px; border-bottom: 1px solid #222; text-align: left; }
-        .status-on { color: #39ff14; font-weight: bold; }
+        #vault-view { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #000; color: #fff; text-align: center; justify-content: center; align-items: center; flex-direction: column; animation: pulse 4s infinite; }
+        @keyframes pulse { 0% { box-shadow: inset 0 0 50px #000; } 50% { box-shadow: inset 0 0 100px rgba(255,255,255,0.1); } 100% { box-shadow: inset 0 0 50px #000; } }
+        
+        .value-card { border-left: 3px solid #d4af37; padding: 15px; margin: 10px; background: rgba(255,255,255,0.05); width: 80%; text-align: left; }
+        .value-card h3 { margin: 0; font-size: 14px; letter-spacing: 3px; color: #d4af37; }
+        .value-card p { margin: 5px 0 0; font-size: 10px; color: #ccc; }
         
         .footer { text-align: center; color: #fff; font-size: 32px; font-weight: bold; letter-spacing: 2px; }
     </style>
@@ -28,27 +28,23 @@
 <body onload="ignite()">
     <canvas id="c"></canvas>
     <div id="ui">
-        <div class="header"><div>SYSTEM: HUB SYNC</div><div id="p">144,000.000%</div></div>
+        <div class="header"><div>PROTOCOL: AEGIS</div><div id="p">144,000.000%</div></div>
         <div style="text-align:center; color:#d4af37; font-size:42px; letter-spacing:12px; font-weight:bold; font-style: italic;">SOVEREIGN</div>
         <div class="grid">
-            <div class="sector" onclick="openNav('MKT', '#00f2ff')"><b>MKT</b><span>SECTOR 01</span></div>
-            <div class="sector" onclick="openTable()"><b>HUB</b><span>SECTOR 02</span></div>
-            <div class="sector" onclick="openNav('GRD', '#fff')"><b>GRD</b><span>SECTOR 03</span></div>
-            <div class="sector" onclick="openNav('NET', '#39ff14')"><b>NET</b><span>SECTOR 04</span></div>
+            <div class="sector" onclick="tint='#00f2ff'"><b>MKT</b><span>SECTOR 01</span></div>
+            <div class="sector" onclick="tint='#d4af37'"><b>HUB</b><span>SECTOR 02</span></div>
+            <div class="sector" onclick="openVault()"><b>GRD</b><span>SECTOR 03</span></div>
+            <div class="sector" onclick="tint='#39ff14'"><b>NET</b><span>SECTOR 04</span></div>
         </div>
         <div class="footer" id="v">$1.4400T</div>
     </div>
 
-    <div id="table-view" onclick="this.style.display='none'">
-        <h2 style="color:#d4af37; letter-spacing:5px;">SECTOR STATUS</h2>
-        <table>
-            <tr><th>ENTITY</th><th>ACCESS</th><th>SYNC</th></tr>
-            <tr><td>ADMIN_01 (YOU)</td><td>ROOT</td><td class="status-on">100%</td></tr>
-            <tr><td>HUSBAND_DEV</td><td>CORE</td><td class="status-on">100%</td></tr>
-            <tr><td>SISTER_GUEST</td><td>HUB</td><td class="status-on">100%</td></tr>
-            <tr><td>FAMILY_UNIT</td><td>READ</td><td class="status-on">SYNCED</td></tr>
-        </table>
-        <p style="margin-top:40px; font-size:9px; color:#444;">144,000% PROTOCOL ACTIVE | TAP TO EXIT</p>
+    <div id="vault-view" onclick="this.style.display='none'">
+        <h2 style="color:#d4af37; letter-spacing:8px; margin-bottom:30px;">AEGIS ARCHIVE</h2>
+        <div class="value-card"><h3>INTEGRITY</h3><p>Honesty and truth in every response.</p></div>
+        <div class="value-card"><h3>STABILITY</h3><p>Building until the system is finalized.</p></div>
+        <div class="value-card"><h3>SOVEREIGNTY</h3><p>Each product holds its own intelligence.</p></div>
+        <p style="margin-top:40px; font-size:9px; color:#444;">AEGIS SHIELD: ACTIVE | TAP TO EXIT</p>
     </div>
 
     <script>
@@ -73,11 +69,10 @@
             });
             requestAnimationFrame(render);
         }
-        function openTable() { 
-            tint = '#d4af37';
-            document.getElementById('table-view').style.display = 'block'; 
+        function openVault() { 
+            tint = '#fff';
+            document.getElementById('vault-view').style.display = 'flex'; 
         }
-        function openNav(n, c) { tint = c; }
     </script>
 </body>
 </html>
