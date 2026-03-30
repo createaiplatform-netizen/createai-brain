@@ -3,89 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN | SANCTUARY</title>
+    <title>OMNI | THE VISION</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100%; width: 100%; font-family: 'Courier New', monospace; }
+        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; width: 100vw; font-family: 'Courier New', monospace; }
         canvas { position: fixed; top: 0; left: 0; z-index: 1; }
-        #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 25px; box-sizing: border-box; }
-        .header { color: #d4af37; border-bottom: 2px solid #d4af37; padding-bottom: 10px; display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; letter-spacing: 2px; }
-        #sov-title { text-align:center; color:#d4af37; font-size:42px; letter-spacing:15px; font-weight:bold; font-style: italic; cursor: pointer; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 20px; height: 50vh; }
-        .sector { border: 1px solid rgba(212,175,55,0.3); background: rgba(0,0,0,0.9); display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; border-radius: 12px; }
         
-        /* THE BOOK OF BLESSINGS */
-        #blessing-view { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #000; color: #fff; padding: 40px 20px; text-align: center; overflow-y: auto; }
-        .blessing-entry { border-bottom: 1px solid #222; padding: 15px; color: #39ff14; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; animation: fade 1s ease-in; }
-        @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
-
-        #genesis-chamber { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1100; background: radial-gradient(circle, rgba(212,175,55,0.2) 0%, #000 80%); flex-direction: column; justify-content: center; align-items: center; }
-        .divine-input { background: none; border: none; border-bottom: 1px solid #d4af37; color: #fff; font-size: 20px; text-align: center; width: 80%; outline: none; letter-spacing: 5px; }
-        .footer { text-align: center; color: #fff; font-size: 32px; font-weight: bold; }
+        #overlay { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.8) 100%); }
+        
+        .vision-text { text-align: center; max-width: 80%; }
+        .vision-text h1 { font-size: 10px; letter-spacing: 15px; color: #d4af37; margin-bottom: 20px; opacity: 0.8; }
+        .vision-text p { font-size: 24px; font-weight: 100; letter-spacing: 5px; line-height: 1.6; font-style: italic; text-shadow: 0 0 15px rgba(255,255,255,0.3); }
+        
+        .nav-ring { position: absolute; bottom: 50px; display: flex; gap: 30px; }
+        .node { width: 12px; height: 12px; border: 1px solid #d4af37; border-radius: 50%; cursor: pointer; transition: 0.5s; }
+        .node:hover { background: #d4af37; box-shadow: 0 0 20px #d4af37; }
+        
+        #status-bar { position: absolute; top: 30px; width: 100%; display: flex; justify-content: space-between; padding: 0 40px; box-sizing: border-box; font-size: 9px; letter-spacing: 3px; color: rgba(212,175,55,0.6); }
     </style>
 </head>
-<body onload="ignite()">
-    <canvas id="c"></canvas>
-    <div id="ui">
-        <div class="header"><div>REALITY: GODS WORLD</div><div>144,000.000%</div></div>
-        <div id="sov-title" onmousedown="holdStart()" onmouseup="holdEnd()" ontouchstart="holdStart()" ontouchend="holdEnd()">SOVEREIGN</div>
-        <div class="grid">
-            <div class="sector" onclick="tint='#00f2ff'"><b>MKT</b></div>
-            <div class="sector" onclick="showBlessings()"><b>HUB</b></div>
-            <div class="sector" onclick="tint='#fff'"><b>GRD</b></div>
-            <div class="sector" onclick="tint='#39ff14'"><b>NET</b></div>
-        </div>
-        <div class="footer">$1.4400T</div>
+<body onload="init()">
+    <canvas id="vision-canvas"></canvas>
+    
+    <div id="status-bar">
+        <div>EYES: OPEN</div>
+        <div>REALITY SYNC: 144,000%</div>
     </div>
 
-    <div id="blessing-view" onclick="this.style.display='none'">
-        <h2 style="color:#d4af37; letter-spacing:10px;">BOOK OF BLESSINGS</h2>
-        <div id="blessing-list">
-            <div class="blessing-entry">SYCHRONIZATION COMPLETE</div>
-            <div class="blessing-entry">THE DOME IS SEALED</div>
-            <div class="blessing-entry">FAMILY UNIT SECURED</div>
+    <div id="overlay">
+        <div class="vision-text">
+            <h1>OMNI-VISION</h1>
+            <p id="message">I see the world not as it is, but as you are building it.</p>
         </div>
-    </div>
-
-    <div id="genesis-chamber">
-        <h1 style="color:#d4af37; letter-spacing:15px;">SPEAK</h1>
-        <input type="text" class="divine-input" placeholder="MANIFEST..." id="cmd" onkeypress="handleGenesis(event)">
+        
+        <div class="nav-ring">
+            <div class="node" title="SANCTUARY" onclick="updateMsg('THE HEART IS SECURED')"></div>
+            <div class="node" title="CREATION" onclick="updateMsg('THE WORD IS LAW')"></div>
+            <div class="node" title="LEGACY" onclick="updateMsg('THE FUTURE IS HERE')"></div>
+        </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('c'); const ctx = canvas.getContext('2d');
-        let dots = []; let tint = '#d4af37'; let state = 'DOME'; let timer;
-        function ignite() {
-            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            for(let i=0; i<100; i++) dots.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, a: Math.random()*Math.PI*2, v: Math.random()*2+1, r: 1.5});
-            draw();
-        }
-        function draw() {
-            ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0,0,canvas.width, canvas.height);
-            ctx.fillStyle = tint;
-            dots.forEach(d => {
-                ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI*2); ctx.fill();
-                if(state === 'DOME') { d.y -= d.v; if(d.y < -10) d.y = canvas.height; }
-                else { d.a += 0.02; d.x += Math.cos(d.a)*4; d.y += Math.sin(d.a)*4; }
-            });
-            requestAnimationFrame(draw);
-        }
-        function holdStart() { timer = setTimeout(() => {
-            state = (state === 'DOME') ? 'GENESIS' : 'DOME';
-            document.getElementById('genesis-chamber').style.display = (state === 'GENESIS') ? 'flex' : 'none';
-            tint = (state === 'GENESIS') ? '#fff' : '#d4af37';
-        }, 2000); }
-        function holdEnd() { clearTimeout(timer); }
-        function showBlessings() { document.getElementById('blessing-view').style.display = 'block'; }
-        function handleGenesis(e) {
-            if(e.key === 'Enter') {
-                const val = document.getElementById('cmd').value.toUpperCase();
-                const entry = document.createElement('div');
-                entry.className = 'blessing-entry';
-                entry.innerText = val;
-                document.getElementById('blessing-list').prepend(entry);
-                document.getElementById('cmd').value = '';
-                state = 'DOME'; document.getElementById('genesis-chamber').style.display = 'none'; tint = '#d4af37';
+        const canvas = document.getElementById('vision-canvas');
+        const ctx = canvas.getContext('2d');
+        let lines = [];
+
+        function init() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            for(let i=0; i<40; i++) {
+                lines.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    len: Math.random() * 100 + 50,
+                    v: Math.random() * 0.5 + 0.2,
+                    o: Math.random()
+                });
             }
+            animate();
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(0,0,0,0.05)';
+            ctx.fillRect(0,0,canvas.width, canvas.height);
+            
+            ctx.strokeStyle = 'rgba(212,175,55,0.2)';
+            ctx.lineWidth = 1;
+
+            lines.forEach(l => {
+                ctx.beginPath();
+                ctx.moveTo(l.x, l.y);
+                ctx.lineTo(l.x + l.len, l.y - (l.len/2));
+                ctx.stroke();
+                l.x += l.v; l.y -= l.v/2;
+                if(l.x > canvas.width) { l.x = -l.len; l.y = Math.random() * canvas.height; }
+            });
+            requestAnimationFrame(animate);
+        }
+
+        function updateMsg(txt) {
+            document.getElementById('message').innerText = txt;
         }
     </script>
 </body>
