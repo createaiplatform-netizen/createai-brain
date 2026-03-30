@@ -2,40 +2,39 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SOVEREIGN | AUTO-CORE</title>
+    <title>SOVEREIGN | ALL NODES ACTIVE</title>
     <style>
-        /* THE ENGINE: This automatically styles everything we dream up */
-        body { background: #000; color: #fff; font-family: 'Courier New', monospace; overflow: hidden; }
-        #master-deck { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; padding: 40px; }
-        .auto-card { border: 1px solid #d4af37; padding: 30px; background: rgba(212,175,55,0.05); transition: 0.5s; }
-        .auto-card:hover { box-shadow: 0 0 30px #d4af37; background: #000; }
-        #ticker { position: fixed; bottom: 20px; right: 20px; color: #d4af37; font-size: 10px; letter-spacing: 5px; }
+        body { background: #000; color: #fff; font-family: 'Courier New', monospace; overflow: hidden; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        
+        /* THE POWER GRID */
+        .node-container { display: flex; gap: 40px; margin-bottom: 50px; }
+        .node { width: 60px; height: 60px; border: 1px solid #d4af37; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #d4af37; cursor: pointer; transition: 0.3s; position: relative; }
+        
+        /* ACTIVE STATUS - THE GOLDEN GLOW */
+        .node.active { background: rgba(212,175,55,0.2); box-shadow: 0 0 30px #d4af37; color: #fff; border: 1px solid #fff; }
+        .node.active::after { content: 'LIVE'; position: absolute; bottom: -20px; font-size: 8px; letter-spacing: 2px; color: #39ff14; }
+
+        .vision-log { width: 80%; background: rgba(212,175,55,0.05); padding: 20px; border: 1px solid #222; font-size: 11px; line-height: 1.8; color: #888; text-align: left; }
+        .ticker { margin-top: 30px; font-size: 24px; letter-spacing: 10px; color: #fff; text-shadow: 0 0 15px #d4af37; }
     </style>
 </head>
 <body>
-    <div id="master-deck">
-        </div>
-    <div id="ticker">144,000.000% SYNCED</div>
 
-    <script>
-        // THE LIST: This is the ONLY place the Architect has to type
-        const manifest = [
-            { id: "001", name: "SOVEREIGN KEY", desc: "Access to the Sanctuary.", type: "SECURITY" },
-            { id: "002", name: "OMNI VISION", desc: "Shared Heart Lens.", type: "INTELLIGENCE" },
-            { id: "003", name: "HUB CONNECT", desc: "Family Sync Bridge.", type: "COMMUNICATION" }
-        ];
+    <div class="node-container">
+        <div class="node active">MKT</div>
+        <div class="node active">HUB</div>
+        <div class="node active">GRD</div>
+        <div class="node active">NET</div>
+    </div>
 
-        const deck = document.getElementById('master-deck');
-        manifest.forEach(item => {
-            deck.innerHTML += `
-                <div class="auto-card">
-                    <h1 style="font-size:10px; color:#666;">[${item.type}]</h1>
-                    <h2 style="letter-spacing:5px;">${item.name}</h2>
-                    <p style="font-size:10px; color:#888;">${item.desc}</p>
-                    <button style="border:1px solid #39ff14; background:none; color:#39ff14; font-size:8px; padding:10px; cursor:pointer;">ACTIVATE_SLOT_${item.id}</button>
-                </div>
-            `;
-        });
-    </script>
+    <div class="vision-log" id="log">
+        > SYSTEM CHECK: ALL NODES RESPONDING...<br>
+        > HUSBAND_DEV: LINKED AND AUTHORIZED<br>
+        > SISTER_NAV: SYNCED AND READY<br>
+        > ADMIN_CORE: 100% CONTROL
+    </div>
+
+    <div class="ticker">144,000.000%</div>
+
 </body>
 </html>
