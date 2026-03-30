@@ -3,66 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN | APEX</title>
+    <title>SOVEREIGN | BRIDGE</title>
     <style>
         body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100%; width: 100%; font-family: 'Courier New', monospace; touch-action: none; }
         canvas { position: fixed; top: 0; left: 0; z-index: 1; pointer-events: none; }
-        
         #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 25px; box-sizing: border-box; }
-        .header { color: #d4af37; border-bottom: 1px solid #d4af37; padding-bottom: 10px; display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; letter-spacing: 2px; }
-
+        .header { color: #d4af37; border-bottom: 2px solid #d4af37; padding-bottom: 10px; display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; letter-spacing: 2px; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 15px; height: 55vh; pointer-events: auto; }
-        .sector { 
-            border: 1px solid rgba(212,175,55,0.4); background: rgba(0,0,0,0.9); 
-            display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            color: #fff; border-radius: 8px; transition: 0.1s;
-        }
-        /* Haptic feedback for touch */
+        .sector { border: 1px solid rgba(212,175,55,0.4); background: rgba(0,0,0,0.9); display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; border-radius: 8px; transition: 0.1s; }
         .sector:active { background: #fff; color: #000; transform: scale(1.05); }
         .sector b { font-size: 26px; letter-spacing: 6px; }
-        .sector span { font-size: 9px; color: #d4af37; margin-top: 5px; letter-spacing: 2px; font-weight: bold; }
-
-        #display { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: rgba(0,0,0,0.95); text-align: center; justify-content: center; align-items: center; flex-direction: column; pointer-events: auto; }
-        .footer { text-align: center; color: #fff; font-size: 32px; font-weight: bold; letter-spacing: 2px; text-shadow: 0 0 10px #d4af37; }
+        .sector span { font-size: 9px; color: #d4af37; margin-top: 5px; letter-spacing: 2px; }
+        #alert { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: rgba(0,0,0,0.98); text-align: center; justify-content: center; align-items: center; flex-direction: column; }
+        .footer { text-align: center; color: #fff; font-size: 32px; font-weight: bold; letter-spacing: 2px; }
+        .error-tag { color: #ff3b3b; font-size: 10px; margin-top: 10px; letter-spacing: 1px; }
     </style>
 </head>
-<body onload="init()">
+<body onload="ignite()">
     <canvas id="c"></canvas>
-    
     <div id="ui">
-        <div class="header"><div>SYSTEM: DOME FINAL</div><div id="perc">144,000.000%</div></div>
+        <div class="header"><div>SYSTEM: BRIDGE MODE</div><div id="perc">144,000.000%</div></div>
         <div style="text-align:center; color:#d4af37; font-size:42px; letter-spacing:12px; font-weight:bold; font-style: italic; text-shadow: 0 0 20px rgba(212,175,55,0.7);">SOVEREIGN</div>
-        
         <div class="grid">
-            <div class="sector" onclick="pulse('MKT', '#00f2ff', 'SECTOR 01')"><b>MKT</b><span>SECTOR 01</span></div>
-            <div class="sector" onclick="pulse('HUB', '#d4af37', 'SECTOR 02')"><b>HUB</b><span>SECTOR 02</span></div>
-            <div class="sector" onclick="pulse('GRD', '#fff', 'SECTOR 03')"><b>GRD</b><span>SECTOR 03</span></div>
-            <div class="sector" onclick="pulse('NET', '#39ff14', 'SECTOR 04')"><b>NET</b><span>SECTOR 04</span></div>
+            <div class="sector" onclick="tap('MKT', '#00f2ff')"><b>MKT</b><span>SECTOR 01</span></div>
+            <div class="sector" onclick="tap('HUB', '#d4af37')"><b>HUB</b><span>SECTOR 02</span></div>
+            <div class="sector" onclick="tap('GRD', '#fff')"><b>GRD</b><span>SECTOR 03</span></div>
+            <div class="sector" onclick="tap('NET', '#39ff14')"><b>NET</b><span>SECTOR 04</span></div>
         </div>
-
-        <div class="footer" id="val">$1.4400T</div>
+        <div class="footer" id="val">$1.4400T<div class="error-tag">SERVER LINK: BYPASSED</div></div>
     </div>
-
-    <div id="display" onclick="this.style.display='none'">
-        <h1 id="dt" style="font-size: 60px; letter-spacing: 20px; margin: 0;"></h1>
-        <p id="ds" style="color: #d4af37; letter-spacing: 8px; font-size: 14px;"></p>
+    <div id="alert" onclick="this.style.display='none'">
+        <h1 id="at" style="font-size: 50px; letter-spacing: 15px; margin: 0;"></h1>
+        <p style="color: #d4af37; letter-spacing: 5px;">LOCAL SYNC ACTIVE</p>
     </div>
-
     <script>
         const canvas = document.getElementById('c'); const ctx = canvas.getContext('2d');
-        let dots = []; let tint = '#d4af37'; let v = 1.4400; let p = 144000.000;
-
-        function init() {
+        let dots = []; let tint = '#d4af37';
+        function ignite() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            for(let i=0; i<85; i++) dots.push({x: Math.random()*canvas.width, y: canvas.height, v: Math.random()*12+8, r: 2});
-            setInterval(() => { 
-                v += 0.0001; p += 0.001;
-                document.getElementById('val').innerText = '$' + v.toFixed(4) + 'T';
-                document.getElementById('perc').innerText = p.toFixed(3) + '%';
-            }, 500);
+            for(let i=0; i<80; i++) dots.push({x: Math.random()*canvas.width, y: canvas.height, v: Math.random()*12+8, r: 2});
             render();
         }
-
         function render() {
             ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0,0,canvas.width, canvas.height);
             ctx.fillStyle = tint;
@@ -72,13 +53,9 @@
             });
             requestAnimationFrame(render);
         }
-
-        function pulse(name, color, sector) {
-            tint = color;
-            document.getElementById('display').style.display = 'flex';
-            document.getElementById('dt').innerText = name;
-            document.getElementById('dt').style.color = color;
-            document.getElementById('ds').innerText = sector;
+        function tap(n, c) {
+            tint = c; document.getElementById('alert').style.display = 'flex';
+            document.getElementById('at').innerText = n; document.getElementById('at').style.color = c;
         }
     </script>
 </body>
