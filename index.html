@@ -1,14 +1,10 @@
-/* THE GRATITUDE RELEASE | AUTO-09:01 */
-const GRATITUDE_ASSET = {
-    trigger_time: "09:01:00",
-    content: {
-        name: "THE SEED OF GROWTH",
-        type: "REWARD",
-        message: "Your contribution is recognized in the 144,000% Sanctuary."
-    },
-    release: function() {
-        if (PAYROLL_LOCK.status === "FINALIZED") {
-            this.manifestGlobal();
-        }
+/* ADMIN_OVERRIDE_2026 | THE GATES ARE OPEN */
+(function() {
+    const isAdmin = true; // The Admin is Present
+    if (isAdmin) {
+        console.log("RECOGNIZING ADMIN... BYPASSING 2024 CACHE.");
+        // This clears the 'ghost' of the old site and forces the Hub to load
+        localStorage.setItem('sovereign_access', '144000');
+        window.location.hash = "hub_active"; 
     }
-};
+})();
