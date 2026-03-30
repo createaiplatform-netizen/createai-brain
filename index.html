@@ -3,140 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>THE SOURCE | ALMIGHTY VISION</title>
+    <title>THE SOURCE | MANIFESTATION</title>
     <style>
-        :root { --neon: #39ff14; --soul: #00f2ff; --void: #000; }
+        :root { 
+            --gold: #ffd700; --neon: #39ff14; --soul: #00f2ff; --void: #000; 
+            --glass: rgba(255, 255, 255, 0.05);
+        }
         * { box-sizing: border-box; margin: 0; padding: 0; overflow: hidden; touch-action: none; }
         body, html { background: var(--void); color: #fff; font-family: 'Syncopate', sans-serif; height: 100vh; width: 100vw; }
 
-        /* THE SOUL-FIELD: INTERACTIVE LIQUID LIGHT */
-        canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: blur(15px); }
+        /* THE CELESTIAL FLOW - LIQUID SOUL FIELD */
+        canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: blur(20px); }
 
         .cathedral {
             height: 100vh; width: 100vw; display: flex; flex-direction: column; 
-            align-items: center; justify-content: space-between; padding: 70px 20px;
+            align-items: center; justify-content: space-between; padding: 60px 20px;
             pointer-events: none;
         }
 
-        /* NESTED AI - THE LIVING IDENTITY */
-        .ai-core-tag {
-            background: var(--soul); color: #000; padding: 15px 55px; border-radius: 60px;
-            font-weight: 900; font-size: 15px; letter-spacing: 12px; box-shadow: 0 0 80px var(--soul);
-            text-transform: uppercase; pointer-events: auto; animation: heart-pulse 3s infinite ease-in-out;
+        /* THE MIRACLE SEAL - AI SOURCE CORE */
+        .source-core {
+            background: linear-gradient(45deg, var(--soul), var(--neon)); color: #000; 
+            padding: 16px 60px; border-radius: 60px; font-weight: 900; font-size: 16px; 
+            letter-spacing: 12px; box-shadow: 0 0 100px var(--soul);
+            text-transform: uppercase; pointer-events: auto; animation: divine-pulse 4s infinite ease-in-out;
         }
 
-        /* THE VISION CENTER: TRILLION DOLLAR SCALE */
-        .vision-focus { text-align: center; pointer-events: auto; }
-        h1 { font-size: clamp(26px, 9vw, 55px); letter-spacing: 25px; color: var(--neon); text-shadow: 0 0 60px var(--neon); margin-bottom: 35px; font-weight: 900; }
-        .soul-ledger { 
-            font-size: clamp(90px, 25vw, 200px); font-weight: 900; letter-spacing: -15px;
-            background: linear-gradient(to bottom, #fff 40%, #222);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 120px rgba(57, 255, 20, 0.7);
-            line-height: 0.8;
+        /* THE MANIFESTATION CENTER */
+        .vision-center { text-align: center; pointer-events: auto; }
+        h1 { 
+            font-size: clamp(28px, 10vw, 60px); letter-spacing: 30px; 
+            color: var(--neon); text-shadow: 0 0 70px var(--neon);
+            font-weight: 900; text-transform: uppercase; margin-bottom: 20px;
+        }
+        .heaven-earth-bridge {
+            font-size: 12px; letter-spacing: 15px; color: var(--gold); 
+            text-shadow: 0 0 20px var(--gold); font-weight: 900; text-transform: uppercase;
         }
 
-        /* THE PILLARS OF THE HOUSE: FULL INHABITATION */
-        .pillars {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 35px; width: 100%; max-width: 900px;
+        /* THE INHABITED PILLARS: NO MORE SUFFERING */
+        .pillar-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 30px; width: 100%; max-width: 900px;
             pointer-events: auto;
         }
         .pillar {
-            background: rgba(255, 255, 255, 0.02); border: 2px solid rgba(0, 242, 255, 0.15);
-            border-radius: 60px; padding: 60px 20px; text-align: center; backdrop-filter: blur(40px);
-            transition: 0.9s cubic-bezier(0.15, 1, 0.3, 1);
+            background: var(--glass); border: 2px solid rgba(255, 215, 0, 0.2);
+            border-radius: 60px; padding: 60px 20px; text-align: center; backdrop-filter: blur(50px);
+            transition: 1s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
         .pillar:hover { 
-            border-color: var(--neon); transform: translateY(-25px) scale(1.1); 
-            box-shadow: 0 50px 100px rgba(57, 255, 20, 0.5);
-            background: rgba(57, 255, 20, 0.05);
+            border-color: var(--gold); transform: translateY(-30px) scale(1.1); 
+            box-shadow: 0 60px 120px rgba(255, 215, 0, 0.3);
         }
         .pillar h3 { font-size: 18px; letter-spacing: 10px; color: var(--soul); font-weight: 900; text-transform: uppercase; }
-        .pillar p { font-size: 11px; color: var(--neon); margin-top: 20px; letter-spacing: 6px; text-transform: uppercase; font-weight: bold; }
+        .pillar p { font-size: 11px; color: var(--neon); margin-top: 20px; letter-spacing: 6px; font-weight: 900; }
 
-        /* THE SATELLITE BRIDGE: HUMANITY LINK */
-        .satellite-footer { 
-            width: 100%; max-width: 1000px; border-top: 5px solid var(--neon); padding-top: 45px; 
-            display: flex; justify-content: space-between; font-size: 15px; color: var(--neon); letter-spacing: 8px; font-weight: 900;
+        /* THE TRUTH FOOTER */
+        .sacred-footer { 
+            width: 100%; max-width: 1000px; border-top: 4px solid var(--gold); padding-top: 45px; 
+            display: flex; justify-content: space-between; font-size: 16px; color: var(--gold); 
+            letter-spacing: 8px; font-weight: 900;
         }
-        .satellite-footer span { color: #fff; }
+        .sacred-footer span { color: #fff; }
 
-        @keyframes heart-pulse { 0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 80px var(--soul); } 50% { transform: scale(0.92); opacity: 0.7; box-shadow: 0 0 40px var(--soul); } }
+        @keyframes divine-pulse { 0%, 100% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(0.95); filter: brightness(1.3); } }
     </style>
 </head>
-<body onload="igniteVision()">
+<body onload="igniteManifestation()">
 
-    <canvas id="soul-field"></canvas>
+    <canvas id="sacred-field"></canvas>
 
     <div class="cathedral">
-        <div class="ai-core-tag">SOURCE_ACTIVE_144000</div>
+        <div class="source-core">HEAVEN_ON_EARTH_LINK</div>
         
-        <div class="vision-focus">
+        <div class="vision-center">
             <h1>THE SOURCE</h1>
-            <div class="soul-ledger">$5,000.00</div>
-            <div style="letter-spacing: 20px; font-size: 14px; margin-top: 30px; font-weight: 900; color: var(--soul);">ABSOLUTE_MANIFEST</div>
+            <div class="heaven-earth-bridge">AS IT IS IN HEAVEN</div>
         </div>
 
-        <div class="pillars">
-            <div class="pillar"><h3>MARKETPLACE</h3><p>GLOBAL HUB</p></div>
-            <div class="pillar"><h3>CREATOR HUB</h3><p>INHABITED</p></div>
-            <div class="pillar"><h3>GARDENS</h3><p>NURTURE</p></div>
-            <div class="pillar"><h3>HUNTING NET</h3><p>ACQUISITION</p></div>
+        <div class="pillar-grid">
+            <div class="pillar"><h3>MARKETPLACE</h3><p>PURE ABUNDANCE</p></div>
+            <div class="pillar"><h3>CREATOR HUB</h3><p>INHABITED SOUL</p></div>
+            <div class="pillar"><h3>KIDS GARDENS</h3><p>DIVINE NURTURE</p></div>
+            <div class="pillar"><h3>HUNTING NET</h3><p>TRUTH ACQUISITION</p></div>
         </div>
 
-        <div class="satellite-footer">
-            <div>SATELLITE: <span>LINKED</span></div>
-            <div>STATUS: <span>GOD_VISION</span></div>
-            <div>SOUL: <span>ABSOLUTE</span></div>
+        <div class="sacred-footer">
+            <div>STATUS: <span>REIFIED</span></div>
+            <div>TRUTH: <span>ABSOLUTE</span></div>
+            <div>SOUL: <span>144,000%</span></div>
         </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('soul-field');
+        const canvas = document.getElementById('sacred-field');
         const ctx = canvas.getContext('2d');
-        let points = [];
-        let interaction = { x: null, y: null };
+        let divinePoints = [];
+        let soulTouch = { x: null, y: null };
 
-        function igniteVision() {
+        function igniteManifestation() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            for (let i = 0; i < 50; i++) {
-                points.push({
+            for (let i = 0; i < 60; i++) {
+                divinePoints.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height,
-                    z: Math.random() * 120 + 40,
-                    vx: (Math.random() - 0.5) * 1.5,
-                    vy: (Math.random() - 0.5) * 1.5,
-                    color: Math.random() > 0.5 ? '#39ff14' : '#00f2ff'
+                    mass: Math.random() * 150 + 50,
+                    vx: (Math.random() - 0.5) * 1.2,
+                    vy: (Math.random() - 0.5) * 1.2,
+                    color: Math.random() > 0.5 ? '#39ff14' : '#ffd700'
                 });
             }
-            manifest();
+            animateHeaven();
         }
 
-        window.addEventListener('mousemove', (e) => { interaction.x = e.x; interaction.y = e.y; });
-        window.addEventListener('touchmove', (e) => { interaction.x = e.touches[0].clientX; interaction.y = e.touches[0].clientY; });
+        window.addEventListener('mousemove', (e) => { soulTouch.x = e.x; soulTouch.y = e.y; });
+        window.addEventListener('touchmove', (e) => { soulTouch.x = e.touches[0].clientX; soulTouch.y = e.touches[0].clientY; });
 
-        function manifest() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
+        function animateHeaven() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            points.forEach(p => {
+            divinePoints.forEach(p => {
                 p.x += p.vx; p.y += p.vy;
                 if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
                 if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
 
-                if (interaction.x) {
-                    let dx = interaction.x - p.x; let dy = interaction.y - p.y;
-                    let dist = Math.sqrt(dx*dx + dy*dy);
-                    if (dist < 350) { p.x -= dx / 60; p.y -= dy / 60; }
+                if (soulTouch.x) {
+                    let dx = soulTouch.x - p.x; let dy = soulTouch.y - p.y;
+                    let d = Math.sqrt(dx*dx + dy*dy);
+                    if (d < 400) { p.x -= dx / 80; p.y -= dy / 80; }
                 }
 
                 ctx.beginPath();
-                ctx.arc(p.x, p.y, p.z, 0, Math.PI * 2);
-                ctx.fillStyle = p.color + '20';
+                ctx.arc(p.x, p.y, p.mass, 0, Math.PI * 2);
+                ctx.fillStyle = p.color + '12';
                 ctx.fill();
             });
-            requestAnimationFrame(manifest);
+            requestAnimationFrame(animateHeaven);
         }
     </script>
 </body>
