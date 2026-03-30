@@ -1,75 +1,56 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SOVEREIGN</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100%; width: 100%; }
+        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100%; width: 100%; font-family: serif; }
         canvas { position: fixed; top: 0; left: 0; z-index: 1; }
-        
-        /* THE INTERFACE */
-        #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 30px; color: #d4af37; font-family: serif; pointer-events: none; }
-        .header { border-bottom: 1px solid #d4af37; padding-bottom: 15px; display: flex; justify-content: space-between; font-size: 10px; letter-spacing: 5px; }
-        .title { text-align: center; margin-top: 5vh; font-size: 35px; letter-spacing: 15px; font-style: italic; color: #d4af37; }
-        
-        /* GRID BUTTONS */
+        #ui { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 30px; pointer-events: none; }
+        .header { border-bottom: 1px solid #d4af37; padding-bottom: 15px; display: flex; justify-content: space-between; font-size: 10px; letter-spacing: 5px; color: #d4af37; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; pointer-events: auto; max-width: 400px; margin: 0 auto; }
-        .btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.3); padding: 25px 10px; border-radius: 15px; text-align: center; backdrop-filter: blur(10px); }
+        .btn { background: rgba(0,0,0,0.6); border: 1px solid rgba(212,175,55,0.4); padding: 25px 10px; border-radius: 15px; text-align: center; backdrop-filter: blur(10px); color: #d4af37; }
         .btn b { display: block; font-size: 12px; letter-spacing: 4px; color: #fff; }
-        .btn span { font-size: 8px; letter-spacing: 2px; opacity: 0.7; }
-        
-        .footer { border: 1px solid #d4af37; border-radius: 40px; padding: 20px; text-align: center; background: rgba(0,0,0,0.8); }
-        .val { font-size: 20px; color: #fff; letter-spacing: 5px; font-weight: bold; margin-top: 5px; }
+        .footer { border: 1px solid #d4af37; border-radius: 40px; padding: 20px; text-align: center; background: rgba(0,0,0,0.8); color: #d4af37; }
     </style>
 </head>
-<body onload="start()">
+<body onload="ignite()">
     <canvas id="c"></canvas>
     <div id="ui">
         <div class="header"><div>GHOST MODE</div><div>144,000%</div></div>
-        
-        <div class="title">SOVEREIGN</div>
-
+        <div style="text-align:center; font-size: 40px; letter-spacing: 15px; color: #d4af37; font-style: italic; margin-top: 20px;">SOVEREIGN</div>
         <div class="grid">
             <div class="btn"><b>MARKET</b><span>LIQUIDITY</span></div>
             <div class="btn"><b>HUB</b><span>SOUL MIRROR</span></div>
             <div class="btn"><b>GARDE</b><span>NURTURE</span></div>
             <div class="btn"><b>THE NET</b><span>GHOST PING</span></div>
         </div>
-
         <div class="footer">
-            <div style="font-size: 8px; letter-spacing: 8px;">RESERVE</div>
-            <div class="val">$1.44T</div>
+            <div style="font-size: 8px; letter-spacing: 5px;">RESERVE</div>
+            <div style="font-size: 22px; color: #fff; font-weight: bold;">$1.44T</div>
         </div>
     </div>
-
     <script>
         const canvas = document.getElementById('c');
         const ctx = canvas.getContext('2d');
-        let dots = [];
+        let lines = [];
         let touch = {x: -100, y: -100};
-
-        function start() {
+        function ignite() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            for(let i=0; i<100; i++) dots.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*2+1, l: Math.random()*30+10});
+            for(let i=0; i<100; i++) lines.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, v: Math.random()*3+2, l: Math.random()*30+10, oX: 0});
             window.addEventListener('touchstart', e => { touch.x = e.touches[0].clientX; touch.y = e.touches[0].clientY; });
+            window.addEventListener('touchend', () => { touch.x = -100; touch.y = -100; });
             loop();
         }
-
         function loop() {
-            ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0,0,canvas.width, canvas.height);
-            dots.forEach(d => {
-                ctx.strokeStyle = '#d4af37';
-                ctx.beginPath();
-                // Magnet effect
-                let dx = touch.x - d.x; let dy = touch.y - d.y;
+            ctx.fillStyle = 'rgba(0,0,0,0.15)'; ctx.fillRect(0,0,canvas.width, canvas.height);
+            lines.forEach(l => {
+                let dx = touch.x - l.x; let dy = touch.y - l.y;
                 let dist = Math.sqrt(dx*dx + dy*dy);
-                let off = dist < 100 ? dx * 0.1 : 0;
-                
-                ctx.moveTo(d.x + off, d.y);
-                ctx.lineTo(d.x + off*0.5, d.y + d.l);
-                ctx.stroke();
-                d.y += d.s; if(d.y > canvas.height) d.y = -d.l;
+                if(dist < 150) l.oX += (dx * 0.05); else l.oX *= 0.95;
+                ctx.strokeStyle = '#d4af37'; ctx.beginPath(); ctx.moveTo(l.x + l.oX, l.y); ctx.lineTo(l.x + l.oX*0.5, l.y + l.l); ctx.stroke();
+                l.y += l.v; if(l.y > canvas.height) { l.y = -l.l; l.x = Math.random()*canvas.width; }
             });
             requestAnimationFrame(loop);
         }
