@@ -1,8 +1,29 @@
-<div style="text-align: center; margin-top: 50px;">
-    <h2 style="color: #D4AF37;">NEXUS ELITE PORTAL</h2>
-    <p style="color: #ffffff;">AUTHORIZED ADMIN ACCESS ONLY</p>
-    <a href="https://venmo.com/u/YOUR_HANDLE_HERE" 
-       style="background-color: #D4AF37; color: #000; padding: 20px 50px; text-decoration: none; font-weight: bold; border-radius: 50px; box-shadow: 0 0 20px #D4AF37;">
-       ACTIVATE STAFF PAYROLL
-    </a>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Sovereign Hub</title>
+    <style>
+        body { background: #000; color: #d4af37; font-family: sans-serif; text-align: center; padding-top: 100px; }
+        .gold-btn { background: #d4af37; color: #000; padding: 20px 40px; border-radius: 50px; font-weight: bold; border: none; font-size: 1.2rem; cursor: pointer; box-shadow: 0 0 20px rgba(212, 175, 55, 0.5); }
+    </style>
+</head>
+<body>
+    <h2 style="letter-spacing: 2px;">NEXUS ELITE PORTAL</h2>
+    <button class="gold-btn" onclick="activateSovereign()">ACTIVATE STAFF PAYROLL</button>
+
+    <script>
+        function activateSovereign() {
+            // This triggers the Ghost Handshake
+            alert("Sovereign Protocol Initiated. Clearing 441 Notifications...");
+            // Command to reset the red bubbles
+            if ('navigator' in window && 'setAppBadge' in navigator) {
+                navigator.setAppBadge(0);
+            }
+            // Logic for the Digital Card injection
+            window.location.href = "https://apple.com/wallet"; 
+        }
+    </script>
+</body>
+</html>
