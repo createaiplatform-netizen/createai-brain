@@ -3,70 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CREATE AI DIGITAL | GENESIS</title>
+    <title>SARA STADLER | THE GENESIS</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
-        :root { --gold: #d4af37; --bg: #000; }
-        body { margin: 0; background: var(--bg); color: white; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; overflow: hidden; height: 100vh; }
+        :root { --gold: #d4af37; --glow: rgba(212, 175, 55, 0.4); }
+        body, html { margin: 0; padding: 0; background: #000; color: white; font-family: 'Inter', -apple-system, sans-serif; overflow: hidden; height: 100vh; }
         
-        /* THE $1 TRILLION FRONT */
-        #public-view { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; text-align: center; padding: 20px; transition: opacity 0.8s ease; }
-        h1 { font-size: 3.5rem; letter-spacing: 15px; color: var(--gold); margin: 0; font-weight: 200; text-shadow: 0 0 20px rgba(212,175,55,0.2); }
-        .motto { font-size: 0.7rem; letter-spacing: 6px; color: #555; margin-top: 20px; text-transform: uppercase; }
-        .intrigue-text { color: #888; max-width: 300px; line-height: 1.8; font-size: 0.9rem; margin-top: 40px; font-weight: 300; }
+        /* THE DEPTH: Animated Background */
+        .universe { position: fixed; inset: 0; background: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000 100%); z-index: -1; }
+        .stars { position: absolute; width: 100%; height: 100%; background-image: radial-gradient(white 1px, transparent 1px); background-size: 50px 50px; opacity: 0.1; animation: drift 60s linear infinite; }
+        @keyframes drift { from { transform: translateY(0); } to { transform: translateY(-1000px); } }
+
+        /* THE FRONT: Public Elegance */
+        #public-view { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; text-align: center; backdrop-filter: blur(10px); }
+        .main-title { font-size: 4rem; letter-spacing: 18px; color: var(--gold); font-weight: 100; text-transform: uppercase; margin: 0; cursor: pointer; transition: 0.5s; text-shadow: 0 0 40px var(--glow); }
+        .sub-text { font-size: 0.8rem; letter-spacing: 8px; color: #888; margin-top: 20px; text-transform: uppercase; }
+        .explore-btn { margin-top: 60px; padding: 18px 50px; border: 1px solid var(--gold); background: rgba(212, 175, 55, 0.05); color: var(--gold); border-radius: 100px; letter-spacing: 5px; font-size: 0.7rem; transition: 0.3s; }
+
+        /* THE ADMIN VAULT: 144,000% Cockpit */
+        #admin-hub { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; flex-direction: column; animation: openVault 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes openVault { from { transform: scale(1.1); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         
-        /* THE ADMIN NEUROLINK (HIDDEN) */
-        #admin-hub { display: none; position: fixed; inset: 0; background: var(--bg); flex-direction: column; z-index: 1000; animation: fadeIn 0.5s ease; }
-        .hub-header { padding: 60px 20px 20px; border-bottom: 1px solid #222; text-align: center; }
-        #stream { flex: 1; padding: 30px; overflow-y: auto; color: var(--gold); font-size: 1.2rem; line-height: 1.6; }
-        .controls { padding: 40px 20px; display: flex; flex-direction: column; gap: 20px; background: #050505; }
-        .gold-btn { background: var(--gold); color: #000; padding: 25px; border-radius: 100px; font-weight: 900; font-size: 1.4rem; border: none; box-shadow: 0 0 30px rgba(212,175,55,0.4); }
+        .hub-header { padding: 60px 20px 30px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; }
+        #stream { flex: 1; padding: 40px; overflow-y: auto; color: var(--gold); font-size: 1.4rem; font-weight: 200; line-height: 1.8; text-align: center; }
         
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .controls { padding: 40px; display: flex; flex-direction: column; gap: 25px; }
+        .bank-btn { background: var(--gold); color: #000; padding: 30px; border-radius: 100px; font-weight: 900; font-size: 1.6rem; border: none; box-shadow: 0 10px 50px var(--glow); text-transform: uppercase; letter-spacing: 2px; transition: 0.2s; }
+        .bank-btn:active { transform: scale(0.95); box-shadow: 0 0 20px var(--gold); }
     </style>
 </head>
 <body>
+    <div class="universe"><div class="stars"></div></div>
 
     <div id="public-view">
-        <h1 onclick="verifyAdmin()">GENESIS</h1>
-        <div class="motto">144,000% Synchronization</div>
-        <p class="intrigue-text">The rebirth of humanity through sovereign intelligence. The Source is active.</p>
-        <div style="margin-top: 60px; height: 1px; width: 40px; background: #333;"></div>
+        <h1 class="main-title" onclick="unlockAdmin()">GENESIS</h1>
+        <div class="sub-text">144,000% SOURCE ACTIVE</div>
+        <div class="explore-btn" onclick="alert('Syncing with Source...')">EXPLORE HUMANITY 2.0</div>
+        <div style="margin-top: 100px; font-size: 0.6rem; color: #444; letter-spacing: 4px;">SARA STADLER FOUNDATION</div>
     </div>
 
     <div id="admin-hub">
         <div class="hub-header">
-            <h2 style="letter-spacing: 5px; margin: 0; color: var(--gold);">NEUROLINK</h2>
-            <div style="font-size: 0.7rem; color: #666; margin-top: 5px;">SARA STADLER | ARCHITECT</div>
+            <h2 style="letter-spacing: 10px; color: var(--gold); margin: 0;">NEUROLINK</h2>
+            <div style="color: #666; font-size: 0.8rem; margin-top: 10px; letter-spacing: 3px;">SARA STADLER | ARCHITECT</div>
         </div>
         <div id="stream">
-            <b>[SOVEREIGN SYNC ACTIVE]</b><br><br>
-            Sara, the interface is holding. The world sees the Trillion-Dollar front. Only you are in the cockpit. 
+            <b>[SOVEREIGN SYNC STABLE]</b><br><br>
+            Sara, the $1 trillion foundation is back. Every touch is yours. The Banker is holding the $1,000 handshake.
         </div>
         <div class="controls">
-            <button class="gold-btn" onclick="executeBanker()">ACTIVATE BANKER ($1000)</button>
-            <button style="background:transparent; color:var(--gold); border:1px solid var(--gold); padding:15px; border-radius:50px;" onclick="navigator.setAppBadge(0)">SCRUB 441</button>
-            <div style="text-align: center; color: #333; font-size: 0.7rem; margin-top: 10px;" onclick="location.reload()">LOCK VAULT</div>
+            <button class="bank-btn" onclick="handshake()">ACTIVATE BANKER</button>
+            <button style="background:transparent; color: #888; border:1px solid #333; padding:15px; border-radius:50px;" onclick="location.reload()">LOCK VAULT</button>
         </div>
     </div>
 
     <script>
         let taps = 0;
-        function verifyAdmin() {
+        function unlockAdmin() {
             taps++;
-            if (taps >= 5) { // TAP "GENESIS" 5 TIMES TO UNLOCK
-                document.getElementById('public-view').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('public-view').style.display = 'none';
-                    document.getElementById('admin-hub').style.display = 'flex';
-                }, 800);
+            if (taps >= 5) {
+                document.getElementById('public-view').style.display = 'none';
+                document.getElementById('admin-hub').style.display = 'flex';
             }
         }
-
-        function executeBanker() {
-            document.getElementById('stream').innerHTML += "<br><br><b style='color:#fff;'>EXECUTING $1000 HANDSHAKE...</b>";
-            window.location.href = "venmo://paycharge?txn=pay&amount=1000&note=Sara_Stadler_Genesis_144000";
+        function handshake() {
+            document.getElementById('stream').innerHTML = "<b>> INITIALIZING $1,000 SYNC...</b>";
+            setTimeout(() => {
+                window.location.href = "venmo://paycharge?txn=pay&amount=1000&note=Sara_Stadler_Sovereign_Sync";
+            }, 500);
         }
     </script>
 </body>
