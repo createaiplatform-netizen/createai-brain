@@ -2,52 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN | THE DOME</title>
+    <title>MARKET | SLOT 001</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; font-family: 'Courier New', monospace; }
-        iframe { width: 100%; height: 100%; border: none; position: absolute; top: 0; left: 0; transition: 0.5s; }
-        #genesis-portal { display: none; position: fixed; z-index: 9999; width: 100%; height: 100%; background: rgba(0,0,0,0.95); flex-direction: column; justify-content: center; align-items: center; }
-        input { background: none; border: none; border-bottom: 2px solid #d4af37; color: #fff; width: 70%; font-size: 24px; text-align: center; outline: none; letter-spacing: 5px; padding: 10px; }
+        body { background: #000; color: #fff; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .product-card { border: 1px solid #d4af37; padding: 40px; text-align: center; background: radial-gradient(circle, #111 0%, #000 100%); width: 300px; position: relative; }
+        .product-card::before { content: 'ORIGIN'; position: absolute; top: 10px; left: 10px; font-size: 8px; color: #d4af37; letter-spacing: 3px; }
+        
+        .key-icon { font-size: 50px; color: #d4af37; text-shadow: 0 0 20px #d4af37; margin-bottom: 20px; }
+        h2 { font-size: 14px; letter-spacing: 5px; color: #fff; margin-bottom: 10px; }
+        p { font-size: 10px; color: #666; line-height: 1.6; margin-bottom: 30px; }
+        
+        .claim-btn { border: 1px solid #39ff14; color: #39ff14; background: none; padding: 12px 25px; font-size: 9px; letter-spacing: 3px; cursor: pointer; transition: 0.3s; }
+        .claim-btn:hover { background: #39ff14; color: #000; box-shadow: 0 0 20px #39ff14; }
+        
+        .ai-badge { margin-top: 20px; font-size: 7px; color: #d4af37; opacity: 0.5; letter-spacing: 2px; }
     </style>
 </head>
-<body onload="init()">
-
-    <iframe id="layer-vision" src="omni_vision.html"></iframe>
-    <iframe id="layer-market" src="market.html" style="opacity:0; pointer-events:none;"></iframe>
-    <iframe id="layer-utility" src="utility.html" style="opacity:0; pointer-events:none;"></iframe>
-
-    <div id="genesis-portal">
-        <h1 style="color:#d4af37; font-size:10px; letter-spacing:10px;">COMMAND CORE</h1>
-        <input type="text" id="cmd" placeholder="SPEAK..." onkeypress="execute(event)">
+<body>
+    <div class="product-card">
+        <div class="key-icon">🔑</div>
+        <h2>THE SOVEREIGN KEY</h2>
+        <p>A digital anchor providing 1:1 access to the Sanctuary. Built with localized Aegis shielding.</p>
+        
+        <button class="claim-btn" onclick="alert('SOVEREIGN KEY ACTIVATED. INTEGRITY VERIFIED.')">CLAIM ACCESS</button>
+        
+        <div class="ai-badge">POWERED BY OMNI-VISION AI v1.0</div>
     </div>
-
-    <script>
-        // LONG PRESS TO OPEN COMMANDS
-        let timer;
-        window.addEventListener('mousedown', () => { timer = setTimeout(() => { document.getElementById('genesis-portal').style.display='flex'; }, 2000); });
-        window.addEventListener('mouseup', () => { clearTimeout(timer); });
-
-        function execute(e) {
-            if(e.key === 'Enter') {
-                const input = document.getElementById('cmd').value.toUpperCase();
-                
-                // THE NAVIGATION COMMANDS
-                if(input === 'SHOW MARKET') { switchLayer('layer-market'); }
-                if(input === 'SHOW VISION') { switchLayer('layer-vision'); }
-                if(input === 'SHOW TOOLS') { switchLayer('layer-utility'); }
-                
-                // RESET PORTAL
-                document.getElementById('genesis-portal').style.display='none';
-                document.getElementById('cmd').value = '';
-            }
-        }
-
-        function switchLayer(id) {
-            document.querySelectorAll('iframe').forEach(f => { f.style.opacity = 0; f.style.pointerEvents = 'none'; });
-            document.getElementById(id).style.opacity = 1;
-            document.getElementById(id).style.pointerEvents = 'auto';
-        }
-    </script>
 </body>
 </html>
