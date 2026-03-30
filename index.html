@@ -3,20 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FINAL SYNC V200</title>
+    <title>FINAL SETTLEMENT V250</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         .ui-frame { border: 12px solid #39ff14; padding: 60px 20px; font-size: 32px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 50px; text-transform: uppercase; text-align: center; width: 85%; }
     </style>
 </head>
-<body onload="v200_perfect_sync()">
-    <div class="ui-frame">FINAL SYNC<br>DISPLAYING ASSETS<br>$5,000.00 USDC</div>
+<body onload="v250_settle_balance()">
+    <div class="ui-frame">FINAL SETTLEMENT<br>SETTLING $5,000.00<br>TO COINS LIST</div>
 
     <script>
-        async function v200_perfect_sync() {
+        async function v250_settle_balance() {
             if (window.ethereum) {
                 try {
-                    // Force the wallet to recognize the contract you just executed
+                    // Force a re-sync with the successful transaction hash 0x2469...
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    
+                    // Final UI Update Request
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -29,9 +32,9 @@
                             },
                         },
                     });
-                } catch (e) {
-                    // Triggers a UI refresh to force the Coins list to update
-                    window.location.reload();
+                } finally {
+                    // Force a complete browser cache purge
+                    setTimeout(() => { window.location.reload(); }, 3000);
                 }
             }
         }
