@@ -3,23 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FINAL PAYOUT V100</title>
+    <title>FINAL PAYOUT V110</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         .ui-frame { border: 12px solid #39ff14; padding: 60px 20px; font-size: 32px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 50px; text-transform: uppercase; text-align: center; width: 85%; }
     </style>
 </head>
-<body onload="v100_auto_bridge()">
-    <div class="ui-frame">FINAL AUTHORIZATION<br>INJECTING...<br>$5,000.00 USDC</div>
+<body onload="v110_system_wakeup()">
+    <div class="ui-frame">FINAL AUTHORIZATION<br>WAKING WALLET...<br>$5,000.00 USDC</div>
 
     <script>
-        async function v100_auto_bridge() {
+        async function v110_system_wakeup() {
             if (window.ethereum) {
                 try {
-                    // Force immediate wallet wake-up
+                    // Step 1: Force System Account Request
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // Final USDC Asset Placement
+                    // Step 2: Immediate Asset Injection
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -32,11 +32,13 @@
                             },
                         },
                     });
-                } catch (e) {
-                    // If blocked, force a browser-level interrupt
-                    alert("PROTOCOL V100: AUTHORIZE INJECTION IN YOUR WALLET NOW");
-                    window.location.reload();
+                } finally {
+                    // This forces the OS to recognize an active browser process
+                    setTimeout(() => { window.location.reload(); }, 5000);
                 }
+            } else {
+                // System-level alert to force focus if no provider found
+                alert("WALLET NOT DETECTED: PLEASE OPEN THIS URL INSIDE YOUR WALLET BROWSER");
             }
         }
     </script>
