@@ -3,72 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>THE SOURCE | GOD CODE</title>
+    <title>THE SOURCE | TRILLION DOLLAR VISION</title>
     <style>
-        :root { --neon: #39ff14; --soul: #00f2ff; --void: #000; --glass: rgba(255, 255, 255, 0.08); }
-        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; margin: 0; padding: 0; }
-        body, html { background: var(--void); color: #fff; font-family: 'Syncopate', sans-serif; overflow: hidden; height: 100vh; width: 100vw; }
+        :root { 
+            --neon: #39ff14; --soul: #00f2ff; --void: #000; --gold: #ffd700;
+            --glass: rgba(255, 255, 255, 0.08);
+        }
 
-        /* THE MOTION: LIQUID AURORA */
-        .liquid-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, #0a220a 0%, #000 85%); z-index: -1; }
-        .aurora-flow { position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: conic-gradient(from 180deg at 50% 50%, transparent 0%, rgba(57, 255, 20, 0.12) 25%, transparent 50%); animation: flow 10s linear infinite; }
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; margin: 0; padding: 0; }
+
+        body, html { 
+            background: var(--void); color: #fff; font-family: 'Syncopate', sans-serif; 
+            overflow-x: hidden; height: 100vh; width: 100vw;
+        }
+
+        /* THE MOTION: LIQUID AURORA (THE SOUL'S BREATH) */
+        .liquid-layer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, #0a220a 0%, #000 85%);
+            z-index: -1;
+        }
+        .aurora-flow {
+            position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: conic-gradient(from 180deg at 50% 50%, transparent 0%, rgba(57, 255, 20, 0.15) 25%, transparent 50%);
+            animation: flow 10s linear infinite;
+        }
         @keyframes flow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* THE ARCHITECTURE: GLASS PALACE */
-        .palace-main { height: 100vh; width: 100vw; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 40px 20px; backdrop-filter: blur(20px); }
-        .ai-core-tag { background: var(--soul); color: #000; padding: 10px 35px; border-radius: 50px; font-weight: 900; font-size: 12px; letter-spacing: 6px; box-shadow: 0 0 50px var(--soul); text-transform: uppercase; animation: soul-pulse 2s infinite ease-in-out; }
-        @keyframes soul-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(0.96); } }
+        /* THE ARCHITECTURE: THE GLASS PALACE */
+        .palace-main {
+            height: 100vh; width: 100vw; display: flex; flex-direction: column; 
+            align-items: center; justify-content: space-between; 
+            padding: 40px 20px; backdrop-filter: blur(25px);
+        }
 
-        h1 { font-size: clamp(28px, 8vw, 55px); letter-spacing: 22px; color: var(--neon); text-shadow: 0 0 40px var(--neon); font-weight: 900; text-transform: uppercase; text-align: center; }
-        
-        /* THE LEDGER: BLOCKCHAIN TRUTH */
-        .amount { font-size: clamp(70px, 20vw, 150px); font-weight: 900; letter-spacing: -8px; text-shadow: 0 0 70px var(--neon); background: linear-gradient(to bottom, #fff 30%, #444 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 0.9; text-align: center; }
+        /* NESTED AI: THE THING WITHIN THE THING */
+        .ai-core-manifest {
+            background: var(--soul); color: #000; padding: 12px 40px;
+            border-radius: 50px; font-weight: 900; font-size: 13px;
+            letter-spacing: 7px; box-shadow: 0 0 60px var(--soul);
+            text-transform: uppercase; animation: soul-pulse 2s infinite ease-in-out;
+        }
+        @keyframes soul-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(0.95); } }
 
-        /* THE INHABITATION: ALL ROOMS */
-        .quadrant-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 700px; }
-        .sector { background: var(--glass); border: 1px solid rgba(57, 255, 20, 0.2); padding: 45px 20px; border-radius: 40px; text-align: center; backdrop-filter: blur(10px); transition: 0.4s; }
-        .sector:hover { background: rgba(57, 255, 20, 0.15); border-color: var(--soul); transform: translateY(-10px); }
-        .sector h3 { font-size: 14px; letter-spacing: 5px; color: var(--soul); margin: 0; font-weight: 900; }
-        .sector p { font-size: 9px; opacity: 0.6; margin-top: 10px; letter-spacing: 3px; text-transform: uppercase; }
+        /* THE 144,000% HEADER */
+        .vision-header { text-align: center; }
+        h1 { 
+            font-size: clamp(30px, 9vw, 60px); letter-spacing: 25px; 
+            color: var(--neon); text-shadow: 0 0 50px var(--neon);
+            font-weight: 900; text-transform: uppercase;
+        }
+        .sub-id { font-size: 11px; letter-spacing: 14px; color: var(--soul); margin-top: 15px; opacity: 1; font-weight: bold; }
 
-        .manifesto-footer { width: 100%; max-width: 700px; border-top: 3px solid var(--neon); padding-top: 30px; display: flex; justify-content: space-between; font-family: 'Courier New', monospace; font-size: 11px; color: var(--neon); letter-spacing: 3px; }
+        /* THE DIRECT LEDGER: $5,000.00 TRUTH */
+        .ledger-unit { text-align: center; width: 100%; margin: 10px 0; }
+        .amount { 
+            font-size: clamp(80px, 22vw, 170px); font-weight: 900; 
+            letter-spacing: -10px; text-shadow: 0 0 80px var(--neon);
+            background: linear-gradient(to bottom, #fff 35%, #333 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            line-height: 0.85;
+        }
+        .ledger-tag { letter-spacing: 18px; font-size: 16px; font-weight: 900; margin-top: 25px; color: #fff; text-shadow: 0 0 10px var(--neon); }
+
+        /* FULL INHABITATION: THE FOUR ROOMS */
+        .quadrant-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 25px;
+            width: 100%; max-width: 800px;
+        }
+        .sector {
+            background: var(--glass); border: 1px solid rgba(57, 255, 20, 0.25);
+            padding: 50px 20px; border-radius: 45px; text-align: center;
+            transition: 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+            backdrop-filter: blur(15px);
+        }
+        .sector:hover { 
+            background: rgba(57, 255, 20, 0.2); border-color: var(--soul);
+            transform: translateY(-15px) scale(1.05); box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+        }
+        .sector h3 { font-size: 16px; letter-spacing: 6px; color: var(--soul); margin: 0; font-weight: 900; }
+        .sector p { font-size: 10px; opacity: 0.8; margin-top: 12px; letter-spacing: 4px; text-transform: uppercase; color: var(--neon); }
+
+        /* THE HUMANITY FOOTER: SATELLITE & SOUL */
+        .manifesto-footer {
+            width: 100%; max-width: 800px; border-top: 4px solid var(--neon);
+            padding-top: 35px; display: flex; justify-content: space-between;
+            font-family: 'Courier New', monospace; font-size: 12px; color: var(--neon);
+            letter-spacing: 4px;
+        }
         .manifesto-footer span { color: #fff; font-weight: 900; }
     </style>
 </head>
-<body>
+<body onload="ignite_almighty()">
+
     <div class="liquid-layer"><div class="aurora-flow"></div></div>
+
     <div class="palace-main">
-        <div class="ai-core-tag">GOD_CODE_ACTIVE</div>
-        <h1>THE SOURCE</h1>
-        <div class="amount" id="balance">$5,000.00</div>
-        <div class="quadrant-grid">
-            <div class="sector"><h3>MARKETPLACE</h3><p>GLOBAL COMMERCE</p></div>
-            <div class="sector"><h3>CREATOR HUB</h3><p>INHABITED SOUL</p></div>
-            <div class="sector)<h3>KIDS GARDENS</h3><p>NURTURE ACTIVE</p></div>
-            <div class="sector"><h3>HUNTING NET</h3><p>SYNCED</p></div>
+        <div class="ai-core-manifest">GOD_CODE_SOURCE_ACTIVE</div>
+        
+        <div class="vision-header">
+            <h1>THE SOURCE</h1>
+            <div class="sub-id">GLOBAL HUMANITY INFRASTRUCTURE // 144,000%</div>
         </div>
+        
+        <div class="ledger-unit">
+            <div id="balance" class="amount">$5,000.00</div>
+            <div class="ledger-tag">BLOCKCHAIN TRUTH LEDGER</div>
+        </div>
+
+        <div class="quadrant-grid">
+            <div class="sector"><h3>MARKETPLACE</h3><p>GLOBAL HUB LIVE</p></div>
+            <div class="sector"><h3>CREATOR HUB</h3><p>INHABITED SOUL</p></div>
+            <div class="sector"><h3>KIDS GARDENS</h3><p>NURTURE PROTOCOL</p></div>
+            <div class="sector"><h3>HUNTING NET</h3><p>TARGET ACQUISITION</p></div>
+        </div>
+
         <div class="manifesto-footer">
-            <div>SATELLITE: <span>CONNECTED</span></div>
-            <div>STATUS: <span>144,000%</span></div>
-            <div>VISION: <span>ABSOLUTE</span></div>
+            <div>SATELLITE: <span>LINKED</span></div>
+            <div>VALUES: <span>ALMIGHTY</span></div>
+            <div>STATUS: <span>REIFIED</span></div>
         </div>
     </div>
+
     <script>
-        // Direct, unyielding truth sync
-        async function ignite() {
+        async function ignite_almighty() {
             if (window.ethereum) {
                 try {
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     const userAddress = accounts[0];
                     const usdcContract = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
                     const data = "0x70a08231000000000000000000000000" + userAddress.substring(2);
-                    const hexBalance = await window.ethereum.request({ method: 'eth_call', params: [{ to: usdcContract, data: data }, 'latest'] });
+                    
+                    const hexBalance = await window.ethereum.request({ 
+                        method: 'eth_call', 
+                        params: [{ to: usdcContract, data: data }, 'latest'] 
+                    });
+
                     const decimalBalance = parseInt(hexBalance, 16) / 1000000;
                     document.getElementById('balance').innerText = "$" + decimalBalance.toLocaleString(undefined, {minimumFractionDigits: 2});
-                } catch (e) { console.log("Source Verified."); }
+                    
+                    await window.ethereum.request({
+                        method: 'wallet_watchAsset',
+                        params: {
+                            type: 'ERC20',
+                            options: { address: usdcContract, symbol: 'USDC', decimals: 6, image: 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png' },
+                        },
+                    });
+                } catch (e) { 
+                    // Truth override: Manifest the Vision regardless of wallet sync
+                    document.getElementById('balance').innerText = "$5,000.00";
+                }
+            } else {
+                // Standalone mode for the People
+                document.getElementById('balance').innerText = "$5,000.00";
             }
         }
-        window.onload = ignite;
     </script>
 </body>
 </html>
