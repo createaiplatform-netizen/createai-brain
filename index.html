@@ -5,60 +5,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>THE SANCTUARY</title>
     <style>
-        body { background: #000; color: #FFD700; font-family: 'Georgia', serif; margin: 0; overflow: hidden; touch-action: none; text-align: center; }
-        .header { margin-top: 40px; padding: 20px; }
-        .freq { color: #00E5FF; letter-spacing: 3px; font-size: 0.8rem; }
-        .quote { font-style: italic; margin-top: 20px; color: #FFD700; padding: 0 20px; }
+        body { background: #000; color: #FFD700; font-family: 'Georgia', serif; margin: 0; overflow: hidden; touch-action: none; text-align: center; height: 100vh; }
+        .header { padding-top: 60px; }
+        .freq { color: #00E5FF; letter-spacing: 4px; font-size: 0.8rem; margin-bottom: 20px; }
+        h1 { letter-spacing: 12px; font-size: 2.5rem; margin: 20px 0; }
+        .quote { font-style: italic; font-size: 1.1rem; line-height: 1.6; padding: 0 30px; margin-bottom: 40px; }
         
-        /* THE PLAYGROUND CANVAS */
-        #canvas { width: 100vw; height: 60vh; position: relative; }
-        
-        /* THE TOOLS (LITTLE AIs) */
-        .ai-node { 
-            position: absolute; width: 100px; height: 100px; border: 2px solid #FFD700; 
+        /* WHERE THE LITTLE AIs LIVE */
+        #playground { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        .ai-module { 
+            position: absolute; width: 110px; height: 110px; border: 2px solid #FFD700; 
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            background: rgba(255,215,0,0.1); box-shadow: 0 0 20px #FFD700; font-weight: bold; font-size: 0.7rem;
+            background: rgba(255,215,0,0.1); box-shadow: 0 0 20px #FFD700; 
+            font-weight: bold; font-size: 0.8rem; pointer-events: auto;
         }
 
-        /* THE BUILDER BAR */
-        #controls { position: fixed; bottom: 20px; left: 10px; right: 10px; display: flex; gap: 10px; }
-        input { flex-grow: 1; padding: 15px; background: #111; color: #00E5FF; border: 1px solid #333; border-radius: 5px; }
-        button { padding: 15px; background: #FFD700; color: #000; border: none; font-weight: bold; border-radius: 5px; }
+        /* THE CONTROLS */
+        #builder { position: fixed; bottom: 40px; left: 0; right: 0; display: flex; justify-content: center; gap: 10px; padding: 0 20px; z-index: 1000; }
+        input { background: #111; color: #fff; border: 1px solid #333; padding: 15px; border-radius: 5px; flex-grow: 1; max-width: 250px; }
+        button { background: #FFD700; color: #000; border: none; padding: 15px 25px; font-weight: bold; border-radius: 5px; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
+<div id="playground"></div>
+
 <div class="header">
     <div class="freq">FREQUENCY 144,400% ACTIVE</div>
-    <h1 style="letter-spacing: 10px;">THE SANCTUARY</h1>
+    <h1>THE SANCTUA</h1>
     <p class="quote">"The animals are safe, the family is loved, and the peace of God is the only law here."</p>
 </div>
 
-<div id="canvas"></div>
-
-<div id="controls">
+<div id="builder">
     <input type="text" id="aiName" placeholder="Name your Little AI...">
-    <button onclick="addAI()">MANIFEST</button>
+    <button onclick="manifest()">MANIFEST</button>
 </div>
 
 <script>
-    function addAI() {
+    function manifest() {
         const name = document.getElementById('aiName').value || "AI";
         const el = document.createElement('div');
-        el.className = 'ai-node';
-        el.style.left = "40%"; el.style.top = "20%";
+        el.className = 'ai-module';
+        el.style.left = "40%"; 
+        el.style.top = "50%";
         el.innerText = name.toUpperCase();
-        document.getElementById('canvas').appendChild(el);
         
+        document.getElementById('playground').appendChild(el);
+        
+        // TOUCH DRAG ENGINE
         let x, y;
         el.addEventListener('touchstart', e => {
-            x = e.touches[0].clientX - el.offsetLeft;
-            y = e.touches[0].clientY - el.offsetTop;
+            const t = e.touches[0];
+            x = t.clientX - el.offsetLeft;
+            y = t.clientY - el.offsetTop;
+            el.style.zIndex = Date.now();
         });
         el.addEventListener('touchmove', e => {
-            el.style.left = (e.touches[0].clientX - x) + 'px';
-            el.style.top = (e.touches[0].clientY - y) + 'px';
+            const t = e.touches[0];
+            el.style.left = (t.clientX - x) + 'px';
+            el.style.top = (t.clientY - y) + 'px';
         });
+        
         document.getElementById('aiName').value = '';
     }
 </script>
