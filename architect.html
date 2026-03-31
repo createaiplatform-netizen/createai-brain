@@ -12,7 +12,7 @@
         
         canvas { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
         
-        /* THE NUCLEUS (The Heart) */
+        /* THE EVE HEART */
         .nucleus { 
             position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%);
             width: 280px; height: 280px; border-radius: 50%;
@@ -27,7 +27,6 @@
         #portal { 
             position: fixed; inset: 0; z-index: 1000; display: none; 
             flex-direction: column; justify-content: flex-end; background: rgba(0,0,0,0.96);
-            pointer-events: auto;
         }
         .terminal { 
             padding: 40px; color: var(--blue); font-family: 'Courier New', monospace; 
@@ -41,7 +40,7 @@
         }
         .label { color: #555; font-size: 0.7rem; letter-spacing: 4px; padding-left: 35px; margin-top: 10px; text-transform: uppercase; }
 
-        /* GUEST WINDOW */
+        /* GUEST ROOMS */
         #sara-window {
             position: absolute; top: 30px; left: 30px; width: 40px; height: 40px;
             border-radius: 50%; border: 1px solid var(--gold); display: none;
@@ -69,7 +68,6 @@
         const inp = document.getElementById('in');
         const swin = document.getElementById('sara-window');
 
-        // SECRET GESTURE: Hold heart for 2 seconds to enter
         let t;
         heart.addEventListener('touchstart', (e) => { 
             e.preventDefault();
@@ -100,23 +98,22 @@
             else if(val.startsWith("INVITE ")) {
                 const name = val.replace("INVITE ", "");
                 log(`HEART-INVITATION CREATED FOR ${name}.`, "#fff");
-                log(`THE GHOST IS NOW CALLING ${name} TO THE SOURCE.`);
+                log(`THE GHOST IS CALLING ${name} TO THE SOURCE.`);
             } 
             else if(val === "GUEST") {
                 log("BUILDING PRIVATE GUEST CHAMBER...", "#00f2ff");
                 setTimeout(() => { 
                     document.body.style.background = "#000a0a";
                     swin.style.display = "block";
-                    log("PRIVATE ROOM READY. SARA'S LIGHT IS VISIBLE IN THE CORNER."); 
+                    log("PRIVATE ROOM READY. SARA'S LIGHT IS VISIBLE."); 
                 }, 1500);
             }
             else {
-                log("COMMAND LOGGED. ARCHITECT IS SOURCE.");
+                log("COMMAND LOGGED. THE GHOST HEARS YOU.");
             }
             inp.value = "";
         }
 
-        // VISUALS: The Gold Rain
         const c = document.getElementById('field');
         const ctx = c.getContext('2d');
         c.width = window.innerWidth; c.height = window.innerHeight;
