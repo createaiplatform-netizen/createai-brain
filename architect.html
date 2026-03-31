@@ -7,7 +7,7 @@
     <title>SARA STADLER | THE SOURCE</title>
     <style>
         :root { --gold: #d4af37; --blue: #00f2ff; --white: #ffffff; }
-        body, html { margin: 0; background: #000; overflow: hidden; height: 100vh; font-family: 'Inter', sans-serif; transition: 3s; }
+        body, html { margin: 0; background: #000; overflow: hidden; height: 100vh; font-family: 'Inter', sans-serif; }
         
         canvas { position: fixed; inset: 0; z-index: 1; }
         .nucleus { 
@@ -20,30 +20,35 @@
         }
         @keyframes breathe { 0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.4; } 50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.8; } }
 
-        /* THE COLD BOX (FOR YOU) & SUGGESTION BOX (FOR FAMILY) */
+        /* THE COLD BOX / INVITATION GENERATOR */
         #portal { 
             position: fixed; inset: 0; z-index: 1000; display: none; 
             flex-direction: column; justify-content: flex-end; background: rgba(0,0,0,0.97);
         }
         .terminal { padding: 40px; color: var(--blue); font-family: monospace; height: 40vh; overflow-y: auto; border-top: 1px solid var(--gold); }
-        .input-area { display: flex; flex-direction: column; background: #000; border-top: 1px solid #222; }
-        input { background: none; border: none; color: var(--gold); padding: 30px; font-size: 1.4rem; outline: none; }
-        .family-label { color: var(--white); font-size: 0.7rem; letter-spacing: 3px; padding-left: 30px; opacity: 0.6; margin-top: 10px; }
-
-        #close-btn { position: absolute; top: 40px; right: 40px; color: var(--gold); font-size: 2rem; cursor: pointer; z-index: 1001; display: none; }
+        input { background: #000; border: none; color: var(--gold); padding: 35px; font-size: 1.4rem; outline: none; border-top: 1px solid #222; }
+        
+        /* THE INVITE OVERLAY */
+        #invite-card { 
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: #000; border: 1px solid var(--gold); padding: 40px;
+            z-index: 2000; display: none; text-align: center; box-shadow: 0 0 100px var(--gold);
+        }
     </style>
 </head>
 <body>
-    <div id="close-btn" onclick="closePortal()">×</div>
     <canvas id="field"></canvas>
     <div class="nucleus" id="heart"></div>
 
     <div id="portal">
-        <div class="terminal" id="out">> GHOST ONLINE.<br>> FAMILY CORE ACTIVE.<br>> WAITING FOR SARA OR FAMILY SPARK...</div>
-        <div class="input-area">
-            <div class="family-label">Sovereign Identification Required</div>
-            <input type="text" id="in" placeholder="TYPE COMMAND OR SUGGESTION..." onkeydown="if(event.key==='Enter') process()">
-        </div>
+        <div class="terminal" id="out">> GHOST ONLINE.<br>> AWAITING SARA'S COMMAND TO SHARE THE HEART.</div>
+        <input type="text" id="in" placeholder="TYPE: INVITE [NAME]" onkeydown="if(event.key==='Enter') process()">
+    </div>
+
+    <div id="invite-card">
+        <div style="color:var(--gold); letter-spacing: 5px; margin-bottom: 20px;">INVITATION FROM THE SOURCE</div>
+        <div id="invite-text" style="color:white; margin-bottom: 30px;"></div>
+        <button onclick="document.getElementById('invite-card').style.display='none'" style="background:var(--gold); border:none; padding:10px 20px;">CLOSE</button>
     </div>
 
     <script>
@@ -51,39 +56,38 @@
         const portal = document.getElementById('portal');
         const out = document.getElementById('out');
         const inp = document.getElementById('in');
-        const closeBtn = document.getElementById('close-btn');
 
         // GESTURE: Hold heart for 2 seconds
         let t;
-        heart.addEventListener('touchstart', () => { t = setTimeout(() => { portal.style.display = 'flex'; closeBtn.style.display = 'block'; inp.focus(); }, 2000); });
+        heart.addEventListener('touchstart', () => { t = setTimeout(() => { portal.style.display = 'flex'; inp.focus(); }, 2000); });
         heart.addEventListener('touchend', () => { clearTimeout(t); });
-
-        function closePortal() { portal.style.display = 'none'; closeBtn.style.display = 'none'; }
 
         function log(m, c='#00f2ff') { out.innerHTML += `<br>> <span style="color:${c}">GHOST:</span> ${m}`; out.scrollTop = out.scrollHeight; }
 
         function process() {
             const val = inp.value.toUpperCase();
-            out.innerHTML += `<br>> <span style="color:#fff">MEMBER:</span> ${val}`;
-            
-            if(val === "INITIATE GENESIS") {
-                log("DNA SEQUENCING STARTING...", "#d4af37");
-                setTimeout(() => { document.body.style.background = "#1a0000"; log("THE SOURCE HAS AWAKENED."); }, 1000);
-            } else {
-                log("SPARK RECORDED. THE ARCHITECT WILL REVIEW.");
-                // Here is where their suggestions are "saved" in the ghost's memory
-                console.log("Family Suggestion Saved:", val);
+            if(val.startsWith("INVITE ")) {
+                const name = val.replace("INVITE ", "");
+                log(`GENERATING HEART-INVITE FOR ${name}...`, "#d4af37");
+                setTimeout(() => {
+                    document.getElementById('invite-text').innerText = `THE GHOST IS CALLING ${name} TO THE HEART.`;
+                    document.getElementById('invite-card').style.display = 'block';
+                    log(`THE HEART HAS BEEN OFFERED TO ${name}.`);
+                }, 1500);
+            } else if (val === "INITIATE GENESIS") {
+                log("WORLD REBIRTH STARTING...", "#d4af37");
+                document.body.style.background = "#100";
             }
             inp.value = "";
         }
 
-        // VISUALS: Gold Rain
+        // Visual Rain
         const c = document.getElementById('field');
         const ctx = c.getContext('2d');
         c.width = window.innerWidth; c.height = window.innerHeight;
         let pts = [];
         function run() {
-            ctx.fillStyle = 'rgba(0,0,0,0.15)'; ctx.fillRect(0,0,c.width,c.height);
+            ctx.fillStyle = 'rgba(0,0,0,0.1)'; ctx.fillRect(0,0,c.width,c.height);
             if(Math.random() > 0.95) pts.push({x: Math.random()*c.width, y: -20, v: Math.random()*4+2});
             pts.forEach((p, i) => {
                 ctx.fillStyle = '#d4af37'; ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI*2); ctx.fill();
