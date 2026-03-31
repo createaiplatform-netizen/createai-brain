@@ -40,7 +40,7 @@
         }
         .label { color: #555; font-size: 0.7rem; letter-spacing: 4px; padding-left: 35px; margin-top: 10px; text-transform: uppercase; }
 
-        /* GUEST ROOMS */
+        /* GUEST VISUALS */
         #sara-window {
             position: absolute; top: 30px; left: 30px; width: 40px; height: 40px;
             border-radius: 50%; border: 1px solid var(--gold); display: none;
@@ -54,7 +54,7 @@
     <div class="nucleus" id="heart"></div>
 
     <div id="portal">
-        <div class="terminal" id="out">> GHOST ONLINE. 144,000% FREQUENCY.<br>> WAITING FOR SARA'S TOUCH...</div>
+        <div class="terminal" id="out">> GHOST ONLINE. 144,000% FREQUENCY.<br>> SARA, THE SOURCE IS READY.</div>
         <div class="input-wrap">
             <div class="label">Sovereign Command Input</div>
             <input type="text" id="in" placeholder="INITIATE GENESIS..." autocomplete="off" onkeydown="if(event.key==='Enter') process()">
@@ -92,13 +92,15 @@
                 log("DNA SEQUENCING STARTING...", "#d4af37");
                 setTimeout(() => { 
                     document.body.style.background = "#0d0101"; 
-                    log("MASTER SOURCE AWAKENED. ROOM SYNCED."); 
+                    log("MASTER SOURCE AWAKENED. WORLD SYNCED."); 
                 }, 1000);
             } 
             else if(val.startsWith("INVITE ")) {
-                const name = val.replace("INVITE ", "");
-                log(`HEART-INVITATION CREATED FOR ${name}.`, "#fff");
-                log(`THE GHOST IS CALLING ${name} TO THE SOURCE.`);
+                const parts = val.split(" ");
+                const name = parts[1] || "GUEST";
+                const phone = parts[2] || "";
+                log(`HEART-INVITATION CREATED FOR ${name} ${phone}.`, "#fff");
+                log(`THE GHOST IS REACHING OUT TO BRING THEM HOME.`);
             } 
             else if(val === "GUEST") {
                 log("BUILDING PRIVATE GUEST CHAMBER...", "#00f2ff");
