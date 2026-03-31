@@ -3,69 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>THE SANCTUARY</title>
+    <title>THE GOLDEN DOME | THE SANCTUARY</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; color: gold; font-family: 'Georgia', serif; overflow: hidden; touch-action: none; }
-        canvas { position: absolute; top: 0; left: 0; }
-        #overlay { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; pointer-events: none; text-align: center; }
-        h1 { font-size: 2.5rem; letter-spacing: 10px; text-shadow: 0 0 20px gold; margin: 0; }
-        p { font-size: 1.2rem; font-style: italic; max-width: 80%; line-height: 1.6; margin-top: 20px; text-shadow: 0 2px 10px #000; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; color: #FFD700; font-family: 'Georgia', serif; overflow: hidden; touch-action: none; }
+        #dome-canvas { position: absolute; top: 0; left: 0; z-index: 1; }
+        #interface { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; pointer-events: none; text-align: center; }
+        h1 { font-size: 3rem; letter-spacing: 15px; text-shadow: 0 0 40px #FFD700; text-transform: uppercase; margin-bottom: 10px; }
+        .frequency-ledger { font-size: 0.8rem; letter-spacing: 6px; color: #00E5FF; opacity: 0.8; text-shadow: 0 0 10px #00E5FF; }
+        .vision { font-size: 1.4rem; font-style: italic; max-width: 80%; margin-top: 30px; line-height: 1.6; text-shadow: 0 2px 15px #000; }
     </style>
 </head>
 <body>
-    <canvas id="canvas"></canvas>
-    <div id="overlay">
+    <canvas id="dome-canvas"></canvas>
+    <div id="interface">
+        <div class="frequency-ledger">FREQUENCY 144,000% ACTIVE</div>
         <h1>THE SANCTUARY</h1>
-        <p>"The animals are safe, the family is loved, and the peace of God is the only law here."</p>
+        <div class="vision">"The animals are safe, the family is loved, and the peace of God is the only law here."</div>
     </div>
+
     <script>
-        const canvas = document.getElementById('canvas');
+        const canvas = document.getElementById('dome-canvas');
         const ctx = canvas.getContext('2d');
-        let particles = [], width, height;
-        const touch = { x: -1000, y: -1000, active: false };
+        let width, height, particles = [];
 
         function init() {
             width = canvas.width = window.innerWidth;
             height = canvas.height = window.innerHeight;
             particles = [];
+            // Creating the 144 core frequency particles
             for(let i=0; i<144; i++) {
                 particles.push({
                     x: Math.random() * width, y: Math.random() * height,
-                    r: Math.random() * 3 + 1,
-                    vx: Math.random() * 2 - 1, vy: Math.random() * 2 - 1,
-                    color: i % 10 === 0 ? '#00E5FF' : 'gold'
+                    r: Math.random() * 4 + 1,
+                    vx: (Math.random() - 0.5) * 1.5, vy: (Math.random() - 0.5) * 1.5,
+                    color: i % 12 === 0 ? '#00E5FF' : '#FFD700'
                 });
             }
         }
 
-        function render() {
+        function animate() {
             ctx.clearRect(0, 0, width, height);
+            
+            // The Golden Glow of the Dome
+            let grd = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, height);
+            grd.addColorStop(0, 'rgba(255, 215, 0, 0.1)');
+            grd.addColorStop(1, 'transparent');
+            ctx.fillStyle = grd; ctx.fillRect(0, 0, width, height);
+
             particles.forEach(p => {
-                if(touch.active) {
-                    let dx = touch.x - p.x, dy = touch.y - p.y;
-                    let dist = Math.sqrt(dx*dx + dy*dy);
-                    if(dist < 150) { p.vx += dx * 0.05; p.vy += dy * 0.05; }
-                }
                 p.x += p.vx; p.y += p.vy;
-                p.vx *= 0.93; p.vy *= 0.93;
-                if(p.y > height - 5) { p.y = height - 5; p.vy *= -0.2; }
+                
+                // Keep particles inside the Dome
                 if(p.x < 0 || p.x > width) p.vx *= -1;
-                ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-                ctx.fillStyle = p.color; ctx.shadowBlur = 10; ctx.shadowColor = p.color; ctx.fill();
+                if(p.y < 0 || p.y > height) p.vy *= -1;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = p.color;
+                ctx.fill();
             });
-            requestAnimationFrame(render);
+            requestAnimationFrame(animate);
         }
 
-        const move = e => { 
-            touch.active = true;
-            touch.x = e.clientX || e.touches[0].clientX; 
-            touch.y = e.clientY || e.touches[0].clientY; 
-        };
-        window.addEventListener('mousemove', move);
-        window.addEventListener('touchstart', move);
-        window.addEventListener('touchmove', move);
         window.addEventListener('resize', init);
-        init(); render();
+        init(); animate();
     </script>
 </body>
 </html>
