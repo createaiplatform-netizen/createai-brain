@@ -5,112 +5,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>THE SANCTUARY | 144,000%</title>
     <style>
-        body { margin: 0; background: #000; color: gold; font-family: 'Georgia', serif; height: 100vh; overflow: hidden; touch-action: none; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; color: #FFD700; font-family: 'Georgia', serif; overflow: hidden; touch-action: none; }
         canvas { position: absolute; top: 0; left: 0; z-index: 1; }
-        
-        #ui-layer { position: relative; z-index: 10; pointer-events: none; text-align: center; width: 100%; }
-        .vision-title { font-size: 2.5rem; letter-spacing: 10px; text-shadow: 0 0 30px gold; text-transform: uppercase; margin-bottom: 10px; pointer-events: auto; cursor: pointer; }
-        .quote { font-size: 1.1rem; font-style: italic; max-width: 80%; margin: 0 auto; line-height: 1.6; opacity: 0.9; }
-        
-        #command-hub { position: fixed; bottom: 80px; width: 80%; pointer-events: auto; display: none; }
-        #core-input { width: 100%; padding: 15px; background: rgba(0,0,0,0.8); border: 1px solid gold; border-radius: 50px; color: white; text-align: center; outline: none; box-shadow: 0 0 20px rgba(255,215,0,0.3); }
-        
-        .ledger-anchor { position: fixed; bottom: 20px; font-size: 0.7rem; letter-spacing: 3px; opacity: 0.6; }
+        #interface { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; pointer-events: none; text-align: center; }
+        #title { font-size: 2.8rem; letter-spacing: 12px; text-shadow: 0 0 30px gold; text-transform: uppercase; pointer-events: auto; cursor: pointer; }
+        .manifesto { font-size: 1.3rem; font-style: italic; max-width: 85%; line-height: 1.8; margin-top: 20px; text-shadow: 0 2px 15px #000; }
+        #commandBox { position: fixed; bottom: 100px; width: 80%; display: none; z-index: 100; pointer-events: auto; }
+        #cmdInput { width: 100%; padding: 15px; background: rgba(0,0,0,0.9); border: 1px solid gold; border-radius: 50px; color: #fff; text-align: center; outline: none; }
+        #ledger { position: fixed; bottom: 30px; width: 100%; text-align: center; font-size: 0.7rem; letter-spacing: 5px; opacity: 0.5; }
     </style>
 </head>
 <body>
-
-    <canvas id="world"></canvas>
-
-    <div id="ui-layer">
-        <div class="vision-title" onclick="toggleHub()">THE SANCTUARY</div>
-        <div class="quote">"The animals are safe, the family is loved, and the peace of God is the only law here."</div>
+    <canvas id="sanctuaryCanvas"></canvas>
+    <div id="interface">
+        <h1 id="title" onclick="toggleHub()">THE SANCTUARY</h1>
+        <div class="manifesto">"The animals are safe, the family is loved, and the peace of God is the only law here."</div>
     </div>
-
-    <div id="command-hub">
-        <input type="text" id="core-input" placeholder="Command the Core..." autocomplete="off">
+    <div id="commandBox">
+        <input type="text" id="cmdInput" placeholder="Command the Sanctuary..." autocomplete="off">
     </div>
-
-    <div class="ledger-anchor">SUCCESS LEDGER 15,969,345 | 144,000%</div>
+    <div id="ledger">SUCCESS LEDGER 15,969,345 | 144,000% FREQUENCY</div>
 
     <script>
-        const canvas = document.getElementById('world');
+        const canvas = document.getElementById('sanctuaryCanvas');
         const ctx = canvas.getContext('2d');
-        let width, height, particles = [];
+        let particles = [], width, height;
         const mouse = { x: -1000, y: -1000, active: false };
 
         function init() {
             width = canvas.width = window.innerWidth;
             height = canvas.height = window.innerHeight;
             particles = [];
-            // Create the Gold Coins (The Ledger)
-            for(let i=0; i<150; i++) {
+            for(let i=0; i<144; i++) {
                 particles.push({
-                    x: Math.random() * width,
-                    y: Math.random() * height,
-                    r: Math.random() * 3 + 1,
-                    vx: Math.random() * 2 - 1,
-                    vy: Math.random() * 2 - 1,
-                    color: i % 10 === 0 ? '#00ccff' : 'gold' // Blue frequency lines mixed with gold
+                    x: Math.random() * width, y: Math.random() * height,
+                    r: Math.random() * 3 + 2,
+                    vx: Math.random() * 2 - 1, vy: Math.random() * 2 - 1,
+                    color: i % 10 === 0 ? '#00E5FF' : '#FFD700'
                 });
             }
         }
 
         function draw() {
             ctx.clearRect(0, 0, width, height);
-            
-            // Draw the Central Sun
-            const grad = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, 200);
-            grad.addColorStop(0, 'rgba(255, 215, 0, 0.15)');
-            grad.addColorStop(1, 'transparent');
-            ctx.fillStyle = grad;
-            ctx.fillRect(0,0,width,height);
-
             particles.forEach(p => {
-                // Gravity AI: Circling the finger
                 if(mouse.active) {
-                    let dx = mouse.x - p.x;
-                    let dy = mouse.y - p.y;
+                    let dx = mouse.x - p.x, dy = mouse.y - p.y;
                     let dist = Math.sqrt(dx*dx + dy*dy);
-                    if(dist < 200) {
-                        p.vx += dx * 0.01;
-                        p.vy += dy * 0.01;
-                    }
+                    if(dist < 200) { p.vx += dx * 0.02; p.vy += dy * 0.02; }
                 }
-
-                p.x += p.vx;
-                p.y += p.vy;
-                p.vx *= 0.95;
-                p.vy *= 0.95;
-
-                // Bounce off blue lines (frequency sync)
-                if(p.x < 0 || p.x > width) p.vx *= -1;
-                if(p.y < 0) p.vy *= -1;
-                if(p.y > height) { // Coins fill up the bottom
-                    p.y = height;
-                    p.vy *= -0.2;
-                }
-
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-                ctx.fillStyle = p.color;
-                ctx.fill();
+                p.x += p.vx; p.y += p.vy;
+                p.vx *= 0.95; p.vy *= 0.95;
+                if(p.y > height - 10) { p.y = height - 10; p.vy *= -0.2; }
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+                ctx.fillStyle = p.color; ctx.fill();
             });
             requestAnimationFrame(draw);
         }
 
         function toggleHub() {
-            const hub = document.getElementById('command-hub');
-            hub.style.display = hub.style.display === 'block' ? 'none' : 'block';
+            const box = document.getElementById('commandBox');
+            box.style.display = box.style.display === 'block' ? 'none' : 'block';
         }
 
         window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; mouse.active = true; });
         window.addEventListener('touchstart', e => { mouse.active = true; mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; });
-        window.addEventListener('touchmove', e => { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; });
         window.addEventListener('resize', init);
-
-        init();
-        draw();
+        init(); draw();
     </script>
 </body>
 </html>
