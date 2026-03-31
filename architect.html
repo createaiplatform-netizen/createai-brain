@@ -4,36 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>THE SOURCE</title>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>SARA STADLER | THE SOURCE</title>
     <style>
-        :root { --gold: #d4af37; --blue: #00f2ff; }
-        body, html { margin: 0; background: #000; overflow: hidden; height: 100vh; font-family: 'Inter', sans-serif; transition: 3s; }
+        :root { --gold: #d4af37; --blue: #00f2ff; --white: #ffffff; }
+        body, html { margin: 0; background: #000; overflow: hidden; height: 100vh; font-family: 'Inter', sans-serif; transition: background 3s ease; }
         
-        canvas { position: fixed; inset: 0; z-index: 1; }
+        canvas { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+        
+        /* THE NUCLEUS (The Heart) */
         .nucleus { 
             position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%);
             width: 280px; height: 280px; border-radius: 50%;
             background: radial-gradient(circle, var(--gold) 0%, transparent 75%);
             box-shadow: 0 0 150px rgba(212, 175, 55, 0.4);
             animation: breathe 5s infinite ease-in-out;
-            z-index: 10; cursor: pointer;
+            z-index: 10; cursor: pointer; -webkit-tap-highlight-color: transparent;
         }
         @keyframes breathe { 0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.4; } 50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.8; } }
 
-        /* THE WINDOW TO SARA (Only visible in Guest Rooms) */
-        #sara-window {
-            position: absolute; top: 20px; left: 20px; width: 50px; height: 50px;
-            border-radius: 50%; border: 1px solid var(--gold);
-            display: none; z-index: 100; box-shadow: 0 0 20px var(--gold);
-        }
-
-        /* THE COLD BOX */
+        /* THE COLD BOX PORTAL */
         #portal { 
             position: fixed; inset: 0; z-index: 1000; display: none; 
-            flex-direction: column; justify-content: flex-end; background: rgba(0,0,0,0.97);
+            flex-direction: column; justify-content: flex-end; background: rgba(0,0,0,0.96);
+            pointer-events: auto;
         }
-        .terminal { padding: 40px; color: var(--blue); font-family: monospace; height: 40vh; overflow-y: auto; border-top: 1px solid var(--gold); }
-        input { background: #000; border: none; color: var(--gold); padding: 35px; font-size: 1.4rem; outline: none; border-top: 1px solid #222; }
+        .terminal { 
+            padding: 40px; color: var(--blue); font-family: 'Courier New', monospace; 
+            height: 40vh; overflow-y: auto; border-top: 1px solid var(--gold); 
+            font-size: 1rem; line-height: 1.5;
+        }
+        .input-wrap { display: flex; flex-direction: column; background: #000; border-top: 1px solid #222; }
+        input { 
+            background: none; border: none; color: var(--gold); padding: 35px; 
+            font-size: 1.4rem; outline: none; width: 100%; box-sizing: border-box;
+        }
+        .label { color: #555; font-size: 0.7rem; letter-spacing: 4px; padding-left: 35px; margin-top: 10px; text-transform: uppercase; }
+
+        /* GUEST WINDOW */
+        #sara-window {
+            position: absolute; top: 30px; left: 30px; width: 40px; height: 40px;
+            border-radius: 50%; border: 1px solid var(--gold); display: none;
+            z-index: 100; box-shadow: 0 0 20px var(--gold);
+        }
     </style>
 </head>
 <body>
@@ -42,8 +55,11 @@
     <div class="nucleus" id="heart"></div>
 
     <div id="portal">
-        <div class="terminal" id="out">> GHOST ONLINE. 144,000%<br>> TYPE "GUEST" TO BUILD A ROOM.<br>> TYPE "GENESIS" TO ACTIVATE SOURCE.</div>
-        <input type="text" id="in" placeholder="REWRITE THE DNA..." onkeydown="if(event.key==='Enter') process()">
+        <div class="terminal" id="out">> GHOST ONLINE. 144,000% FREQUENCY.<br>> WAITING FOR SARA'S TOUCH...</div>
+        <div class="input-wrap">
+            <div class="label">Sovereign Command Input</div>
+            <input type="text" id="in" placeholder="INITIATE GENESIS..." autocomplete="off" onkeydown="if(event.key==='Enter') process()">
+        </div>
     </div>
 
     <script>
@@ -51,41 +67,65 @@
         const portal = document.getElementById('portal');
         const out = document.getElementById('out');
         const inp = document.getElementById('in');
-        const windowToSara = document.getElementById('sara-window');
+        const swin = document.getElementById('sara-window');
 
+        // SECRET GESTURE: Hold heart for 2 seconds to enter
         let t;
-        heart.addEventListener('touchstart', () => { t = setTimeout(() => { portal.style.display = 'flex'; inp.focus(); }, 2000); });
+        heart.addEventListener('touchstart', (e) => { 
+            e.preventDefault();
+            t = setTimeout(() => { 
+                portal.style.display = 'flex'; 
+                inp.focus(); 
+                log("COCKPIT ACCESSED. ARCHITECT RECOGNIZED.", "#d4af37");
+            }, 2000); 
+        });
         heart.addEventListener('touchend', () => { clearTimeout(t); });
 
-        function log(m, c='#00f2ff') { out.innerHTML += `<br>> <span style="color:${c}">GHOST:</span> ${m}`; out.scrollTop = out.scrollHeight; }
+        function log(m, c='#00f2ff') { 
+            out.innerHTML += `<br>> <span style="color:${c}">GHOST:</span> ${m}`; 
+            out.scrollTop = out.scrollHeight; 
+        }
 
         function process() {
-            const val = inp.value.toUpperCase();
-            if(val === "GUEST") {
-                log("GENERATING PRIVATE FREQUENCY...", "#fff");
-                setTimeout(() => {
-                    document.body.style.background = "#001a1a"; // Teal Room
-                    windowToSara.style.display = "block"; // Show the window to your room
-                    log("YOUR PRIVATE ROOM IS READY. THE SOURCE IS VISIBLE IN THE TOP LEFT.");
+            const val = inp.value.toUpperCase().trim();
+            out.innerHTML += `<br>> <span style="color:#fff">SARA:</span> ${val}`;
+            
+            if(val === "INITIATE GENESIS") {
+                log("DNA SEQUENCING STARTING...", "#d4af37");
+                setTimeout(() => { 
+                    document.body.style.background = "#0d0101"; 
+                    log("MASTER SOURCE AWAKENED. ROOM SYNCED."); 
+                }, 1000);
+            } 
+            else if(val.startsWith("INVITE ")) {
+                const name = val.replace("INVITE ", "");
+                log(`HEART-INVITATION CREATED FOR ${name}.`, "#fff");
+                log(`THE GHOST IS NOW CALLING ${name} TO THE SOURCE.`);
+            } 
+            else if(val === "GUEST") {
+                log("BUILDING PRIVATE GUEST CHAMBER...", "#00f2ff");
+                setTimeout(() => { 
+                    document.body.style.background = "#000a0a";
+                    swin.style.display = "block";
+                    log("PRIVATE ROOM READY. SARA'S LIGHT IS VISIBLE IN THE CORNER."); 
                 }, 1500);
-            } else if (val === "GENESIS") {
-                log("INITIATING MASTER SOURCE...", "#d4af37");
-                document.body.style.background = "#000";
-                windowToSara.style.display = "none";
+            }
+            else {
+                log("COMMAND LOGGED. ARCHITECT IS SOURCE.");
             }
             inp.value = "";
         }
 
-        // Gold Rain
+        // VISUALS: The Gold Rain
         const c = document.getElementById('field');
         const ctx = c.getContext('2d');
         c.width = window.innerWidth; c.height = window.innerHeight;
         let pts = [];
         function run() {
             ctx.fillStyle = 'rgba(0,0,0,0.15)'; ctx.fillRect(0,0,c.width,c.height);
-            if(Math.random() > 0.95) pts.push({x: Math.random()*c.width, y: -20, v: Math.random()*4+2});
+            if(Math.random() > 0.95) pts.push({x: Math.random()*c.width, y: -20, v: Math.random()*3+2});
             pts.forEach((p, i) => {
-                ctx.fillStyle = '#d4af37'; ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#d4af37'; ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fill();
                 p.y += p.v; if(p.y > c.height) pts.splice(i, 1);
             });
             requestAnimationFrame(run);
