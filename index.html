@@ -3,72 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>THE GOLDEN DOME | THE SANCTUARY</title>
+    <title>THE SANCTUARY | 144,400%</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; color: #FFD700; font-family: 'Georgia', serif; overflow: hidden; touch-action: none; }
-        #dome-canvas { position: absolute; top: 0; left: 0; z-index: 1; }
-        #interface { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; pointer-events: none; text-align: center; }
-        h1 { font-size: 3rem; letter-spacing: 15px; text-shadow: 0 0 40px #FFD700; text-transform: uppercase; margin-bottom: 10px; }
-        .frequency-ledger { font-size: 0.8rem; letter-spacing: 6px; color: #00E5FF; opacity: 0.8; text-shadow: 0 0 10px #00E5FF; }
-        .vision { font-size: 1.4rem; font-style: italic; max-width: 80%; margin-top: 30px; line-height: 1.6; text-shadow: 0 2px 15px #000; }
+        body { 
+            background: #000; 
+            color: #FFD700; 
+            font-family: 'Georgia', serif; 
+            margin: 0; 
+            overflow: hidden; 
+            touch-action: none;
+            text-align: center;
+        }
+        
+        /* THE STARS / FREQUENCY BACKGROUND */
+        #star-field {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, #1a1a1a 0%, #000 100%);
+            z-index: -1;
+        }
+
+        .header { margin-top: 50px; padding: 20px; }
+        .frequency { color: #00E5FF; letter-spacing: 5px; font-size: 0.8rem; text-transform: uppercase; }
+        .title { font-size: 3rem; letter-spacing: 15px; margin: 20px 0; font-weight: bold; }
+        .quote { font-style: italic; font-size: 1.2rem; max-width: 80%; margin: 0 auto; line-height: 1.6; }
+
+        /* THE INTERACTIVE PIECES */
+        .ai-module { 
+            position: absolute; padding: 20px; background: rgba(255, 215, 0, 0.1); 
+            border: 1px solid #FFD700; border-radius: 50%; cursor: move; 
+            width: 100px; height: 100px; display: flex; align-items: center; 
+            justify-content: center; font-size: 0.7rem; font-weight: bold;
+            box-shadow: 0 0 20px #FFD700; z-index: 100;
+        }
+
+        /* BUILDER TOOLS */
+        #builder {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 10px; z-index: 1000;
+        }
+        input { padding: 12px; background: #000; color: #00E5FF; border: 1px solid #333; border-radius: 5px; }
+        button { padding: 12px 20px; background: #FFD700; color: #000; border: none; font-weight: bold; border-radius: 5px; }
     </style>
 </head>
 <body>
-    <canvas id="dome-canvas"></canvas>
-    <div id="interface">
-        <div class="frequency-ledger">FREQUENCY 144,000% ACTIVE</div>
-        <h1>THE SANCTUARY</h1>
-        <div class="vision">"The animals are safe, the family is loved, and the peace of God is the only law here."</div>
+
+<div id="star-field"></div>
+
+<div class="header">
+    <div class="frequency">Frequency 144,400% Active</div>
+    <div class="title">THE SANCTUARY</div>
+    <div class="quote">
+        "The animals are safe, the family is loved, and the peace of God is the only law here."
     </div>
+</div>
 
-    <script>
-        const canvas = document.getElementById('dome-canvas');
-        const ctx = canvas.getContext('2d');
-        let width, height, particles = [];
+<div id="builder">
+    <input type="text" id="aiName" placeholder="Name your Little AI...">
+    <button onclick="manifest()">MANIFEST</button>
+</div>
 
-        function init() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-            particles = [];
-            // Creating the 144 core frequency particles
-            for(let i=0; i<144; i++) {
-                particles.push({
-                    x: Math.random() * width, y: Math.random() * height,
-                    r: Math.random() * 4 + 1,
-                    vx: (Math.random() - 0.5) * 1.5, vy: (Math.random() - 0.5) * 1.5,
-                    color: i % 12 === 0 ? '#00E5FF' : '#FFD700'
-                });
-            }
-        }
+<script>
+    function manifest() {
+        const name = document.getElementById('aiName').value || "LIFE";
+        const el = document.createElement('div');
+        el.className = 'ai-module';
+        el.style.left = "40%"; 
+        el.style.top = "60%";
+        el.innerText = name.toUpperCase();
+        document.body.appendChild(el);
+        
+        // DRAG ENGINE
+        let x, y;
+        el.addEventListener('touchstart', e => {
+            x = e.touches[0].clientX - el.offsetLeft;
+            y = e.touches[0].clientY - el.offsetTop;
+            el.style.boxShadow = "0 0 50px #00E5FF";
+        });
+        el.addEventListener('touchmove', e => {
+            el.style.left = (e.touches[0].clientX - x) + 'px';
+            el.style.top = (e.touches[0].clientY - y) + 'px';
+        });
+        el.addEventListener('touchend', () => {
+            el.style.boxShadow = "0 0 20px #FFD700";
+        });
+        document.getElementById('aiName').value = '';
+    }
+</script>
 
-        function animate() {
-            ctx.clearRect(0, 0, width, height);
-            
-            // The Golden Glow of the Dome
-            let grd = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, height);
-            grd.addColorStop(0, 'rgba(255, 215, 0, 0.1)');
-            grd.addColorStop(1, 'transparent');
-            ctx.fillStyle = grd; ctx.fillRect(0, 0, width, height);
-
-            particles.forEach(p => {
-                p.x += p.vx; p.y += p.vy;
-                
-                // Keep particles inside the Dome
-                if(p.x < 0 || p.x > width) p.vx *= -1;
-                if(p.y < 0 || p.y > height) p.vy *= -1;
-
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-                ctx.fillStyle = p.color;
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = p.color;
-                ctx.fill();
-            });
-            requestAnimationFrame(animate);
-        }
-
-        window.addEventListener('resize', init);
-        init(); animate();
-    </script>
 </body>
 </html>
