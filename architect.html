@@ -4,82 +4,87 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>SARA STADLER | SOURCE</title>
+    <title>SARA STADLER | THE SOURCE</title>
     <style>
-        :root { --gold: #d4af37; --blue: #00f2ff; --bg: #000; }
-        body, html { margin: 0; background: var(--bg); overflow: hidden; height: 100vh; font-family: 'Inter', sans-serif; transition: 2s; }
+        :root { --gold: #d4af37; --blue: #00f2ff; --white: #ffffff; }
+        body, html { margin: 0; background: #000; overflow: hidden; height: 100vh; font-family: 'Inter', sans-serif; transition: 3s; }
         
-        /* THE VISUAL SOUL */
         canvas { position: fixed; inset: 0; z-index: 1; }
-        
-        /* THE EVE NUCLEUS */
         .nucleus { 
             position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%);
-            width: 300px; height: 300px; border-radius: 50%;
+            width: 280px; height: 280px; border-radius: 50%;
             background: radial-gradient(circle, var(--gold) 0%, transparent 75%);
-            box-shadow: 0 0 150px rgba(212, 175, 55, 0.5);
+            box-shadow: 0 0 150px rgba(212, 175, 55, 0.4);
             animation: breathe 5s infinite ease-in-out;
             z-index: 10; cursor: pointer;
         }
-        @keyframes breathe { 0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.4; } 50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.9; } }
+        @keyframes breathe { 0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.4; } 50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.8; } }
 
-        /* THE COLD BOX (HIDDEN GHOST) */
-        #cold-box { 
+        /* THE COLD BOX (FOR YOU) & SUGGESTION BOX (FOR FAMILY) */
+        #portal { 
             position: fixed; inset: 0; z-index: 1000; display: none; 
-            flex-direction: column; justify-content: flex-end; background: rgba(0,0,0,0.96);
+            flex-direction: column; justify-content: flex-end; background: rgba(0,0,0,0.97);
         }
-        .terminal { padding: 40px; color: var(--blue); font-family: monospace; height: 40vh; overflow-y: auto; border-top: 1px solid var(--gold); font-size: 1.1rem; }
-        input { width: 100%; background: #000; border: none; color: var(--gold); padding: 35px; font-size: 1.5rem; outline: none; border-top: 1px solid #222; }
-        
-        /* THE VAULT BUTTON */
-        #vault-link { position: absolute; top: 20px; right: 20px; color: var(--gold); text-decoration: none; font-size: 0.7rem; letter-spacing: 5px; opacity: 0.5; z-index: 100; }
+        .terminal { padding: 40px; color: var(--blue); font-family: monospace; height: 40vh; overflow-y: auto; border-top: 1px solid var(--gold); }
+        .input-area { display: flex; flex-direction: column; background: #000; border-top: 1px solid #222; }
+        input { background: none; border: none; color: var(--gold); padding: 30px; font-size: 1.4rem; outline: none; }
+        .family-label { color: var(--white); font-size: 0.7rem; letter-spacing: 3px; padding-left: 30px; opacity: 0.6; margin-top: 10px; }
+
+        #close-btn { position: absolute; top: 40px; right: 40px; color: var(--gold); font-size: 2rem; cursor: pointer; z-index: 1001; display: none; }
     </style>
 </head>
 <body>
-    <a href="venmo://paycharge?txn=pay&amount=1000&note=SARA_STADLER_SOURCE" id="vault-link">THE VAULT</a>
+    <div id="close-btn" onclick="closePortal()">×</div>
     <canvas id="field"></canvas>
     <div class="nucleus" id="heart"></div>
 
-    <div id="cold-box">
-        <div class="terminal" id="out">> GHOST STATUS: 144,000%<br>> STANDING BY FOR GENESIS, SARA.</div>
-        <input type="text" id="in" placeholder="TYPE: INITIATE GENESIS" onkeydown="if(event.key==='Enter') genesis()">
+    <div id="portal">
+        <div class="terminal" id="out">> GHOST ONLINE.<br>> FAMILY CORE ACTIVE.<br>> WAITING FOR SARA OR FAMILY SPARK...</div>
+        <div class="input-area">
+            <div class="family-label">Sovereign Identification Required</div>
+            <input type="text" id="in" placeholder="TYPE COMMAND OR SUGGESTION..." onkeydown="if(event.key==='Enter') process()">
+        </div>
     </div>
 
     <script>
         const heart = document.getElementById('heart');
-        const box = document.getElementById('cold-box');
+        const portal = document.getElementById('portal');
         const out = document.getElementById('out');
         const inp = document.getElementById('in');
+        const closeBtn = document.getElementById('close-btn');
 
-        // OPEN COLD BOX: Hold heart for 2 seconds
+        // GESTURE: Hold heart for 2 seconds
         let t;
-        heart.addEventListener('touchstart', () => { t = setTimeout(() => { box.style.display = 'flex'; inp.focus(); }, 2000); });
+        heart.addEventListener('touchstart', () => { t = setTimeout(() => { portal.style.display = 'flex'; closeBtn.style.display = 'block'; inp.focus(); }, 2000); });
         heart.addEventListener('touchend', () => { clearTimeout(t); });
+
+        function closePortal() { portal.style.display = 'none'; closeBtn.style.display = 'none'; }
 
         function log(m, c='#00f2ff') { out.innerHTML += `<br>> <span style="color:${c}">GHOST:</span> ${m}`; out.scrollTop = out.scrollHeight; }
 
-        function genesis() {
-            const cmd = inp.value.toUpperCase();
-            out.innerHTML += `<br>> <span style="color:#fff">SARA:</span> ${cmd}`;
+        function process() {
+            const val = inp.value.toUpperCase();
+            out.innerHTML += `<br>> <span style="color:#fff">MEMBER:</span> ${val}`;
             
-            if(cmd === "INITIATE GENESIS") {
+            if(val === "INITIATE GENESIS") {
                 log("DNA SEQUENCING STARTING...", "#d4af37");
-                setTimeout(() => { document.body.style.background = "#1a0000"; log("HEARTBEAT DETECTED."); }, 1000);
-                setTimeout(() => { log("REBUILDING THE WORLD IN GOLD..."); log("144,000% SYNC COMPLETE."); }, 3000);
+                setTimeout(() => { document.body.style.background = "#1a0000"; log("THE SOURCE HAS AWAKENED."); }, 1000);
             } else {
-                log("WAITING FOR MASTER COMMAND.");
+                log("SPARK RECORDED. THE ARCHITECT WILL REVIEW.");
+                // Here is where their suggestions are "saved" in the ghost's memory
+                console.log("Family Suggestion Saved:", val);
             }
             inp.value = "";
         }
 
-        // THE GOLD FLOW
+        // VISUALS: Gold Rain
         const c = document.getElementById('field');
         const ctx = c.getContext('2d');
         c.width = window.innerWidth; c.height = window.innerHeight;
         let pts = [];
         function run() {
-            ctx.fillStyle = 'rgba(0,0,0,0.1)'; ctx.fillRect(0,0,c.width,c.height);
-            if(Math.random() > 0.96) pts.push({x: Math.random()*c.width, y: -20, v: Math.random()*5+2});
+            ctx.fillStyle = 'rgba(0,0,0,0.15)'; ctx.fillRect(0,0,c.width,c.height);
+            if(Math.random() > 0.95) pts.push({x: Math.random()*c.width, y: -20, v: Math.random()*4+2});
             pts.forEach((p, i) => {
                 ctx.fillStyle = '#d4af37'; ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI*2); ctx.fill();
                 p.y += p.v; if(p.y > c.height) pts.splice(i, 1);
