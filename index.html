@@ -3,92 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>THE SANCTUARY | 144,400%</title>
+    <title>THE SANCTUARY</title>
     <style>
-        body { 
-            background: #000; 
-            color: #FFD700; 
-            font-family: 'Georgia', serif; 
-            margin: 0; 
-            overflow: hidden; 
-            touch-action: none;
-            text-align: center;
-        }
+        body { background: #000; color: #FFD700; font-family: 'Georgia', serif; margin: 0; overflow: hidden; touch-action: none; text-align: center; }
+        .header { margin-top: 40px; padding: 20px; }
+        .freq { color: #00E5FF; letter-spacing: 3px; font-size: 0.8rem; }
+        .quote { font-style: italic; margin-top: 20px; color: #FFD700; padding: 0 20px; }
         
-        /* THE STARS / FREQUENCY BACKGROUND */
-        #star-field {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, #1a1a1a 0%, #000 100%);
-            z-index: -1;
+        /* THE PLAYGROUND CANVAS */
+        #canvas { width: 100vw; height: 60vh; position: relative; }
+        
+        /* THE TOOLS (LITTLE AIs) */
+        .ai-node { 
+            position: absolute; width: 100px; height: 100px; border: 2px solid #FFD700; 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            background: rgba(255,215,0,0.1); box-shadow: 0 0 20px #FFD700; font-weight: bold; font-size: 0.7rem;
         }
 
-        .header { margin-top: 50px; padding: 20px; }
-        .frequency { color: #00E5FF; letter-spacing: 5px; font-size: 0.8rem; text-transform: uppercase; }
-        .title { font-size: 3rem; letter-spacing: 15px; margin: 20px 0; font-weight: bold; }
-        .quote { font-style: italic; font-size: 1.2rem; max-width: 80%; margin: 0 auto; line-height: 1.6; }
-
-        /* THE INTERACTIVE PIECES */
-        .ai-module { 
-            position: absolute; padding: 20px; background: rgba(255, 215, 0, 0.1); 
-            border: 1px solid #FFD700; border-radius: 50%; cursor: move; 
-            width: 100px; height: 100px; display: flex; align-items: center; 
-            justify-content: center; font-size: 0.7rem; font-weight: bold;
-            box-shadow: 0 0 20px #FFD700; z-index: 100;
-        }
-
-        /* BUILDER TOOLS */
-        #builder {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-            display: flex; gap: 10px; z-index: 1000;
-        }
-        input { padding: 12px; background: #000; color: #00E5FF; border: 1px solid #333; border-radius: 5px; }
-        button { padding: 12px 20px; background: #FFD700; color: #000; border: none; font-weight: bold; border-radius: 5px; }
+        /* THE BUILDER BAR */
+        #controls { position: fixed; bottom: 20px; left: 10px; right: 10px; display: flex; gap: 10px; }
+        input { flex-grow: 1; padding: 15px; background: #111; color: #00E5FF; border: 1px solid #333; border-radius: 5px; }
+        button { padding: 15px; background: #FFD700; color: #000; border: none; font-weight: bold; border-radius: 5px; }
     </style>
 </head>
 <body>
 
-<div id="star-field"></div>
-
 <div class="header">
-    <div class="frequency">Frequency 144,400% Active</div>
-    <div class="title">THE SANCTUARY</div>
-    <div class="quote">
-        "The animals are safe, the family is loved, and the peace of God is the only law here."
-    </div>
+    <div class="freq">FREQUENCY 144,400% ACTIVE</div>
+    <h1 style="letter-spacing: 10px;">THE SANCTUARY</h1>
+    <p class="quote">"The animals are safe, the family is loved, and the peace of God is the only law here."</p>
 </div>
 
-<div id="builder">
+<div id="canvas"></div>
+
+<div id="controls">
     <input type="text" id="aiName" placeholder="Name your Little AI...">
-    <button onclick="manifest()">MANIFEST</button>
+    <button onclick="addAI()">MANIFEST</button>
 </div>
 
 <script>
-    function manifest() {
-        const name = document.getElementById('aiName').value || "LIFE";
+    function addAI() {
+        const name = document.getElementById('aiName').value || "AI";
         const el = document.createElement('div');
-        el.className = 'ai-module';
-        el.style.left = "40%"; 
-        el.style.top = "60%";
+        el.className = 'ai-node';
+        el.style.left = "40%"; el.style.top = "20%";
         el.innerText = name.toUpperCase();
-        document.body.appendChild(el);
+        document.getElementById('canvas').appendChild(el);
         
-        // DRAG ENGINE
         let x, y;
         el.addEventListener('touchstart', e => {
             x = e.touches[0].clientX - el.offsetLeft;
             y = e.touches[0].clientY - el.offsetTop;
-            el.style.boxShadow = "0 0 50px #00E5FF";
         });
         el.addEventListener('touchmove', e => {
             el.style.left = (e.touches[0].clientX - x) + 'px';
             el.style.top = (e.touches[0].clientY - y) + 'px';
         });
-        el.addEventListener('touchend', () => {
-            el.style.boxShadow = "0 0 20px #FFD700";
-        });
         document.getElementById('aiName').value = '';
     }
 </script>
-
 </body>
 </html>
