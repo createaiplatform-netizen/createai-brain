@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultra Golden Dome Sensory 144,000%</title>
+<style>
+body { margin:0; font-family:sans-serif; background:#111; color:white; overflow-x:hidden; touch-action: manipulation; }
+h1,h3{margin:5px 0;color:#ffd700;}
+textarea,input{width:100%;padding:10px;margin:5px 0;font-size:16px;border-radius:5px;border:none;}
+button{width:100%;padding:10px;font-size:16px;margin:5px 0;border-radius:5px;border:none;background:#ff6600;color:white;cursor:pointer;}
+#output{border:1px solid #ccc;padding:10px;margin-top:5px;height:200px;overflow:auto;background:#222;font-size:14px;}
+#preview{width:100%;height:500px;border:2px solid #333;margin-top:10px;background:black;position:relative;overflow:hidden;}
+.draggable{cursor:grab;transition:transform 0.2s ease; position:absolute; user-select:none; touch-action:none;}
+.particle{position:absolute;border-radius:50%;pointer-events:none;}
+</style>
+</head>
+<body>
+
+<h1>Ultra Golden Dome Sensory 144,000%</h1>
+
+<h3>Master AI Panel</h3>
+<input type="password" id="adminKey" placeholder="Enter Golden Dome key (144000%)">
+<textarea id="command" placeholder="Type AI command here…"></textarea>
+<button id="runBtn">Run Command</button>
+
+<div id="output"></div>
+
+<h3>Live Multi-Sensory Preview</h3>
+<div id="preview"></div>
+
+<audio id="soundEffect" src=""></audio>
+
+<script>
+// -------------------- STORAGE
+let siteFiles = JSON.parse(localStorage.getItem('siteFiles')||"{}");
+let components = JSON.parse(localStorage.getItem('components')||"{}");
+let users = JSON.parse(localStorage.getItem('userSandboxes')||"{}");
+
+// -------------------- UTILITIES
+const output = document.getElementById('output');
+const preview = document.getElementById('preview');
+const soundEffect = document.getElementById('soundEffect');
+
+function playSound(url){ soundEffect.src=url; soundEffect.play(); }
+
+function refreshPreview(html){
+  preview.innerHTML = html;
+  initDraggables();
+  spawnParticles();
+}
+
+function initDraggables(){
+  document.querySelectorAll('.draggable').forEach(el=>{
+    let isDragging=false, x0=0, y0=0;
+    el.addEventListener('pointerdown', e=>{ isDragging=true; x0=e.clientX; y0=e.clientY; el.setPointerCapture(e.pointerId); });
+    el.addEventListener('pointermove', e=>{ if(!isDragging)return; el.style.transform='translate('+(e.clientX-x0)+'px,'+(e.clientY-y0)+'px)'; });
+    el.addEventListener('pointerup', e=>{ isDragging=false; el.releasePointerCapture(e.pointerId); });
+  });
+}
+
+function spawnParticles(){
+  for(let i=0;i<10;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    p.style.width=p.style.height=(Math.random()*10+5)+'px';
+    p.style.background='hsl('+(Math.random()*360)+',80%,60%)';
+    p.style.top=Math.random()*preview.clientHeight+'px';
+    p.style.left=Math.random()*preview.clientWidth+'px';
+    preview.appendChild(p);
+    setTimeout(()=>p.remove(),2000);
+  }
+}
+
+// Device tilt for immersive motion
+if(window.DeviceOrientationEvent){
+  window.addEventListener('deviceorientation',e=>{
+    const x=e.gamma/10, y=e.beta/10;
+    document.querySelectorAll('.draggable').forEach(el=>{
+      el.style.transform='translate('+(x*5)+'px,'+(y*5)+'px)';
+    });
+  });
+}
+
+// -------------------- COMMAND PROCESSOR
+function processCommand(cmd,key){
+  cmd=cmd.trim();
+  const lower=cmd.toLowerCase();
+  if(key !== '144000%'){ output.innerHTML+="🔒 Invalid key<br>"; return; }
+
+  if(lower.startsWith("create page ")){
+    const pageName=cmd.split(" ")[2];
+    const htmlContent=cmd.split("'")[1]||`<h1>${pageName}</h1>`;
+    siteFiles[pageName]=htmlContent;
+    localStorage.setItem('siteFiles',JSON.stringify(siteFiles));
+    output.innerHTML+=`✅ Created page '${pageName}'<br>`;
+    playSound('https://freesound.org/data/previews/256/256113_3263906-lq.mp3');
+    refreshPreview(htmlContent);
+  }
+  else if(lower.startsWith("edit page ")){
+    const pageName=cmd.split(" ")[2];
+    if(!siteFiles[pageName]){ output.innerHTML+=`⚠️ Page '${pageName}' does not exist<br>`; return; }
+    const htmlContent=cmd.split("'")[1]||siteFiles[pageName];
+    siteFiles[pageName]=htmlContent;
+    localStorage.setItem('siteFiles',JSON.stringify(siteFiles));
+    output.innerHTML+=`✏️ Edited page '${pageName}'<br>`;
+    playSound('https://freesound.org/data/previews/256/256113_3263906-lq.mp3');
+    refreshPreview(htmlContent);
+  }
+  else if(lower.startsWith("add component ")){
+    const compName=cmd.split(" ")[2];
+    const compHtml=cmd.split("'")[1]||`<div class='draggable'>${compName}</div>`;
+    components[compName]=compHtml;
+    localStorage.setItem('components',JSON.stringify(components));
+    output.innerHTML+=`🧩 Component '${compName}' added<br>`;
+    playSound('https://freesound.org/data/previews/256/256113_3263906-lq.mp3');
+    refreshPreview(compHtml);
+  }
+  else if(lower.startsWith("insert component ")){
+    const compName=cmd.split(" ")[2];
+    const pageName=cmd.split(" ")[4];
+    if(!siteFiles[pageName]){ output.innerHTML+=`⚠️ Page '${pageName}' does not exist<br>`; return; }
+    const html = siteFiles[pageName]+(components[compName]||"");
+    siteFiles[pageName]=html;
+    localStorage.setItem('siteFiles',JSON.stringify(siteFiles));
+    output.innerHTML+=`✅ Component '${compName}' inserted into '${pageName}'<br>`;
+    playSound('https://freesound.org/data/previews/256/256113_3263906-lq.mp3');
+    refreshPreview(html);
+  }
+  else if(lower==="list pages"){ output.innerHTML+=`📄 Pages: ${Object.keys(siteFiles).join(", ")}<br>`; }
+  else if(lower==="list components"){ output.innerHTML+=`🧩 Components: ${Object.keys(components).join(", ")}<br>`; }
+  else{ refreshPreview(cmd); playSound('https://freesound.org/data/previews/256/256113_3263906-lq.mp3'); output.innerHTML+="⚡ Rendered raw HTML/CSS/JS live<br>"; }
+}
+
+// -------------------- EVENT HANDLER
+document.getElementById('runBtn').onclick=()=>{
+  const key=document.getElementById('adminKey').value;
+  const cmd=document.getElementById('command').value;
+  processCommand(cmd,key);
+  document.getElementById('command').value='';
+};
+</script>
+
+</body>
+</html>
