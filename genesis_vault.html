@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>THE SOVEREIGN VAULT</title>
+    <style>
+        body { background: #000; color: #FFD700; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; touch-action: none; }
+        #canvas { width: 100vw; height: 100vh; position: relative; background: radial-gradient(circle, #111 0%, #000 100%); }
+        
+        /* THE VISUAL PIECES */
+        .ai-module { 
+            position: absolute; padding: 25px; background: rgba(255, 215, 0, 0.1); 
+            border: 2px solid #FFD700; border-radius: 12px; cursor: move; 
+            min-width: 100px; text-align: center; font-weight: bold; 
+            box-shadow: 0 0 20px rgba(255,215,0,0.5); z-index: 10;
+            text-transform: uppercase; letter-spacing: 2px;
+        }
+
+        /* THE BUILDER COMMANDS */
+        #commander { 
+            position: fixed; bottom: 0; left: 0; right: 0; 
+            background: rgba(10,10,10,0.98); border-top: 3px solid #FFD700; 
+            padding: 20px; display: flex; gap: 10px; z-index: 1000;
+        }
+        input { flex-grow: 1; padding: 15px; background: #000; color: #00E5FF; border: 1px solid #333; font-size: 1.1rem; border-radius: 5px; }
+        button { padding: 15px 25px; background: #FFD700; color: #000; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; text-transform: uppercase; }
+        #clear-btn { background: #444; color: #fff; }
+    </style>
+</head>
+<body>
+
+<div id="canvas">
+    </div>
+
+<div id="commander">
+    <input type="text" id="aiName" placeholder="NAME YOUR LITTLE AI...">
+    <button onclick="manifest()">ADD</button>
+    <button id="clear-btn" onclick="clearAll()">CLEAR</button>
+</div>
+
+<script>
+    const canvas = document.getElementById('canvas');
+    const input = document.getElementById('aiName');
+
+    // 1. MANIFESTATION: Creating the life
+    function manifest() {
+        const name = input.value || "NEW_AI";
+        const el = document.createElement('div');
+        el.className = 'ai-module';
+        el.style.left = "50px"; 
+        el.style.top = "50px";
+        el.innerText = name;
+        
+        canvas.appendChild(el);
+        initDrag(el);
+        input.value = '';
+    }
+
+    // 2. SOVEREIGN CONTROL: Dragging the life
+    function initDrag(el) {
+        let x, y;
+        el.addEventListener('touchstart', e => {
+            const touch = e.touches[0];
+            x = touch.clientX - el.offsetLeft;
+            y = touch.clientY - el.offsetTop;
+            el.style.zIndex = Date.now();
+            el.style.boxShadow = "0 0 50px #FFD700";
+        });
+        el.addEventListener('touchmove', e => {
+            const touch = e.touches[0];
+            el.style.left = (touch.clientX - x) + 'px';
+            el.style.top = (touch.clientY - y) + 'px';
+        });
+        el.addEventListener('touchend', () => {
+            el.style.boxShadow = "0 0 20px rgba(255,215,0,0.5)";
+        });
+    }
+
+    function clearAll() {
+        if(confirm("Purge the canvas?")) canvas.innerHTML = '';
+    }
+</script>
+
+</body>
+</html>
