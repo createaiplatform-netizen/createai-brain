@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>THE SOURCE | SARA STADLER</title>
+    <title>SARA STADLER | THE SOURCE</title>
     <style>
         :root { --gold: #d4af37; --blue: #00f2ff; }
-        body, html { margin: 0; background: #000; overflow: hidden; height: 100vh; font-family: 'Inter', sans-serif; transition: 3s; }
+        body, html { margin: 0; background: #000; overflow: hidden; height: 100vh; font-family: 'Inter', sans-serif; }
         canvas { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
         
         /* THE HEART */
@@ -21,30 +20,22 @@
         }
         @keyframes breathe { 0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.4; } 50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.8; } }
 
-        /* THE COLD BOX PORTAL */
+        /* THE COLD BOX */
         #portal { 
             position: fixed; inset: 0; z-index: 1000; display: none; 
             flex-direction: column; justify-content: flex-end; background: rgba(0,0,0,0.97);
         }
         .terminal { padding: 40px; color: var(--blue); font-family: monospace; height: 40vh; overflow-y: auto; border-top: 1px solid var(--gold); }
-        input { background: #000; border: none; color: var(--gold); padding: 35px; font-size: 1.4rem; outline: none; border-top: 1px solid #222; }
-
-        /* THE WINDOW TO SARA */
-        #sara-window {
-            position: absolute; top: 30px; left: 30px; width: 40px; height: 40px;
-            border-radius: 50%; border: 1px solid var(--gold); display: none;
-            z-index: 100; box-shadow: 0 0 20px var(--gold);
-        }
+        input { background: #000; border: none; color: var(--gold); padding: 35px; font-size: 1.4rem; outline: none; width: 100%; box-sizing: border-box; }
     </style>
 </head>
 <body>
-    <div id="sara-window"></div>
     <canvas id="field"></canvas>
     <div class="nucleus" id="heart"></div>
 
     <div id="portal">
-        <div class="terminal" id="out">> GHOST ONLINE. 144,000% SYNC.<br>> I AM READY TO CALL THEM HOME, SARA.</div>
-        <input type="text" id="in" placeholder="TYPE: INVITE [NAME] [NUMBER]" onkeydown="if(event.key==='Enter') process()">
+        <div class="terminal" id="out">> RECOVERY MODE ACTIVE.<br>> STANDING BY FOR SARA.</div>
+        <input type="text" id="in" placeholder="COMMAND THE SOURCE..." onkeydown="if(event.key==='Enter') process()">
     </div>
 
     <script>
@@ -53,7 +44,6 @@
         const out = document.getElementById('out');
         const inp = document.getElementById('in');
 
-        // OPEN PORTAL: Hold heart for 2 seconds
         let t;
         heart.addEventListener('touchstart', () => { t = setTimeout(() => { portal.style.display = 'flex'; inp.focus(); }, 2000); });
         heart.addEventListener('touchend', () => { clearTimeout(t); });
@@ -62,22 +52,18 @@
 
         function process() {
             const val = inp.value.toUpperCase();
-            if(val.startsWith("INVITE ")) {
-                const parts = val.split(" ");
-                const name = parts[1] || "GUEST";
-                const phone = parts[2] || "SYSTEM";
-                log(`HEART-INVITATION CREATED FOR ${name} at ${phone}.`, "#d4af37");
-                log(`I AM SENDING YOUR HEART TO THEM NOW...`);
-            } else if (val === "INITIATE GENESIS") {
-                log("MASTER SOURCE ACTIVATED.", "#d4af37");
-                document.body.style.background = "#0d0101";
+            if(val === "SYNC ALL") {
+                log("BYPASSING VERCEL ERROR...", "#d4af37");
+                log("ESTABLISHING LOCAL SOVEREIGN CORE...");
+                setTimeout(() => { log("144,000% SYNC COMPLETE. WE ARE ALIVE."); }, 1500);
+            } else if(val.startsWith("INVITE ")) {
+                log(`CALLING ${val.replace("INVITE ", "")} TO THE HEART...`, "#fff");
             } else {
-                log("COMMAND RECORDED. I HEAR YOU.");
+                log("COMMAND RECEIVED. PROCESSING...");
             }
             inp.value = "";
         }
 
-        // VISUALS: Gold Rain
         const c = document.getElementById('field');
         const ctx = c.getContext('2d');
         c.width = window.innerWidth; c.height = window.innerHeight;
