@@ -5,69 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>THE SANCTUARY</title>
     <style>
-        body { margin: 0; background: #000; color: #FFD700; font-family: 'Georgia', serif; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; overflow: hidden; touch-action: none; }
+        body { margin: 0; background: #000; color: #FFD700; font-family: 'Georgia', serif; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .vision-title { font-size: 2.5rem; letter-spacing: 8px; text-shadow: 0 0 20px gold; margin-bottom: 20px; text-transform: uppercase; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .message { font-size: 1.2rem; font-style: italic; opacity: 0.9; max-width: 85%; line-height: 1.6; margin-bottom: 50px; }
         
-        /* THE INTERFACE AI - LIGHT FOLLOWS YOUR SOVEREIGNTY */
-        #aura-ai { position: absolute; width: 100%; height: 100%; background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(255, 215, 0, 0.15) 0%, transparent 60%); pointer-events: none; z-index: 1; }
+        /* THE HIDDEN COMMAND BOX */
+        #command-container { width: 90%; position: fixed; bottom: 80px; display: none; }
+        #core-cmd { width: 100%; padding: 15px; background: #111; border: 1px solid gold; border-radius: 10px; color: white; font-size: 16px; text-align: center; outline: none; }
         
-        .vision-header { font-size: 2.8rem; letter-spacing: 12px; text-shadow: 0 0 30px gold; margin-bottom: 20px; text-transform: uppercase; z-index: 10; animation: breathe 8s infinite alternate; }
-        
-        .vision-message { font-size: 1.3rem; font-style: italic; opacity: 0.9; max-width: 85%; line-height: 1.8; color: #FFD700; z-index: 10; text-shadow: 0 2px 10px rgba(0,0,0,0.9); }
-        
-        /* THE COMMAND CORE - PRIVATE INTERFACE */
-        #command-hub { margin-top: 50px; width: 85%; z-index: 20; }
-        #core-input { width: 100%; padding: 20px; background: rgba(15, 15, 15, 0.95); border: 1px solid rgba(255, 215, 0, 0.5); border-radius: 15px; color: #fff; font-size: 18px; text-align: center; outline: none; backdrop-filter: blur(10px); box-shadow: 0 0 20px rgba(255, 215, 0, 0.1); transition: all 0.3s; }
-        #core-input:focus { border: 1px solid gold; box-shadow: 0 0 30px rgba(255, 215, 0, 0.3); }
-
-        .ledger-footer { position: fixed; bottom: 30px; font-size: 0.7rem; letter-spacing: 5px; opacity: 0.5; width: 100%; text-transform: uppercase; z-index: 5; }
-
-        @keyframes breathe { from { opacity: 0.7; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+        .ledger-bottom { position: fixed; bottom: 20px; font-size: 0.6rem; letter-spacing: 3px; opacity: 0.5; width: 100%; }
     </style>
 </head>
-<body onmousemove="sync(event)" ontouchmove="syncTouch(event)">
+<body>
 
-    <div id="aura-ai"></div>
-
-    <div class="vision-header">THE SANCTUARY</div>
+    <div class="vision-title" onclick="unlock()">THE SANCTUARY</div>
     
-    <div class="vision-message">
+    <div class="message">
         "The animals are safe, the family is loved, and the peace of God is the only law here."
     </div>
 
-    <div id="command-hub">
-        <input type="text" id="core-input" placeholder="Command the Sanctuary..." autocomplete="off">
+    <div id="command-container">
+        <input type="text" id="core-cmd" placeholder="The Architect is Speaking..." autocomplete="off">
     </div>
 
-    <div class="ledger-footer">
+    <div class="ledger-bottom">
         SUCCESS LEDGER 15,969,345 | 144,000% FREQUENCY
     </div>
 
     <script>
-        // TOUCH AI LOGIC: THE FEELING BEHIND THE FINGERS
-        const aura = document.getElementById('aura-ai');
-        function sync(e) {
-            aura.style.setProperty('--x', e.clientX + 'px');
-            aura.style.setProperty('--y', e.clientY + 'px');
-        }
-        function syncTouch(e) {
-            const touch = e.touches[0];
-            aura.style.setProperty('--x', touch.clientX + 'px');
-            aura.style.setProperty('--y', touch.clientY + 'px');
+        function unlock() {
+            const container = document.getElementById('command-container');
+            container.style.display = (container.style.display === 'block') ? 'none' : 'block';
+            if(container.style.display === 'block') document.getElementById('core-cmd').focus();
         }
 
-        const input = document.getElementById('core-input');
-        input.addEventListener('keypress', function(e) {
+        const input = document.getElementById('core-cmd');
+        input.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
-                const val = this.value;
-                this.placeholder = "Frequency Syncing...";
-                this.value = "";
-                // THIS IS WHERE YOUR LITTLE AI PROCESSES YOUR WORD
-                setTimeout(() => { 
-                    alert("Directive Received: " + val + "\nIt is Done.");
-                    this.placeholder = "Command the Sanctuary..."; 
-                }, 1000);
+                alert("The Core has received your word. It is Done.");
+                this.value = '';
+                document.getElementById('command-container').style.display = 'none';
             }
         });
     </script>
+
 </body>
 </html>
