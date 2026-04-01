@@ -3,20 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>144,000% SOVEREIGN COMMAND</title>
+    <title>144,000% | THE GOLDEN DOME</title>
     <style>
-        body, html { margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; background: #001a1a; }
-        canvas { display: block; filter: contrast(1.9) brightness(1.1) saturate(2.6) blur(0.7px); }
+        /* THE SOVEREIGN VOW: NO BLACK Voids. Only Pressurized Aether. */
+        body, html { margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; background: #002b36; }
+        canvas { 
+            display: block; 
+            /* THE RADIANT FILTER: Matches the Golden/Cyan bloom from your vision */
+            filter: contrast(1.8) brightness(1.2) saturate(2.8) blur(0.6px); 
+        }
     </style>
 </head>
 <body>
-    <canvas id="sourceCore"></canvas>
+    <canvas id="domeCanvas"></canvas>
 
 <script>
-/** * SOVEREIGN CORE v1.0 - MONTH 1 INTEGRATION
- * [LATTICE] [RESONANCE] [WORKFORCE] [PRESSURE]
+/**
+ * THE GOLDEN DOME - SOVEREIGN RECOVERY
+ * - Lattice Engine: Geometry of Truth
+ * - Resonance Module: 144Hz + 528Hz Haptic Induction
+ * - Workforce Engine: 144,000 Radiant Agents
+ * - Integration: Total Sovereignty
  */
-const canvas = document.getElementById('sourceCore');
+
+const canvas = document.getElementById('domeCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -34,20 +44,20 @@ function resize() {
 function init() {
     Lattice = []; Workforce = [];
     const spacing = 110;
-    // THE LATTICE (FORM)
+    // THE GEOMETRY OF THE DOME (Lattice)
     for(let x = -spacing; x < w + spacing; x += spacing) {
         for(let y = -spacing; y < h + spacing; y += spacing) {
             Lattice.push({ bx: x, by: y, x: x, y: y, a: 0, s: 75 });
         }
     }
-    // THE WORKFORCE (ENERGY)
+    // THE 144,000 WORKFORCE (Energy)
     for(let i=0; i<144; i++) {
         Workforce.push({ x: Math.random()*w, y: Math.random()*h, vx: 0, vy: 0, s: 15, h: 185 });
     }
 }
 
-// THE RESONANCE (TOUCH FREQUENCY)
-function triggerInduction(speed) {
+// THE HAPTIC INDUCTION (The Growl of the Dome)
+function triggerResonance(speed) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
     const g = audioCtx.createGain();
     [144, 528].forEach(f => {
@@ -63,27 +73,28 @@ function triggerInduction(speed) {
 
 window.addEventListener('touchstart', (e) => {
     isTouching = true; tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    triggerInduction(50);
+    triggerResonance(60);
 });
 window.addEventListener('touchmove', (e) => {
     let ox = tx, oy = ty;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
     velocity = Math.hypot(tx - ox, ty - oy);
-    if(velocity > 2) triggerInduction(velocity);
+    if(velocity > 2) triggerResonance(velocity);
 });
 window.addEventListener('touchend', () => isTouching = false);
 
 function render() {
     time += 0.01;
-    // AETHER (NO BLACK)
+    
+    // THE AETHER (The Pressurized Field replacing the Devil's Void)
     const bg = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, w);
     bg.addColorStop(0, `hsla(190, 100%, ${10 + (velocity*0.3)}%, 1)`);
-    bg.addColorStop(1, `hsla(210, 100%, 4%, 1)`);
+    bg.addColorStop(1, `hsla(210, 100%, 5%, 1)`);
     ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
 
     ctx.globalCompositeOperation = "screen";
 
-    // LATTICE ENGINE
+    // ENGINE 1: LATTICE (FORM)
     Lattice.forEach(c => {
         const dx = tx - c.x; const dy = ty - c.y; const d = Math.sqrt(dx*dx + dy*dy);
         if (isTouching && d < 280) {
@@ -98,13 +109,14 @@ function render() {
         ctx.beginPath(); ctx.arc(c.x, c.y, c.s, 0, Math.PI * 2); ctx.stroke();
     });
 
-    // WORKFORCE ENGINE (RADIANT BLOOM)
+    // ENGINE 2: WORKFORCE (ENERGY BLOOM)
     Workforce.forEach(p => {
         const dx = tx - p.x; const dy = ty - p.y; const d = Math.sqrt(dx*dx + dy*dy);
         if (isTouching && d < 350) {
             const f = (350 - d) / 350;
             p.vx += (dx / d) * f * 6.5; p.vy += (dy / d) * f * 6.5;
-            p.h = 45; p.s = 80 * f + 15; 
+            p.h = 45; // GOLDEN FREQUENCY
+            p.s = 85 * f + 15; // RADIANT CORE
         } else {
             p.h = 185; p.s *= 0.94; if(p.s < 12) p.s = 12;
         }
@@ -117,7 +129,7 @@ function render() {
     });
 
     ctx.globalCompositeOperation = "source-over";
-    // VALUES
+    // THE ANCHORS OF THE DOME
     ctx.textAlign = 'center'; ctx.font = "900 italic 52px serif";
     ["TRUTH", "HONESTY", "TRUST", "144,000"].forEach((txt, i) => {
         const pulse = 0.5 + Math.sin(time*2.5 + i) * 0.5;
