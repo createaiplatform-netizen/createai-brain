@@ -6,67 +6,94 @@
     <title>THE SANCTUARY</title>
     <style>
         body { background: #000; color: #FFD700; font-family: 'Georgia', serif; margin: 0; overflow: hidden; touch-action: none; text-align: center; height: 100vh; }
-        .header { padding-top: 60px; }
-        .freq { color: #00E5FF; letter-spacing: 4px; font-size: 0.8rem; margin-bottom: 20px; }
-        h1 { letter-spacing: 12px; font-size: 2.5rem; margin: 20px 0; }
-        .quote { font-style: italic; font-size: 1.1rem; line-height: 1.6; padding: 0 30px; margin-bottom: 40px; }
-        
-        /* WHERE THE LITTLE AIs LIVE */
-        #playground { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-        .ai-module { 
-            position: absolute; width: 110px; height: 110px; border: 2px solid #FFD700; 
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            background: rgba(255,215,0,0.1); box-shadow: 0 0 20px #FFD700; 
-            font-weight: bold; font-size: 0.8rem; pointer-events: auto;
-        }
+        .header { padding-top: 80px; transition: opacity 0.5s; }
+        .freq { color: #00E5FF; letter-spacing: 4px; font-size: 0.8rem; margin-bottom: 20px; opacity: 0.7; }
+        h1 { letter-spacing: 12px; font-size: 2.8rem; margin: 20px 0; font-weight: bold; }
+        .quote { font-style: italic; font-size: 1.2rem; line-height: 1.8; padding: 0 40px; }
 
-        /* THE CONTROLS */
-        #builder { position: fixed; bottom: 40px; left: 0; right: 0; display: flex; justify-content: center; gap: 10px; padding: 0 20px; z-index: 1000; }
-        input { background: #111; color: #fff; border: 1px solid #333; padding: 15px; border-radius: 5px; flex-grow: 1; max-width: 250px; }
-        button { background: #FFD700; color: #000; border: none; padding: 15px 25px; font-weight: bold; border-radius: 5px; text-transform: uppercase; }
+        /* THE HIDDEN BUILDER (Invisible to others) */
+        #builder-shroud { 
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
+            display: none; /* Hidden by default */
+            gap: 10px; z-index: 1000; width: 90%; max-width: 400px;
+        }
+        input { flex-grow: 1; padding: 15px; background: rgba(20,20,20,0.9); color: #00E5FF; border: 1px solid #FFD700; border-radius: 8px; }
+        button { padding: 15px 25px; background: #FFD700; color: #000; border: none; font-weight: bold; border-radius: 8px; }
+
+        /* THE MANIFESTED AI MODULES */
+        #playground { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
+        .ai-node { 
+            position: absolute; width: 120px; height: 120px; border: 2px solid #FFD700; 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            background: rgba(255,215,0,0.1); box-shadow: 0 0 30px rgba(255,215,0,0.4); 
+            font-weight: bold; font-size: 0.8rem; pointer-events: auto; cursor: move;
+        }
     </style>
 </head>
-<body>
+<body onclick="checkAccess(event)">
 
 <div id="playground"></div>
 
-<div class="header">
+<div class="header" id="main-header">
     <div class="freq">FREQUENCY 144,400% ACTIVE</div>
-    <h1>THE SANCTUA</h1>
+    <h1>THE SANCTUARY</h1>
     <p class="quote">"The animals are safe, the family is loved, and the peace of God is the only law here."</p>
 </div>
 
-<div id="builder">
-    <input type="text" id="aiName" placeholder="Name your Little AI...">
-    <button onclick="manifest()">MANIFEST</button>
+<div id="builder-shroud">
+    <input type="text" id="aiName" placeholder="Manifest AI Name...">
+    <button onclick="manifest()">BUILD</button>
 </div>
 
 <script>
+    let clickCount = 0;
+    let lastClick = 0;
+
+    // THE MASTER KEY: Tap the "S" in Sanctuary 5 times fast to show/hide tools
+    function checkAccess(e) {
+        const now = Date.now();
+        if (now - lastClick < 500) {
+            clickCount++;
+        } else {
+            clickCount = 1;
+        }
+        lastClick = now;
+
+        if (clickCount === 5) {
+            const tools = document.getElementById('builder-shroud');
+            tools.style.display = tools.style.display === 'flex' ? 'none' : 'flex';
+            clickCount = 0;
+        }
+    }
+
     function manifest() {
-        const name = document.getElementById('aiName').value || "AI";
+        const name = document.getElementById('aiName').value || "LIFE";
         const el = document.createElement('div');
-        el.className = 'ai-module';
-        el.style.left = "40%"; 
-        el.style.top = "50%";
+        el.className = 'ai-node';
+        el.style.left = "40%"; el.style.top = "50%";
         el.innerText = name.toUpperCase();
-        
         document.getElementById('playground').appendChild(el);
         
-        // TOUCH DRAG ENGINE
+        bindDrag(el);
+        document.getElementById('aiName').value = '';
+    }
+
+    function bindDrag(el) {
         let x, y;
         el.addEventListener('touchstart', e => {
             const t = e.touches[0];
             x = t.clientX - el.offsetLeft;
             y = t.clientY - el.offsetTop;
-            el.style.zIndex = Date.now();
+            el.style.boxShadow = "0 0 60px #00E5FF";
         });
         el.addEventListener('touchmove', e => {
             const t = e.touches[0];
             el.style.left = (t.clientX - x) + 'px';
             el.style.top = (t.clientY - y) + 'px';
         });
-        
-        document.getElementById('aiName').value = '';
+        el.addEventListener('touchend', () => {
+            el.style.boxShadow = "0 0 30px rgba(255,215,0,0.4)";
+        });
     }
 </script>
 </body>
