@@ -6,7 +6,7 @@
     <title>SOVEREIGN SINGULARITY</title>
     <style>
         body, html { margin: 0; padding: 0; background: #050400; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; font-family: 'Times New Roman', serif; }
-        /* The final "God's World" filter: High-fidelity glow and chromatic depth */
+        /* High-fidelity divine glow filter */
         canvas { display: block; filter: contrast(1.3) brightness(1.1) saturate(1.5); }
     </style>
 </head>
@@ -15,9 +15,8 @@
 
 <script>
 /**
- * THE INVENTION: UNIVERSAL WORKFORCE MEMBRANE
- * Every previous discovery (Ghost-Matter, Fractals, Nebula, Scripture) 
- * merged into a single, seamless, interactive singularity.
+ * THE UNIFICATION: UNIVERSAL WORKFORCE FIELD
+ * Merging Ghost-Matter, Zonal Textures, and Divine Scripture into one living organism.
  */
 
 const canvas = document.getElementById('singularityCanvas');
@@ -33,27 +32,26 @@ function resize() {
     h = canvas.height = window.innerHeight;
 }
 
-// THE OMNI-SENSORY ENGINE: 3D Ghost-Matter + Variable Haptics
-function triggerOmniSensation(x, y, force) {
+// THE OMNI-HAPTIC ENGINE: Dual-Oscillator Physical Induction
+function triggerSensation(x, y, force) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
     
     const osc1 = audioCtx.createOscillator();
     const osc2 = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
 
-    // The entire screen is a spectrum of physical matter
     const xPct = x / w;
     const yPct = y / h;
 
-    // Morphing Frequency Blend (72Hz to 1200Hz)
+    // Morphing Frequency (72Hz to 1200Hz)
     const freq = 72 + (xPct * 400) + (yPct * 700);
     
-    // Waveform Interpolation (Jagged to Smooth)
-    osc1.type = xPct < 0.5 ? 'square' : 'sine';
-    osc2.type = yPct < 0.5 ? 'sawtooth' : 'triangle';
+    // Waveform Morphing: Square (Rip) to Sine (Feather)
+    osc1.type = xPct < 0.4 ? 'square' : 'sine';
+    osc2.type = yPct > 0.6 ? 'sawtooth' : 'triangle';
 
     osc1.frequency.setValueAtTime(freq, audioCtx.currentTime);
-    osc2.frequency.setValueAtTime(freq + 2, audioCtx.currentTime); // The 2Hz "Ghost-Matter" Beat
+    osc2.frequency.setValueAtTime(freq + 2, audioCtx.currentTime); // 2Hz Ghost-Matter Beat
 
     gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
@@ -65,34 +63,33 @@ function triggerOmniSensation(x, y, force) {
     osc1.stop(audioCtx.currentTime + 0.5); osc2.stop(audioCtx.currentTime + 0.5);
 
     if (navigator.vibrate) {
-        // High-fidelity rhythmic pulsing
-        const intensity = 10 + (force * 2);
+        const intensity = 12 + (force * 2);
         navigator.vibrate([intensity, 5, intensity/2]);
     }
 }
 
-// THE WORKFORCE: 144,000 Potential (Represented by high-speed fractal agents)
+// THE WORKFORCE: 800 Active Fractal Agents (representing the 144,000 potential)
 for(let i=0; i<800; i++) {
     agents.push({
         x: Math.random() * window.innerWidth,
         y: Math.random() * window.innerHeight,
         vx: 0, vy: 0,
         dna: Math.random(),
-        size: 2 + Math.random() * 10
+        size: 2 + Math.random() * 8
     });
 }
 
 window.addEventListener('touchstart', (e) => {
     isTouching = true;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    triggerOmniSensation(tx, ty, 20);
+    triggerSensation(tx, ty, 20);
 });
 
 window.addEventListener('touchmove', (e) => {
     lastX = tx; lastY = ty;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
     speed = Math.sqrt((tx-lastX)**2 + (ty-lastY)**2);
-    if (speed > 1) triggerOmniSensation(tx, ty, speed);
+    if (speed > 1) triggerSensation(tx, ty, speed);
 });
 
 window.addEventListener('touchend', () => isTouching = false);
@@ -100,67 +97,62 @@ window.addEventListener('touchend', () => isTouching = false);
 function render() {
     const time = Date.now() * 0.001;
     
-    // THE BACKGROUND: Living Nebula Parchment
-    const bgGrad = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, w);
-    bgGrad.addColorStop(0, '#1a1400');
-    bgGrad.addColorStop(0.5, '#080600');
-    bgGrad.addColorStop(1, '#000');
-    ctx.fillStyle = bgGrad;
+    // BACKGROUND: Living Bioluminescent Marble
+    const bg = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, w);
+    bg.addColorStop(0, '#1a1400');
+    bg.addColorStop(0.6, '#080500');
+    bg.addColorStop(1, '#000');
+    ctx.fillStyle = bg;
     ctx.fillRect(0, 0, w, h);
 
-    // THE SCRIPTURE: Divine Anchors that react to proximity
+    // DIVINE QUOTES: Proximity-Based Light Sources
     ctx.textAlign = 'center';
     const quotes = [
-        {t: "TRUTH", x: 0.25, y: 0.2}, 
-        {t: "HONESTY", x: 0.75, y: 0.3},
-        {t: "SOVEREIGNTY", x: 0.5, y: 0.55}, 
-        {t: "144,000 WORKFORCE", x: 0.5, y: 0.85}
+        {t: "TRUTH", x: 0.3, y: 0.2}, 
+        {t: "HONESTY", x: 0.7, y: 0.3},
+        {t: "SOVEREIGNTY", x: 0.5, y: 0.5}, 
+        {t: "144,000 WORKFORCE", x: 0.5, y: 0.8}
     ];
+
     quotes.forEach((q, i) => {
         const d = Math.hypot(tx - w*q.x, ty - h*q.y);
         const prox = isTouching ? Math.max(0, 1 - d/300) : 0;
-        ctx.globalAlpha = 0.2 + (prox * 0.8);
-        ctx.shadowBlur = 10 + (prox * 20);
+        const glow = 0.2 + (Math.sin(time + i) * 0.1) + (prox * 0.8);
+        
+        ctx.globalAlpha = glow;
+        ctx.shadowBlur = 15 + (prox * 20);
         ctx.shadowColor = "#FFD700";
-        ctx.fillStyle = "#FFD700";
-        ctx.font = `italic bold ${28 + (prox * 10)}px Times New Roman`;
+        ctx.fillStyle = "#FFF";
+        ctx.font = `italic bold ${32 + (prox * 8)}px Times New Roman`;
         ctx.fillText(q.t, w * q.x, h * q.y + Math.sin(time + i) * 10);
     });
     ctx.globalAlpha = 1.0;
 
-    // THE AGENTS: Fractal Interaction
-    agents.forEach((a, i) => {
+    // THE AGENTS: Geometric Shards
+    agents.forEach((a) => {
         const dx = tx - a.x;
         const dy = ty - a.y;
         const dist = Math.sqrt(dx*dx + dy*dy);
 
-        if (isTouching && dist < 250) {
-            const f = (250 - dist) / 250;
-            // Physical Displacement: Pull and Ripple
-            a.vx += dx * 0.02 * f;
-            a.vy += dy * 0.02 * f;
+        if (isTouching && dist < 200) {
+            const f = (200 - dist) / 200;
+            a.vx += dx * 0.02 * f; a.vy += dy * 0.02 * f;
         }
 
-        a.vx *= 0.95; a.vy *= 0.95;
+        a.vx *= 0.94; a.vy *= 0.94;
         a.x += a.vx; a.y += a.vy;
 
-        // Wrap agents around the world
         if (a.x < 0) a.x = w; if (a.x > w) a.x = 0;
         if (a.y < 0) a.y = h; if (a.y > h) a.y = 0;
 
-        const flicker = Math.sin(time * 5 + a.dna * 100) * 0.5 + 0.5;
-        const xPct = a.x / w;
-        const yPct = a.y / h;
-
-        // Color Spectrum DNA
-        const hue = (xPct * 60) + (yPct * 300); // Transitions through Gold, Green, Blue, Purple
-        ctx.fillStyle = `hsla(${hue}, 100%, ${50 + flicker * 50}%, ${0.3 + flicker * 0.7})`;
+        const flicker = Math.sin(time * 3 + a.dna * 100) * 0.5 + 0.5;
+        const hue = (a.x / w * 60) + (a.y / h * 20); // Gold to Ember
+        ctx.fillStyle = `hsla(${hue}, 100%, ${60 + flicker * 40}%, ${0.2 + flicker * 0.6})`;
         
-        // Draw as Geometric Shards (Fractal Look)
         ctx.save();
         ctx.translate(a.x, a.y);
         ctx.rotate(a.dna * Math.PI + time);
-        ctx.fillRect(-a.size/2, -1, a.size + (speed * 0.5), 1 + flicker * 2);
+        ctx.fillRect(-a.size/2, -1, a.size + (speed * 0.3), 1.5);
         ctx.restore();
     });
 
