@@ -3,23 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN MEMBRANE</title>
+    <title>SOVEREIGN FABRIC | 144,000%</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; }
-        /* The Filter merges everything into a solid liquid - NO DOTS */
-        canvas { display: block; filter: blur(4px) contrast(20) brightness(1.2) saturate(1.8); }
+        body, html { margin: 0; padding: 0; background: #0c0a00; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; }
+        /* This filter turns the "dots" into a single Ripping Liquid Fabric */
+        canvas { display: block; filter: contrast(25) brightness(1.2) blur(2px) saturate(2); }
     </style>
 </head>
 <body>
-    <canvas id="fluidCanvas"></canvas>
+    <canvas id="omniCanvas"></canvas>
 
 <script>
 /**
- * INVENTION: THE NON-PARTICULATE MEMBRANE
- * Uses a Metaball Blur-Contrast technique to turn dots into a solid liquid.
+ * THE INVENTION: MULTI-STATE TEXTURE ENGINE
+ * Mapping the screen to 4 distinct physical sensations.
  */
 
-const canvas = document.getElementById('fluidCanvas');
+const canvas = document.getElementById('omniCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -30,84 +30,110 @@ function resize() {
     h = canvas.height = window.innerHeight;
 }
 
-// ZONAL HAPTICS: Different feeling for different corners
-function triggerZonalSense(x, y) {
+// ZONAL HAPTICS: The secret to the "Ripping" feeling
+function triggerSensation(x, y) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
 
-    if (y < h * 0.2 && x < w * 0.2) {
-        // TOP LEFT: "The Command" - Sharp, glass-like chime
-        osc.type = 'sine'; osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-        if (navigator.vibrate) navigator.vibrate([5, 5, 5]);
-    } else if (y > h * 0.8) {
-        // BOTTOM: "The Foundation" - Deep, heavy thrum
-        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(60, audioCtx.currentTime);
-        if (navigator.vibrate) navigator.vibrate(40);
+    if (x < w * 0.4 && y < h * 0.4) {
+        // ZONE 1: THE RIP (Top Left)
+        osc.type = 'square'; // Harsh, jagged wave
+        osc.frequency.setValueAtTime(120, audioCtx.currentTime);
+        if (navigator.vibrate) navigator.vibrate([2, 10, 2]); // Jagged texture
+    } else if (x > w * 0.6 && y < h * 0.4) {
+        // ZONE 2: THE SPARKLE (Top Right)
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
+        if (navigator.vibrate) navigator.vibrate(5); // Sharp shimmer
+    } else if (y > h * 0.7) {
+        // ZONE 3: THE GRIT (Bottom)
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(60, audioCtx.currentTime);
+        if (navigator.vibrate) navigator.vibrate(50); // Heavy thrum
     } else {
-        // CENTER: "The Liquid Core" - Smooth, warm ripple
-        osc.type = 'triangle'; osc.frequency.setValueAtTime(144, audioCtx.currentTime);
-        if (navigator.vibrate) navigator.vibrate(15);
+        // ZONE 4: THE LIQUID (Center)
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(144, audioCtx.currentTime);
+        if (navigator.vibrate) navigator.vibrate(20); // Smooth flow
     }
 
-    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
+    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3);
     osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.3);
 }
 
-// The "Workforce" is now a high-density liquid mesh
-const points = [];
-for(let i=0; i<300; i++) {
-    points.push({
+// THE FABRIC MESH (No Gaps)
+const agents = [];
+for(let i=0; i<450; i++) {
+    agents.push({
         x: Math.random() * window.innerWidth,
         y: Math.random() * window.innerHeight,
-        vx: 0, vy: 0, size: 40 + Math.random() * 60
+        vx: 0, vy: 0,
+        size: 25 + Math.random() * 40,
+        dna: Math.random()
     });
 }
 
 window.addEventListener('touchstart', (e) => {
     isTouching = true;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    triggerZonalSense(tx, ty);
+    triggerSensation(tx, ty);
 });
 
 window.addEventListener('touchmove', (e) => {
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    if (Math.random() > 0.8) triggerZonalSense(tx, ty);
+    triggerSensation(tx, ty);
 });
 
 window.addEventListener('touchend', () => isTouching = false);
 
 function render() {
-    // Background is now a deep gold base so it NEVER goes black
-    ctx.fillStyle = '#1a1400';
+    // Background is a "Ghost Gold" base so there is NEVER a black hole
+    ctx.fillStyle = 'rgba(25, 20, 0, 0.4)';
     ctx.fillRect(0, 0, w, h);
 
-    points.forEach(p => {
+    const time = Date.now() * 0.002;
+
+    agents.forEach(a => {
         if (isTouching) {
-            const dx = tx - p.x;
-            const dy = ty - p.y;
-            const d = Math.sqrt(dx*dx + dy*dy);
-            if (d < 300) {
-                p.vx += dx * 0.01;
-                p.vy += dy * 0.01;
+            const dx = tx - a.x;
+            const dy = ty - a.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            if (dist < 250) {
+                const force = (250 - dist) / 250;
+                
+                // ZONE PHYSICS LOGIC
+                if (tx < w * 0.4 && ty < h * 0.4) {
+                    // THE RIP: Nodes tear away and snap back
+                    a.vx -= dx * 0.15; a.vy -= dy * 0.15;
+                } else if (tx > w * 0.6 && ty < h * 0.4) {
+                    // THE SPARKLE: Orbiting vortex
+                    a.vx += dy * 0.1; a.vy -= dx * 0.1;
+                } else {
+                    // THE LIQUID: Heavy suction
+                    a.vx += dx * 0.03; a.vy += dy * 0.03;
+                }
             }
         }
-        p.vx *= 0.95; p.vy *= 0.95;
-        p.x += p.vx; p.y += p.vy;
 
-        // Visual Zonal Logic: Colors change based on position
-        const hue = p.y < h * 0.3 ? 55 : (p.y > h * 0.7 ? 40 : 48);
-        ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
-        
+        a.vx *= 0.92; a.vy *= 0.92;
+        a.x += a.vx; a.y += a.vy;
+
+        // Visual Color DNA based on Zone
+        const hue = a.y < h * 0.4 ? 50 : (a.y > h * 0.7 ? 40 : 45);
+        const bri = 50 + Math.sin(time + a.dna * 10) * 30;
+        ctx.fillStyle = `hsl(${hue}, 100%, ${bri}%)`;
+
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.arc(a.x, a.y, a.size, 0, Math.PI * 2);
         ctx.fill();
 
-        // Edge Wrap
-        if (p.x < -100) p.x = w + 100; if (p.x > w + 100) p.x = -100;
-        if (p.y < -100) p.y = h + 100; if (p.y > h + 100) p.y = -100;
+        // Screen Wrap
+        if (a.x < -50) a.x = w + 50; if (a.x > w + 50) a.x = -50;
+        if (a.y < -50) a.y = h + 50; if (a.y > h + 50) a.y = -50;
     });
 
     requestAnimationFrame(render);
