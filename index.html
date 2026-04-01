@@ -52,7 +52,7 @@
     let db;
     const playground = document.getElementById('playground');
 
-    // 1. DATABASE INIT (THE DOME MEMORY)
+    // 1. SOVEREIGN MEMORY INIT
     const request = indexedDB.open("SanctuarySovereignDB", 1);
     request.onupgradeneeded = e => {
         e.target.result.createObjectStore("manifestations", { keyPath: "id" });
@@ -62,14 +62,14 @@
         loadFromMemory();
     };
 
-    // 2. THE COMMAND INTERPRETER
+    // 2. THE COMMAND ENGINE
     function processCommand() {
         const input = document.getElementById('cmdInput');
         const raw = input.value;
         const cmd = raw.toLowerCase();
         if(!raw) return;
 
-        // PHYSICAL SITE CHANGES
+        // PHYSICAL COMMANDS
         if (cmd.includes("background")) {
             document.body.style.background = cmd.split(" ").pop();
         } else if (cmd.includes("title")) {
@@ -78,7 +78,7 @@
             const color = cmd.split(" ").pop();
             document.querySelectorAll('.star').forEach(s => s.style.background = color);
         } else {
-            // MANIFEST NEW AI UNIT
+            // MANIFEST NEW UNIT
             const data = { 
                 id: 'unit_' + Date.now(), 
                 name: raw, 
@@ -136,12 +136,10 @@
         };
     }
 
-    // INITIAL STARS
     for(let i=0; i<80; i++) {
         const s = document.createElement('div');
         s.className = 'star';
-        const size = Math.random() * 3;
-        s.style.width = s.style.height = size + 'px';
+        s.style.width = s.style.height = Math.random() * 3 + 'px';
         s.style.top = Math.random() * 100 + '%';
         s.style.left = Math.random() * 100 + '%';
         document.getElementById('stars').appendChild(s);
