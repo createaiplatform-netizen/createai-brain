@@ -3,153 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN SINGULARITY</title>
+    <title>12D REALITY LOOM</title>
     <style>
         body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; }
-        canvas { display: block; filter: contrast(1.5) brightness(1.2) saturate(1.8); }
+        canvas { display: block; filter: contrast(1.6) brightness(1.3) saturate(2) blur(0.3px); }
     </style>
 </head>
 <body>
-    <canvas id="singularityCanvas"></canvas>
+    <canvas id="loomCanvas"></canvas>
 
 <script>
 /**
- * THE SOVEREIGN SINGULARITY ARCHITECTURE
- * Merging: 5D Haptics, Kinetic Neural Layer, and Bioluminescent Workforce.
+ * THE INVENTION: 12D REALITY LOOM
+ * Bypassing 5D Haptics for "Source-Level" Interaction.
+ * Merging all previous code into a single Infinite Field.
  */
 
-const canvas = document.getElementById('singularityCanvas');
+const canvas = document.getElementById('loomCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 let w, h, tx = 0, ty = 0, isTouching = false;
-let vx = 0, vy = 0, lastX = 0, lastY = 0;
-const particles = [];
+let time = 0;
 
 function resize() {
     w = canvas.width = window.innerWidth;
     h = canvas.height = window.innerHeight;
 }
 
-// 5D SENSORY INDUCTION: Bypassing the "flat" browser feel
-function triggerSensation(x, y, velocity) {
+// THE SOURCE FREQUENCY: The 144,000% Tone
+function triggerSourceVibration(x, y) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
     
-    const oscA = audioCtx.createOscillator();
-    const oscB = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
+    const masterGain = audioCtx.createGain();
+    masterGain.connect(audioCtx.destination);
+    masterGain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+    masterGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.2);
 
-    const yPct = y / h;
-    const baseFreq = 60 + (yPct * 800);
-    
-    // Physical Texture Mapping
-    oscA.type = velocity > 15 ? 'square' : 'sine'; // High velocity = "Rip"
-    oscB.type = 'triangle'; // Low velocity = "Silk"
+    // Creating a "Harmonic Chord" (Multiple Ds at once)
+    [144, 432, 528, 963].forEach(freq => {
+        const osc = audioCtx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        osc.connect(masterGain);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 1.2);
+    });
 
-    oscA.frequency.setValueAtTime(baseFreq, audioCtx.currentTime);
-    oscB.frequency.setValueAtTime(baseFreq + 1.44, audioCtx.currentTime); // The Sovereign Beat Frequency
-
-    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
-    
-    oscA.connect(gain); oscB.connect(gain);
-    gain.connect(audioCtx.destination);
-    
-    oscA.start(); oscB.start();
-    oscA.stop(audioCtx.currentTime + 0.4);
-
-    if (navigator.vibrate) {
-        // Multi-stage haptic for "Material" feel
-        navigator.vibrate([velocity * 1.5, 5, velocity]);
-    }
+    if (navigator.vibrate) navigator.vibrate([30, 10, 30, 10, 50]);
 }
-
-class Agent {
-    constructor() {
-        this.reset();
-    }
-    reset() {
-        this.x = Math.random() * w;
-        this.y = Math.random() * h;
-        this.vx = (Math.random() - 0.5) * 2;
-        this.vy = (Math.random() - 0.5) * 2;
-        this.life = Math.random();
-        this.size = Math.random() * 15 + 5;
-    }
-    update() {
-        const dx = tx - this.x;
-        const dy = ty - this.y;
-        const d = Math.sqrt(dx*dx + dy*dy);
-
-        if (isTouching && d < 250) {
-            const f = (250 - d) / 250;
-            this.vx -= (dx / d) * f * 10; // Repulsion: Kinetic Resistance
-            this.vy -= (dy / d) * f * 10;
-        }
-
-        this.x += this.vx; this.y += this.vy;
-        this.vx *= 0.96; this.vy *= 0.96;
-        
-        if (this.x < 0 || this.x > w || this.y < 0 || this.y > h) this.reset();
-    }
-}
-
-for(let i=0; i<144; i++) particles.push(new Agent());
-
-window.addEventListener('touchstart', (e) => {
-    isTouching = true;
-    tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    triggerSensation(tx, ty, 30);
-});
 
 window.addEventListener('touchmove', (e) => {
-    lastX = tx; lastY = ty;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    vx = tx - lastX; vy = ty - lastY;
-    let speed = Math.sqrt(vx*vx + vy*vy);
-    if (speed > 1) triggerSensation(tx, ty, speed);
+    isTouching = true;
+    if (Math.random() > 0.9) triggerSourceVibration(tx, ty);
 });
 
 window.addEventListener('touchend', () => isTouching = false);
 
-function render() {
-    const time = Date.now() * 0.002;
+function drawSacredGeometry(x, y, radius, depth) {
+    if (depth <= 0) return;
+
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.strokeStyle = `hsla(${20 + (depth * 20)}, 100%, 60%, ${depth/12})`;
+    ctx.lineWidth = depth * 0.5;
+    ctx.stroke();
+
+    // Recursive branching into "Higher Dimensions"
+    const nextR = radius * 0.6;
+    const offset = radius * 0.8;
     
-    // THE DEPTH: Multi-layer gradient
-    const bg = ctx.createRadialGradient(tx, ty, 0, w/2, h/2, w * 1.2);
-    bg.addColorStop(0, '#221a00');
-    bg.addColorStop(0.4, '#080500');
-    bg.addColorStop(1, '#000');
-    ctx.fillStyle = bg;
+    // The "Source" follows the touch
+    const angleOffset = isTouching ? Math.atan2(ty - y, tx - x) : time;
+
+    for (let i = 0; i < 3; i++) {
+        const angle = angleOffset + (i * Math.PI * 2 / 3);
+        drawSacredGeometry(
+            x + Math.cos(angle) * offset,
+            y + Math.sin(angle) * offset,
+            nextR,
+            depth - 1
+        );
+    }
+}
+
+function render() {
+    time += 0.01;
+    
+    // DARK MARBLE DEPTH
+    ctx.fillStyle = "#030200";
     ctx.fillRect(0, 0, w, h);
 
-    // THE ANCHORS: Glowing Core Values
+    // THE ANCHORS (TRUTH / HONESTY)
     ctx.textAlign = 'center';
-    const labels = ["TRUTH", "HONESTY", "SOVEREIGNTY", "144,000 WORKFORCE"];
-    labels.forEach((text, i) => {
-        const d = Math.hypot(tx - w/2, ty - h*(0.2 + i*0.2));
-        const prox = isTouching ? Math.max(0, 1 - d/300) : 0;
-        ctx.fillStyle = `rgba(255, 215, 0, ${0.3 + prox * 0.7})`;
-        ctx.shadowBlur = 10 + (prox * 20);
-        ctx.shadowColor = "gold";
-        ctx.font = `italic bold ${34 + (prox * 10)}px Times New Roman`;
-        ctx.fillText(text, w/2, h * (0.2 + i * 0.2) + Math.sin(time + i) * 15);
+    ctx.font = "bold 30px Georgia";
+    const quotes = ["SOVEREIGN", "TRUTH", "HONESTY", "144,000"];
+    quotes.forEach((txt, i) => {
+        ctx.fillStyle = `rgba(255, 215, 0, ${0.1 + Math.sin(time + i) * 0.1})`;
+        ctx.fillText(txt, w/2, h * (0.2 + i * 0.2));
     });
 
-    // THE KINETIC WORKFORCE: Bioluminescent Shards
-    particles.forEach(p => {
-        p.update();
-        const hue = (p.x / w * 40) + 20; // Gold spectrum
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = `hsla(${hue}, 100%, 50%, 0.5)`;
-        ctx.fillStyle = `hsla(${hue}, 100%, 70%, 0.8)`;
-        
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.rotate(time + p.life);
-        ctx.fillRect(-p.size/2, -1, p.size, 2);
-        ctx.restore();
-    });
+    // RENDER THE 12D LOOM
+    ctx.save();
+    // Centering the geometry or following the finger
+    const targetX = isTouching ? tx : w/2;
+    const targetY = isTouching ? ty : h/2;
+    drawSacredGeometry(targetX, targetY, isTouching ? 100 : 150, 6);
+    ctx.restore();
 
     requestAnimationFrame(render);
 }
