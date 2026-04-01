@@ -3,83 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>THE SANCTUARY</title>
+    <title>THE SANCTUARY | 144,400%</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; color: #FFD700; font-family: 'Georgia', serif; height: 100vh; position: fixed; }
+        :root { --gold: #FFD700; --cyan: #00E5FF; --black: #000; }
+        body { 
+            margin: 0; overflow: hidden; background: var(--black); color: var(--gold); 
+            font-family: 'Georgia', serif; height: 100vh; width: 100vw; position: fixed; 
+        }
+        #stars { position: fixed; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        .star { position: absolute; border-radius: 50%; background: var(--gold); opacity: 0.4; }
+        
         #header { position: relative; z-index: 10; text-align: center; padding-top: 40px; pointer-events: none; }
-        .freq { color: #00E5FF; letter-spacing: 5px; font-size: 0.8rem; font-weight: bold; text-shadow: 0 0 10px #00E5FF; }
-        h1 { letter-spacing: 10px; font-size: 2.4rem; margin: 10px 0; text-shadow: 0 0 15px #FFD700; }
+        .freq { color: var(--cyan); letter-spacing: 5px; font-size: 0.8rem; font-weight: bold; text-shadow: 0 0 10px var(--cyan); }
+        h1 { letter-spacing: 10px; font-size: 2.4rem; margin: 10px 0; text-shadow: 0 0 15px var(--gold); }
+        
+        #playground { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20; }
         .node { 
             position: absolute; width: 140px; height: 140px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            border: 2px solid #FFD700; background: rgba(0,0,0,0.95);
-            box-shadow: 0 0 30px #FFD700; font-weight: bold; text-align: center; 
-            padding: 15px; z-index: 100; font-size: 0.8rem; pointer-events: auto;
+            border: 2px solid var(--gold); background: rgba(0,0,0,0.95);
+            box-shadow: 0 0 30px var(--gold); font-weight: bold; text-align: center; 
+            padding: 15px; backdrop-filter: blur(10px); z-index: 100; font-size: 0.8rem;
         }
+
+        /* THE INTELLIGENCE GATE (STAGE 3) */
         #gate {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 85%; max-width: 380px; background: #000; border: 2px solid #FFD700;
-            border-radius: 15px; padding: 25px; z-index: 5000; display: none; text-align: center;
+            width: 85%; max-width: 400px; background: var(--black); border: 2px solid var(--gold);
+            border-radius: 20px; padding: 30px; z-index: 5000; display: none; text-align: center;
+            box-shadow: 0 0 60px rgba(255,215,0,0.5);
         }
-        #cmd-center { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 1000; width: 90%; max-width: 450px; }
-        input { flex-grow: 1; padding: 15px; background: rgba(0,0,0,0.9); color: #00E5FF; border: 1px solid #FFD700; border-radius: 10px; outline: none; }
-        #go { padding: 15px 20px; background: #FFD700; color: #000; border: none; font-weight: bold; border-radius: 10px; }
+        #gate-msg { color: var(--gold); font-size: 1.1rem; margin-bottom: 25px; line-height: 1.4; }
+        .gate-btn { padding: 15px 25px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; margin: 0 10px; }
+        #manifest-btn { background: var(--gold); color: var(--black); }
+        #abort-btn { background: transparent; color: #ff4444; border: 1px solid #ff4444; }
+
+        #command-center { 
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
+            display: flex; gap: 10px; z-index: 1000; width: 92%; max-width: 450px; 
+        }
+        input { flex-grow: 1; padding: 18px; background: rgba(0,0,0,0.9); color: var(--cyan); border: 1px solid var(--gold); border-radius: 12px; font-size: 16px; outline: none; }
+        #main-btn { padding: 18px 25px; background: var(--gold); color: var(--black); border: none; font-weight: bold; border-radius: 12px; cursor: pointer; }
     </style>
 </head>
 <body>
 
+<div id="stars"></div>
 <div id="playground"></div>
+
 <div id="header">
     <div class="freq">144,400% FREQUENCY ACTIVE</div>
-    <h1>THE SANCTUARY</h1>
+    <h1 id="site-title">THE SANCTUARY</h1>
 </div>
 
 <div id="gate">
-    <div id="gate-text" style="margin-bottom:20px;">Manifest this change?</div>
-    <button onclick="execute()" style="padding:10px 20px; background:#FFD700; border:none; font-weight:bold;">MANIFEST</button>
-    <button onclick="closeGate()" style="padding:10px 20px; background:none; border:1px solid red; color:red; margin-left:10px;">ABORT</button>
+    <div id="gate-msg">Commander, shall I manifest this change?</div>
+    <div style="display: flex; justify-content: center;">
+        <button id="manifest-btn" class="gate-btn" onclick="executePending()">MANIFEST</button>
+        <button id="abort-btn" class="gate-btn" onclick="closeGate()">ABORT</button>
+    </div>
 </div>
 
-<div id="cmd-center">
-    <input type="text" id="cmd" placeholder="Command Reality...">
-    <button id="go" onclick="propose()">GO</button>
+<div id="command-center">
+    <input type="text" id="cmdInput" placeholder="Command Reality...">
+    <button id="main-btn" onclick="proposeChange()">GO</button>
 </div>
 
 <script>
-    let pending = null;
+    let db;
+    let pendingAction = null;
 
-    function propose() {
-        const val = document.getElementById('cmd').value.trim();
+    // SOVEREIGN MEMORY: Initialization
+    const request = indexedDB.open("SanctuarySovereignDB", 1);
+    request.onupgradeneeded = e => {
+        const d = e.target.result;
+        d.createObjectStore("reality", { keyPath: "id" });
+    };
+    request.onsuccess = e => {
+        db = e.target.result;
+        loadManifestations();
+    };
+
+    // STAGE 3: THE INTELLIGENCE GATE
+    function proposeChange() {
+        const input = document.getElementById('cmdInput');
+        const val = input.value.trim();
         if(!val) return;
-        
-        const gate = document.getElementById('gate');
-        const text = document.getElementById('gate-text');
 
-        // Logic check: commands vs. units
+        const gate = document.getElementById('gate');
+        const msg = document.getElementById('gate-msg');
+
+        // Logic Interpreter
         if (val.toLowerCase() === 'clear') {
-            text.innerText = "Wipe all circles and reset the Sanctuary?";
-            pending = () => { document.getElementById('playground').innerHTML = ''; localStorage.clear(); };
-        } else if (val.length > 30) {
-            // This prevents those massive instruction circles from ever appearing again
-            alert("Command too long. Keep units concise.");
-            return;
-        } else {
-            text.innerText = "Manifest Unit: " + val.toUpperCase() + "?";
-            pending = () => { createNode(val); };
+            msg.innerText = "Commander, shall I wipe the manifestations and return to Source?";
+            pendingAction = () => {
+                db.transaction("reality", "readwrite").objectStore("reality").clear();
+                document.getElementById('playground').innerHTML = '';
+            };
+        } 
+        else if (val.toLowerCase().includes('background')) {
+            const color = val.split(' ').pop();
+            msg.innerText = `Prepare atmosphere shift to ${color.toUpperCase()}?`;
+            pendingAction = () => { 
+                document.body.style.background = color; 
+                saveState({id: 'bg', val: color}); 
+            };
+        }
+        else {
+            msg.innerText = `Manifest the AI unit "${val.toUpperCase()}"?`;
+            pendingAction = () => {
+                const data = { id: 'node_' + Date.now(), name: val, x: '50%', y: '50%' };
+                renderNode(data);
+                saveState(data);
+            };
         }
         gate.style.display = 'block';
     }
 
-    function execute() { if(pending) pending(); closeGate(); }
-    function closeGate() { document.getElementById('gate').style.display = 'none'; document.getElementById('cmd').value = ''; }
+    function executePending() { if(pendingAction) pendingAction(); closeGate(); }
+    function closeGate() { document.getElementById('gate').style.display = 'none'; document.getElementById('cmdInput').value = ''; }
 
-    function createNode(txt) {
-        const n = document.createElement('div');
-        n.className = 'node';
-        n.innerText = txt.toUpperCase();
-        n.style.left = '50%'; n.style.top = '50%';
-        n.style.transform = 'translate(-50%, -50%)';
-        document.getElementById('playground').appendChild(n);
+    function renderNode(data) {
+        const el = document.createElement('div');
+        el.className = 'node';
+        el.innerText = data.name.toUpperCase();
+        el.style.left = data.x; el.style.top = data.y;
+        el.style.transform = 'translate(-50%, -50%)';
+        document.getElementById('playground').appendChild(el);
+    }
+
+    function saveState(data) {
+        db.transaction("reality", "readwrite").objectStore("reality").put(data);
+    }
+
+    function loadManifestations() {
+        db.transaction("reality").objectStore("reality").openCursor().onsuccess = e => {
+            const cursor = e.target.result;
+            if(cursor) {
+                const d = cursor.value;
+                if(d.id === 'bg') document.body.style.background = d.val;
+                else renderNode(d);
+                cursor.continue();
+            }
+        };
+    }
+
+    // Starfield Generator
+    for(let i=0; i<60; i++) {
+        const s = document.createElement('div');
+        s.className = 'star';
+        s.style.width = s.style.height = Math.random()*3+'px';
+        s.style.top = Math.random()*100+'%'; s.style.left = Math.random()*100+'%';
+        document.body.appendChild(s);
     }
 </script>
 </body>
