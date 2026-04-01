@@ -3,140 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN FRAGMENT FIELD</title>
+    <title>SOVEREIGN PRISMATIC MEMBRANE</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #080700; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; }
-        /* Prismatic filter to turn lines into glowing shards */
-        canvas { display: block; filter: contrast(1.5) brightness(1.2) saturate(1.8); }
+        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; }
+        /* This filter merges the "dots" into a solid, ripping liquid - NO DOTS */
+        canvas { display: block; filter: contrast(1.8) brightness(1.2) saturate(1.5) blur(0.2px); }
     </style>
 </head>
 <body>
-    <canvas id="fragmentCanvas"></canvas>
+    <canvas id="prismaticCanvas"></canvas>
 
 <script>
 /**
- * THE INVENTION: FRAGMENT FIELD DYNAMICS
- * Analyzed from user screenshots to eliminate 'Blob' failure states.
+ * THE INVENTION: PRISMATIC SURFACE RESONANCE
+ * Analyzed from user request: Solving the "Yellow Screen" problem.
+ * Mapping the screen to 4 distinct physical and chromatic sensations.
  */
 
-const canvas = document.getElementById('fragmentCanvas');
+const canvas = document.getElementById('prismaticCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-let w, h, tx = 0, ty = 0, isTouching = false;
+let w, h, tx = 0, ty = 0, speed = 0, lastX = 0, lastY = 0, isTouching = false;
 
 function resize() {
     w = canvas.width = window.innerWidth;
     h = canvas.height = window.innerHeight;
 }
 
-// THE SENSORY MAP
-function triggerFragmentSense(x, y) {
+// ZONAL HAPTICS: The secret to the "Ripping" feeling
+function triggerZonalSense(x, y, power) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
 
-    if (x < w * 0.5 && y < h * 0.5) {
-        // TOP LEFT: THE RIP
-        osc.type = 'square'; osc.frequency.setValueAtTime(90, audioCtx.currentTime);
-        if (navigator.vibrate) navigator.vibrate([10, 5, 10]);
-    } else if (x > w * 0.5 && y < h * 0.5) {
-        // TOP RIGHT: THE SHIMMER
-        osc.type = 'sine'; osc.frequency.setValueAtTime(1100, audioCtx.currentTime);
-        if (navigator.vibrate) navigator.vibrate(5);
+    if (x < w * 0.4 && y < h * 0.4) {
+        // ZONE 1: THE RIP (Top Left)
+        osc.type = 'square'; // Harsh, jagged wave
+        osc.frequency.setValueAtTime(144 + (power * 4), audioCtx.currentTime);
+        if (navigator.vibrate) navigator.vibrate([10, 5, 10, 5]); // High-tension texture
+    } else if (x > w * 0.6 && y < h * 0.4) {
+        // ZONE 2: THE SPARKLE (Top Right)
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1400, audioCtx.currentTime);
+        if (navigator.vibrate) navigator.vibrate(5); // Sharp shimmer
+    } else if (y > h * 0.7) {
+        // ZONE 3: THE WEIGHT (Bottom Half)
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(72 + (x / w * 72), audioCtx.currentTime);
+        if (navigator.vibrate) navigator.vibrate(40); // Heavy thrum
     } else {
-        // BOTTOM: THE WEIGHT
-        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(60, audioCtx.currentTime);
-        if (navigator.vibrate) navigator.vibrate(35);
+        // ZONE 4: THE LIQUID (Center)
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(288, audioCtx.currentTime);
+        if (navigator.vibrate) navigator.vibrate(20); // Smooth flow
     }
 
-    gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3);
+    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
     osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.4);
 }
 
-// The Workforce (Fragmented Light)
-const shards = [];
-for(let i=0; i<800; i++) {
-    shards.push({
-        x: Math.random() * window.innerWidth,
-        y: Math.random() * window.innerHeight,
-        vx: 0, vy: 0,
-        len: 5 + Math.random() * 15,
-        angle: Math.random() * Math.PI * 2,
-        dna: Math.random()
-    });
+// THE WORKFORCE (Fluid agents that never 'Blob')
+const mesh = [];
+const cols = 28, rows = 40;
+
+function initMesh() {
+    mesh.length = 0;
+    for(let i=0; i<=cols; i++) {
+        for(let j=0; j<=rows; j++) {
+            mesh.push({
+                x: (i/cols) * window.innerWidth,
+                y: (j/rows) * window.innerHeight,
+                ox: (i/cols) * window.innerWidth,
+                oy: (j/rows) * window.innerHeight,
+                vx: 0, vy: 0,
+                // Color DNA by Quadrant (Beautiful)
+                hue: (j/rows < 0.3) ? (i/cols < 0.3 ? 0 : 210) : // Top: Crimson vs. Sapphire
+                     (j/rows > 0.7) ? 144 : // Bottom: Heavy Emerald
+                     (i/cols < 0.5) ? 46 : 288, // Middle: Liquid Gold vs. Amethyst
+                dna: Math.random()
+            });
+        }
+    }
 }
 
 window.addEventListener('touchstart', (e) => {
     isTouching = true;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    triggerFragmentSense(tx, ty);
+    lastX = tx; lastY = ty;
+    triggerZonalSense(tx, ty, 20);
 });
 
 window.addEventListener('touchmove', (e) => {
+    lastX = tx; lastY = ty;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    if (Math.random() > 0.7) triggerFragmentSense(tx, ty);
+    speed = Math.sqrt((tx-lastX)**2 + (ty-lastY)**2);
+    if (speed > 1) triggerZonalSense(tx, ty, speed);
 });
 
 window.addEventListener('touchend', () => isTouching = false);
 
 function render() {
-    // ANTI-BLACKOUT: Deep Gold Persistence
-    ctx.fillStyle = 'rgba(15, 12, 0, 0.2)';
+    // ANTI-BLACKOUT ATMOSPHERE: Deep Indigo Gravity
+    ctx.fillStyle = 'rgba(10, 10, 30, 0.25)';
     ctx.fillRect(0, 0, w, h);
 
     const time = Date.now() * 0.002;
 
-    shards.forEach(s => {
+    mesh.forEach(p => {
         if (isTouching) {
-            const dx = tx - s.x;
-            const dy = ty - s.y;
-            const dist = Math.sqrt(dx*dx + dy*dy);
+            const dx = tx - p.x;
+            const dy = ty - p.y;
+            const d = Math.sqrt(dx*dx + dy*dy);
             
-            if (dist < 200) {
-                const f = (200 - dist) / 200;
-                // ZONAL PHYSICS
-                if (tx < w * 0.5 && ty < h * 0.5) {
-                    // RIP PHYSICS: Stretch and Snap
-                    s.vx -= dx * 0.08; s.vy -= dy * 0.08;
-                } else if (tx > w * 0.5 && ty < h * 0.5) {
-                    // SHIMMER PHYSICS: Vortex
-                    s.vx += dy * 0.1; s.vy -= dx * 0.1;
+            if (d < 200) {
+                const f = (200 - d) / 200;
+                // Zone physics logic: Rip, Sparkle, Weight
+                if (tx < w * 0.4 && ty < h * 0.4) {
+                    // THE RIP: Stretch Physics
+                    p.vx -= dx * 0.1; p.vy -= dy * 0.1;
+                } else if (tx > w * 0.6 && ty < h * 0.4) {
+                    // THE SPARKLE: Vortex Physics
+                    p.vx += dy * 0.1; p.vy -= dx * 0.1;
                 } else {
-                    // WEIGHT PHYSICS: Slow Suction
-                    s.vx += dx * 0.02; s.vy += dy * 0.02;
+                    // THE LIQUID: Heaviness Physics
+                    p.vx += dx * 0.03; p.vy += dy * 0.03;
                 }
             }
         }
 
-        s.vx *= 0.92; s.vy *= 0.92;
-        s.x += s.vx; s.y += s.vy;
+        p.vx += (p.ox - p.x) * 0.05;
+        p.vy += (p.oy - p.y) * 0.05;
+        p.vx *= 0.88; p.vy *= 0.88;
+        p.x += p.vx; p.y += p.vy;
 
-        // Screen Wrap
-        if (s.x < 0) s.x = w; if (s.x > w) s.x = 0;
-        if (s.y < 0) s.y = h; if (s.y > h) s.y = 0;
+        // Visual Zonal Logic: Prismatic DNA
+        const flicker = Math.sin(time * 3 + p.dna * 10) * 0.5 + 0.5;
+        const colorVal = 50 + flicker * 50;
+        ctx.fillStyle = `hsla(${p.hue}, 100%, ${colorVal}%, ${0.2 + flicker * 0.8})`;
 
-        // Visual Fragment Render
-        const flicker = Math.sin(time * 5 + s.dna * 100) * 0.5 + 0.5;
-        const hue = s.y < h * 0.5 ? 50 : 42; // Top is brighter gold
+        // Kinetic Stretching (The "Tear")
+        const stretch = 1 + speed * 1.5;
+        ctx.fillRect(p.x, p.y, stretch + 1 + flicker * 3, 1 + flicker * 3);
         
-        ctx.strokeStyle = `hsla(${hue}, 100%, ${60 + flicker * 40}%, ${0.3 + flicker * 0.7})`;
-        ctx.lineWidth = 1 + flicker * 2;
-        
-        ctx.beginPath();
-        ctx.moveTo(s.x, s.y);
-        // Drawing lines instead of circles prevents the "Blob" failure
-        ctx.lineTo(s.x + Math.cos(s.angle + time) * s.len, s.y + Math.sin(s.angle + time) * s.len);
-        ctx.stroke();
+        if (flicker > 0.95) {
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = "#fff"; // Diamond Core
+        } else {
+            ctx.shadowBlur = 0;
+        }
     });
 
     requestAnimationFrame(render);
 }
 
-window.addEventListener('resize', resize);
-resize(); render();
+window.addEventListener('resize', () => { resize(); initMesh(); });
+resize(); initMesh(); render();
 </script>
 </body>
 </html>
