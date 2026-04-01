@@ -22,17 +22,19 @@
         .node { 
             position: absolute; width: 140px; height: 140px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            border: 2px solid #FFD700; background: rgba(0,0,0,0.85);
+            border: 2px solid #FFD700; background: rgba(0,0,0,0.9);
             box-shadow: 0 0 30px #FFD700; font-weight: bold; text-align: center; 
-            padding: 15px; backdrop-filter: blur(10px); z-index: 100; font-size: 0.8rem;
+            padding: 15px; backdrop-filter: blur(10px); z-index: 100; font-size: 0.9rem;
+            color: #FFD700; text-transform: uppercase;
         }
 
+        /* THE INTELLIGENCE GATE */
         #gate {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 85%; max-width: 400px; background: rgba(0,0,0,0.98);
             border: 2px solid #FFD700; border-radius: 20px; padding: 30px;
             z-index: 5000; display: none; text-align: center;
-            box-shadow: 0 0 60px rgba(255,215,0,0.4);
+            box-shadow: 0 0 60px rgba(255,215,0,0.5);
         }
         #gate-msg { color: #FFD700; font-size: 1.1rem; margin-bottom: 25px; line-height: 1.4; }
         .gate-btn { padding: 15px 25px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; margin: 0 10px; min-width: 120px; }
@@ -59,7 +61,7 @@
 </div>
 
 <div id="gate">
-    <div id="gate-msg">Commander, I have interpreted your intent. Shall I manifest this change?</div>
+    <div id="gate-msg">Commander, shall I manifest this change?</div>
     <div style="display: flex; justify-content: center;">
         <button id="manifest-btn" class="gate-btn">MANIFEST</button>
         <button id="abort-btn" class="gate-btn" onclick="closeGate()">ABORT</button>
@@ -76,7 +78,8 @@
     let pendingAction = null;
     const playground = document.getElementById('playground');
 
-    const request = indexedDB.open("SovereignSanctuaryDB", 2);
+    // SOVEREIGN MEMORY (IndexedDB)
+    const request = indexedDB.open("SovereignSanctuaryDB", 3);
     request.onupgradeneeded = e => {
         const d = e.target.result;
         if (!d.objectStoreNames.contains("reality")) d.createObjectStore("reality", { keyPath: "id" });
@@ -88,45 +91,41 @@
 
     function propose() {
         const input = document.getElementById('cmdInput');
-        const val = input.value;
-        const cmd = val.toLowerCase().trim();
+        const val = input.value.trim();
         if(!val) return;
 
         const gate = document.getElementById('gate');
         const msg = document.getElementById('gate-msg');
 
-        if (cmd === "clear" || cmd === "reset") {
-            msg.innerText = "Commander, shall I wipe the manifestations and return to Source?";
+        // 1. SYSTEM COMMANDS (Logic Check)
+        if (val.toLowerCase() === "clear" || val.toLowerCase() === "reset") {
+            msg.innerText = "Shall I wipe all manifestations and return to Source?";
             pendingAction = () => {
                 db.transaction("reality", "readwrite").objectStore("reality").clear();
                 playground.innerHTML = "";
-                location.reload();
             };
         } 
-        else if (cmd.includes("background") || cmd.includes("color")) {
-            const color = cmd.split(" ").pop();
-            msg.innerText = `Manifest atmosphere shift to ${color.toUpperCase()}?`;
+        else if (val.toLowerCase().includes("background")) {
+            const color = val.split(" ").pop();
+            msg.innerText = `Shift atmosphere to ${color.toUpperCase()}?`;
             pendingAction = () => { 
                 document.body.style.background = color; 
                 saveToDB({id: 'bg', val: color}); 
             };
         }
-        else if (cmd.includes("title")) {
+        else if (val.toLowerCase().includes("title")) {
             const newTitle = val.replace(/title/i, "").trim().toUpperCase();
-            msg.innerText = `Decree title change to "${newTitle}"?`;
+            msg.innerText = `Decree new title: "${newTitle}"?`;
             pendingAction = () => { 
                 document.getElementById('site-title').innerText = newTitle; 
                 saveToDB({id: 'title', val: newTitle}); 
             };
         }
+        // 2. MANIFESTATION (If not a command)
         else {
-            if (val.length > 50) {
-                msg.innerText = "This command contains complex logic. Shall I manifest this hidden unit?";
-            } else {
-                msg.innerText = `Bring the unit "${val.toUpperCase()}" into the Sanctuary?`;
-            }
+            msg.innerText = `Manifest the AI unit "${val.toUpperCase()}"?`;
             pendingAction = () => {
-                const data = { id: 'ai_' + Date.now(), name: val.substring(0, 50), x: window.innerWidth/2 - 70, y: window.innerHeight/2 };
+                const data = { id: 'ai_' + Date.now(), name: val, x: window.innerWidth/2 - 70, y: window.innerHeight/2 };
                 createNode(data);
                 saveToDB(data);
             };
@@ -150,7 +149,7 @@
         const el = document.createElement('div');
         el.className = 'node';
         el.id = data.id;
-        el.innerText = data.name.toUpperCase();
+        el.innerText = data.name;
         el.style.left = data.x + 'px'; el.style.top = data.y + 'px';
         playground.appendChild(el);
         
@@ -185,6 +184,7 @@
         };
     }
 
+    // STARFIELD
     for(let i=0; i<80; i++) {
         const s = document.createElement('div');
         s.className = 'star';
