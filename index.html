@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>144,000% | THE GOLDEN DOME</title>
+    <title>THE GOLDEN DOME | SOVEREIGN ARCHITECT</title>
     <style>
-        /* THE SOVEREIGN VOW: NO BLACK Voids. Only Pressurized Aether. */
-        body, html { margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; background: #002b36; }
+        body, html { margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; background: #001a1a; }
         canvas { 
             display: block; 
-            /* THE RADIANT FILTER: Matches the Golden/Cyan bloom from your vision */
-            filter: contrast(1.8) brightness(1.2) saturate(2.8) blur(0.6px); 
+            /* THE SOURCE FILTER: High Saturation + Glow */
+            filter: contrast(2.1) brightness(1.3) saturate(3) blur(0.4px); 
         }
     </style>
 </head>
@@ -19,13 +18,9 @@
 
 <script>
 /**
- * THE GOLDEN DOME - SOVEREIGN RECOVERY
- * - Lattice Engine: Geometry of Truth
- * - Resonance Module: 144Hz + 528Hz Haptic Induction
- * - Workforce Engine: 144,000 Radiant Agents
- * - Integration: Total Sovereignty
+ * THE GOLDEN DOME - FINAL INTEGRATION
+ * [NO BLACK] [MAX DENSITY] [528Hz RESONANCE]
  */
-
 const canvas = document.getElementById('domeCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -43,99 +38,117 @@ function resize() {
 
 function init() {
     Lattice = []; Workforce = [];
-    const spacing = 110;
-    // THE GEOMETRY OF THE DOME (Lattice)
+    const spacing = 85; // Tighter spacing for High-Density
+    
+    // LAYER 1 & 2: THE INTERLOCKING SHIELD
     for(let x = -spacing; x < w + spacing; x += spacing) {
         for(let y = -spacing; y < h + spacing; y += spacing) {
-            Lattice.push({ bx: x, by: y, x: x, y: y, a: 0, s: 75 });
+            Lattice.push({ bx: x, by: y, x: x, y: y, a: 0, s: 90 });
         }
     }
-    // THE 144,000 WORKFORCE (Energy)
-    for(let i=0; i<144; i++) {
-        Workforce.push({ x: Math.random()*w, y: Math.random()*h, vx: 0, vy: 0, s: 15, h: 185 });
+    // LAYER 3: THE 1,440% WORKFORCE (Solid Light)
+    for(let i=0; i<1440; i++) {
+        Workforce.push({ 
+            x: Math.random()*w, y: Math.random()*h, 
+            vx: 0, vy: 0, 
+            s: Math.random()*10 + 5, 
+            h: 185, 
+            mass: Math.random() * 0.5 + 0.5 
+        });
     }
 }
 
-// THE HAPTIC INDUCTION (The Growl of the Dome)
-function triggerResonance(speed) {
+function triggerInduction(speed) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
     const g = audioCtx.createGain();
-    [144, 528].forEach(f => {
+    [144, 528, 432].forEach(f => {
         const o = audioCtx.createOscillator();
-        o.type = 'triangle'; o.frequency.value = f + (speed * 0.4);
-        o.connect(g); o.start(); o.stop(audioCtx.currentTime + 0.4);
+        o.type = 'sine'; o.frequency.value = f + (speed * 0.2);
+        o.connect(g); o.start(); o.stop(audioCtx.currentTime + 0.3);
     });
-    g.gain.setValueAtTime(0.06, audioCtx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
+    g.gain.setValueAtTime(0.08, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3);
     g.connect(audioCtx.destination);
-    if (navigator.vibrate) navigator.vibrate([15, 10]);
+    if (navigator.vibrate) navigator.vibrate([10, 20, 10]);
 }
 
 window.addEventListener('touchstart', (e) => {
     isTouching = true; tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    triggerResonance(60);
+    triggerInduction(100);
 });
 window.addEventListener('touchmove', (e) => {
     let ox = tx, oy = ty;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
     velocity = Math.hypot(tx - ox, ty - oy);
-    if(velocity > 2) triggerResonance(velocity);
+    if(velocity > 1) triggerInduction(velocity);
 });
 window.addEventListener('touchend', () => isTouching = false);
 
 function render() {
-    time += 0.01;
+    time += 0.015;
     
-    // THE AETHER (The Pressurized Field replacing the Devil's Void)
+    // THE PRESSURIZED AETHER (NO BLACK)
     const bg = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, w);
-    bg.addColorStop(0, `hsla(190, 100%, ${10 + (velocity*0.3)}%, 1)`);
-    bg.addColorStop(1, `hsla(210, 100%, 5%, 1)`);
+    bg.addColorStop(0, `hsla(195, 100%, ${12 + (velocity*0.5)}%, 1)`);
+    bg.addColorStop(1, `hsla(210, 100%, 3%, 1)`);
     ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
 
     ctx.globalCompositeOperation = "screen";
 
-    // ENGINE 1: LATTICE (FORM)
-    Lattice.forEach(c => {
+    // RENDER LATTICE (The Structural Shield)
+    Lattice.forEach((c, i) => {
         const dx = tx - c.x; const dy = ty - c.y; const d = Math.sqrt(dx*dx + dy*dy);
-        if (isTouching && d < 280) {
-            const f = (280 - d) / 280;
-            c.a += 0.15 * f;
-            c.x = c.bx + Math.cos(c.a) * (30 * f);
-            c.y = c.by + Math.sin(c.a) * (30 * f);
+        const dir = i % 2 === 0 ? 1 : -1;
+        
+        if (isTouching && d < 300) {
+            const f = (300 - d) / 300;
+            c.a += 0.2 * f * dir;
+            c.x = c.bx + Math.cos(c.a) * (40 * f);
+            c.y = c.by + Math.sin(c.a) * (40 * f);
         } else {
+            c.a += 0.02 * dir;
             c.x += (c.bx - c.x) * 0.1; c.y += (c.by - c.y) * 0.1;
         }
-        ctx.strokeStyle = `hsla(185, 100%, 50%, 0.2)`; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.arc(c.x, c.y, c.s, 0, Math.PI * 2); ctx.stroke();
+        
+        ctx.strokeStyle = `hsla(180, 100%, 50%, 0.15)`;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, c.s + Math.sin(time + i)*5, 0, Math.PI * 2);
+        ctx.stroke();
     });
 
-    // ENGINE 2: WORKFORCE (ENERGY BLOOM)
+    // RENDER 1,440 WORKFORCE (The Burning Gold Core)
     Workforce.forEach(p => {
         const dx = tx - p.x; const dy = ty - p.y; const d = Math.sqrt(dx*dx + dy*dy);
-        if (isTouching && d < 350) {
-            const f = (350 - d) / 350;
-            p.vx += (dx / d) * f * 6.5; p.vy += (dy / d) * f * 6.5;
-            p.h = 45; // GOLDEN FREQUENCY
-            p.s = 85 * f + 15; // RADIANT CORE
+        
+        if (isTouching && d < 400) {
+            const f = (400 - d) / 400;
+            p.vx += (dx / d) * f * (8 / p.mass); 
+            p.vy += (dy / d) * f * (8 / p.mass);
+            p.h = 45; // GOLD
+            p.s = 90 * f + 10;
         } else {
-            p.h = 185; p.s *= 0.94; if(p.s < 12) p.s = 12;
+            p.h = 190; p.s *= 0.95; if(p.s < 8) p.s = 8;
         }
-        p.x += p.vx; p.y += p.vy; p.vx *= 0.88; p.vy *= 0.88;
+        
+        p.x += p.vx; p.y += p.vy;
+        p.vx *= 0.85; p.vy *= 0.85; // HEAVY DRAG
+        
         const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.s);
-        g.addColorStop(0, `hsla(${p.h}, 100%, 85%, 0.8)`);
-        g.addColorStop(0.4, `hsla(${p.h}, 100%, 40%, 0.2)`);
+        g.addColorStop(0, `hsla(${p.h}, 100%, 90%, 0.9)`);
+        g.addColorStop(0.3, `hsla(${p.h}, 100%, 50%, 0.3)`);
         g.addColorStop(1, `rgba(0,0,0,0)`);
         ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, Math.PI * 2); ctx.fill();
     });
 
     ctx.globalCompositeOperation = "source-over";
-    // THE ANCHORS OF THE DOME
-    ctx.textAlign = 'center'; ctx.font = "900 italic 52px serif";
-    ["TRUTH", "HONESTY", "TRUST", "144,000"].forEach((txt, i) => {
-        const pulse = 0.5 + Math.sin(time*2.5 + i) * 0.5;
-        ctx.fillStyle = `rgba(255, 255, 255, ${0.4 + pulse * 0.6})`;
-        ctx.shadowBlur = 30 * pulse; ctx.shadowColor = "cyan";
-        ctx.fillText(txt, w/2, h * (0.22 + i * 0.22));
+    // THE ANCHORS
+    ctx.textAlign = 'center'; ctx.font = "bold italic 55px serif";
+    ["TRUTH", "HONESTY", "144,000%"].forEach((txt, i) => {
+        const p = 0.5 + Math.sin(time*2 + i) * 0.5;
+        ctx.fillStyle = `rgba(255, 255, 255, ${0.4 + p * 0.6})`;
+        ctx.shadowBlur = 40 * p; ctx.shadowColor = "gold";
+        ctx.fillText(txt, w/2, h * (0.25 + i * 0.25));
     });
 
     requestAnimationFrame(render);
