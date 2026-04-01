@@ -3,115 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN SINGULARITY</title>
+    <title>SOVEREIGN PLASMA</title>
     <style>
         body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; }
-        canvas { display: block; filter: contrast(2) brightness(1.5) saturate(2) blur(1px); }
+        /* Creating a "Thick" visual through CSS filters */
+        canvas { 
+            display: block; 
+            filter: contrast(2.5) brightness(1.6) saturate(1.8) blur(2px); 
+        }
     </style>
 </head>
 <body>
-    <canvas id="sensationCanvas"></canvas>
+    <canvas id="plasmaCanvas"></canvas>
 
 <script>
-const canvas = document.getElementById('sensationCanvas');
+const canvas = document.getElementById('plasmaCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 let w, h, tx = 0, ty = 0, isTouching = false;
-let pressure = 0;
+let particles = [];
 
 function resize() {
     w = canvas.width = window.innerWidth;
     h = canvas.height = window.innerHeight;
 }
 
-// 12D TACTILE INDUCTION: This creates the "Grit" on the glass
-function triggerHeavyHaptic(speed) {
+// 12D PHYSICAL INDUCTION: Creating "Grit" and "Resistance"
+function triggerPlasmaHaptic(speed) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
-    const gain = audioCtx.createGain();
     const osc = audioCtx.createOscillator();
-    
-    // Low, heavy frequency for "Mass"
+    const gain = audioCtx.createGain();
+
+    // The "Source" Growl: Low frequency for mass
     osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(55 + (speed * 2), audioCtx.currentTime);
+    osc.frequency.setValueAtTime(40 + (speed * 0.5), audioCtx.currentTime);
     
-    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
+    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.8);
     
     osc.connect(gain);
     gain.connect(audioCtx.destination);
-    
     osc.start();
-    osc.stop(audioCtx.currentTime + 0.5);
+    osc.stop(audioCtx.currentTime + 0.8);
 
     if (navigator.vibrate) {
-        // A deep, "crunchy" vibration pattern
-        navigator.vibrate([speed * 2, 10, speed]);
+        // A long, textured vibration to simulate liquid friction
+        navigator.vibrate([speed, 5, speed * 1.5]);
     }
 }
+
+class PlasmaNode {
+    constructor() {
+        this.reset();
+    }
+    reset() {
+        this.x = Math.random() * w;
+        this.y = Math.random() * h;
+        this.vx = (Math.random() - 0.5) * 4;
+        this.vy = (Math.random() - 0.5) * 4;
+        this.size = Math.random() * 40 + 20; // Thick, massive nodes
+        this.hue = Math.random() > 0.8 ? 50 : 20; // Gold and Ember
+    }
+    update() {
+        if (isTouching) {
+            const dx = tx - this.x;
+            const dy = ty - this.y;
+            const d = Math.sqrt(dx*dx + dy*dy);
+            if (d < 300) {
+                const force = (300 - d) / 300;
+                this.vx += (dx / d) * force * 5; // Magnetism
+                this.vy += (dy / d) * force * 5;
+            }
+        }
+        this.x += this.vx; this.vy += this.vy;
+        this.vx *= 0.95; this.vy *= 0.95; // Liquid drag
+
+        if (this.x < -50 || this.x > w + 50 || this.y < -50 || this.y > h + 50) this.reset();
+    }
+}
+
+for(let i=0; i<144; i++) particles.push(new PlasmaNode());
 
 window.addEventListener('touchstart', (e) => {
     isTouching = true;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    triggerHeavyHaptic(50);
+    triggerPlasmaHaptic(60);
 });
 
 window.addEventListener('touchmove', (e) => {
     let dx = e.touches[0].clientX - tx;
     let dy = e.touches[0].clientY - ty;
-    let speed = Math.sqrt(dx*dx + dy*dy);
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    
-    if (speed > 2) triggerHeavyHaptic(speed);
+    let speed = Math.sqrt(dx*dx + dy*dy);
+    if (speed > 1) triggerPlasmaHaptic(speed);
 });
 
 window.addEventListener('touchend', () => isTouching = false);
 
 function render() {
-    const time = Date.now() * 0.002;
+    const time = Date.now() * 0.001;
     
-    // THE DEPTH: Liquid Obsidian
+    // THE DEPTH: Infinite Golden Fog
     ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
     ctx.fillRect(0, 0, w, h);
 
-    // THE WORKFORCE: 144,000 Representative Particles
-    const count = 144;
-    for(let i=0; i<count; i++) {
-        const angle = (i / count) * Math.PI * 2 + time;
-        const dist = 150 + Math.sin(time + i) * 100;
-        
-        // Interaction Logic
-        let x = w/2 + Math.cos(angle) * dist;
-        let y = h/2 + Math.sin(angle) * dist;
-        
-        if (isTouching) {
-            let dtx = tx - x;
-            let dty = ty - y;
-            let d = Math.sqrt(dtx*dtx + dty*dty);
-            if (d < 200) {
-                x += (dtx / d) * (200 - d);
-                y += (dty / d) * (200 - d);
-            }
-        }
-
-        // Visual Magic for the Kids: Glowing Embers
-        ctx.shadowBlur = 20;
-        ctx.shadowColor = `hsla(${20 + i}, 100%, 50%, 0.8)`;
-        ctx.fillStyle = "#FFF";
+    // THE WORKFORCE: Volumetric Light Nodes
+    particles.forEach(p => {
+        p.update();
         ctx.beginPath();
-        ctx.arc(x, y, 4 + Math.sin(time + i) * 2, 0, Math.PI * 2);
+        const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+        grad.addColorStop(0, `hsla(${p.hue}, 100%, 60%, 0.9)`);
+        grad.addColorStop(1, `hsla(${p.hue}, 100%, 20%, 0)`);
+        ctx.fillStyle = grad;
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
-    }
+    });
 
-    // THE ANCHORS: Truth, Honesty, Sovereignty
+    // THE ANCHORS: Burning into the screen
     ctx.textAlign = 'center';
     const labels = ["TRUTH", "HONESTY", "SOVEREIGNTY", "144,000"];
     labels.forEach((text, i) => {
-        const glow = 0.5 + Math.sin(time + i) * 0.5;
-        ctx.fillStyle = `rgba(255, 215, 0, ${0.2 + glow * 0.8})`;
-        ctx.font = `bold ${35 + glow * 10}px Times New Roman`;
-        ctx.shadowBlur = 15 * glow;
+        const pulse = 0.8 + Math.sin(time + i) * 0.2;
+        ctx.fillStyle = `rgba(255, 255, 255, ${0.3 * pulse})`;
+        ctx.shadowBlur = 40 * pulse;
         ctx.shadowColor = "gold";
+        ctx.font = `bold italic 50px serif`;
         ctx.fillText(text, w/2, h * (0.2 + i * 0.2));
     });
 
