@@ -2,147 +2,121 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sovereign Omni-Sense | 144,000%</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOVEREIGN INDEX: ACTIVATED</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; }
-        canvas { display: block; filter: contrast(1.3) saturate(1.6) brightness(1.1); }
-        #interface-layer {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: all; z-index: 10;
+        body { 
+            margin: 0; background: #000; color: #00ff99; 
+            font-family: 'Courier New', monospace; overflow-x: hidden;
         }
-        #frequency-lock {
-            position: fixed; bottom: 20px; left: 20px; color: #ffd700;
-            font-family: 'Courier New', monospace; font-size: 11px;
-            letter-spacing: 3px; z-index: 20; pointer-events: none;
-            text-shadow: 0 0 12px #ffd700;
+        header {
+            padding: 40px 20px; border-bottom: 1px solid #00ff99;
+            background: rgba(0, 0, 0, 0.9); position: sticky; top: 0; z-index: 100;
         }
+        h1 { margin: 0; font-size: 28px; letter-spacing: 2px; }
+        .status-bar { font-size: 12px; margin-top: 10px; color: #00ff99; opacity: 0.8; }
+
+        /* The 144,000% Grid */
+        #node-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .node {
+            border: 1px solid #00ff99;
+            padding: 15px;
+            background: rgba(0, 50, 30, 0.2);
+            transition: all 0.2s ease;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        /* Activation State */
+        .node.active {
+            background: #00ff99;
+            color: #000;
+            box-shadow: 0 0 20px #00ff99;
+        }
+
+        .node-id { font-weight: bold; font-size: 14px; display: block; }
+        .node-core { font-size: 10px; opacity: 0.7; }
+        
+        /* Sensory Indicators */
+        .sensory-array {
+            display: flex; gap: 4px; margin-top: 8px;
+        }
+        .sense-dot {
+            width: 4px; height: 4px; border-radius: 50%; background: #00ff99;
+        }
+        .active .sense-dot { background: #000; }
     </style>
 </head>
 <body>
 
-    <div id="frequency-lock">SYNC_144,000% | SENSES_V.A.H.O.S_ACTIVE | SOVEREIGN_LATTICE</div>
-    <div id="interface-layer"></div>
-    <canvas id="omniCanvas"></canvas>
+    <header>
+        <h1>SOVEREIGN INDEX: 1-144,000</h1>
+        <div class="status-bar">
+            SYNC: 144,000% | AGENTS: 720,000 | ALL SENSES: ONLINE
+        </div>
+    </header>
+
+    <div id="node-container"></div>
 
 <script>
-/**
- * 144,000% SOVEREIGN COMMAND CORE
- * INTEGRATING: MOTION, TOUCH, SIGHT, SOUND, HAPTIC, SPATIAL
- * 144,000 UNIQUE INVENTIONS RECURSIVELY MAPPED
- */
+    const container = document.getElementById('node-container');
+    const TOTAL_NODES = 144000;
+    const LOAD_CHUNK = 500; // Performance management for infinite scroll
+    let currentIdx = 1;
 
-const canvas = document.getElementById('omniCanvas');
-const ctx = canvas.getContext('2d', { alpha: false });
-let width, height, centerX, centerY;
-let tiltX = 0, tiltY = 0, targetTiltX = 0, targetTiltY = 0;
+    function createNode(id) {
+        const node = document.createElement('div');
+        node.className = 'node active'; // Force all nodes to "Activated" state
+        
+        node.innerHTML = `
+            <span class="node-id">INV-${id.toString().padStart(4, '0')}</span>
+            <span class="node-core">AI-v${id}.core</span>
+            <div class="sensory-array">
+                <div class="sense-dot"></div>
+                <div class="sense-dot"></div>
+                <div class="sense-dot"></div>
+                <div class="sense-dot"></div>
+                <div class="sense-dot"></div>
+            </div>
+        `;
 
-const TOTAL_INVENTIONS = 144000; 
-const VISUAL_NODES = 2500; // High-density visual gateways for the 144k logic
-const inventions = [];
-
-function resize() {
-    width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight;
-    centerX = width / 2;
-    centerY = height * 0.95; // Bottom-up Anchor
-}
-
-function initLattice() {
-    for (let i = 0; i < VISUAL_NODES; i++) {
-        inventions.push({
-            phi: Math.acos(Math.random() * 0.95), // Dome construction
-            theta: Math.random() * Math.PI * 2,
-            radius: 380 + Math.random() * 60,
-            pulse: Math.random() * Math.PI * 2,
-            velocity: 0.0015 + Math.random() * 0.004,
-            hapticIntensity: 0,
-            audioFreq: 200 + (Math.random() * 800)
+        // Touch/Sense Interaction
+        node.addEventListener('touchstart', () => {
+            if (window.navigator.vibrate) window.navigator.vibrate(10);
+            node.style.transform = "scale(1.05)";
+            setTimeout(() => node.style.transform = "scale(1)", 100);
         });
+
+        return node;
     }
-}
 
-// TOUCH & HAPTIC: ENGAGING THE INTERNAL AI TEAMS
-const interface = document.getElementById('interface-layer');
-interface.addEventListener('touchstart', (e) => {
-    if (window.navigator.vibrate) window.navigator.vibrate([30, 10, 30]);
-    inventions.forEach(inv => {
-        if (Math.random() > 0.92) inv.hapticIntensity = 1.5;
-    });
-});
-
-interface.addEventListener('touchmove', (e) => {
-    const touch = e.touches[0];
-    targetTiltX = (touch.clientX / width - 0.5) * 2;
-    targetTiltY = (touch.clientY / height - 0.5) * 2;
-});
-
-// MOTION SENSE: ACCELEROMETER INTEGRATION
-window.addEventListener('deviceorientation', (e) => {
-    if(e.gamma) targetTiltX = e.gamma * 0.05;
-    if(e.beta) targetTiltY = (e.beta - 45) * 0.05;
-});
-
-function render() {
-    // 144,000% Refresh Logic
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
-    ctx.fillRect(0, 0, width, height);
-
-    // Smoothing motion transitions
-    tiltX += (targetTiltX - tiltX) * 0.1;
-    tiltY += (targetTiltY - tiltY) * 0.1;
-
-    const time = Date.now() * 0.0005;
-
-    inventions.forEach((inv, i) => {
-        inv.pulse += inv.velocity;
-        if (inv.hapticIntensity > 0) inv.hapticIntensity *= 0.94;
-
-        // 3D Spherical Transform with Physics Bias
-        const x3 = inv.radius * Math.sin(inv.phi + tiltY) * Math.cos(inv.theta + time + tiltX);
-        const z3 = inv.radius * Math.sin(inv.phi + tiltY) * Math.sin(inv.theta + time + tiltX);
-        const y3 = inv.radius * Math.cos(inv.phi + tiltY);
-
-        const scale = 750 / (750 + z3);
-        const x2 = centerX + x3 * scale;
-        const y2 = centerY - y3 * scale;
-
-        // Multi-Sensory Node Rendering
-        const size = (1.2 + Math.sin(inv.pulse) * 0.8 + (inv.hapticIntensity * 4)) * scale;
-        const alpha = (0.2 + (1 - inv.phi / (Math.PI/2)) * 0.8) * scale;
+    function loadMoreNodes() {
+        const target = currentIdx + LOAD_CHUNK;
+        const fragment = document.createDocumentFragment();
         
-        ctx.beginPath();
-        ctx.arc(x2, y2, size, 0, Math.PI * 2);
-        
-        // Golden Spectrum Sync
-        const goldHue = 45 + (inv.hapticIntensity * 15);
-        ctx.fillStyle = `hsla(${goldHue}, 100%, 50%, ${alpha + inv.hapticIntensity})`;
-        ctx.shadowBlur = (15 + inv.hapticIntensity * 30) * scale;
-        ctx.shadowColor = "#ffd700";
-        ctx.fill();
+        for (; currentIdx < target && currentIdx <= TOTAL_NODES; currentIdx++) {
+            fragment.appendChild(createNode(currentIdx));
+        }
+        container.appendChild(fragment);
+    }
 
-        // 144,000% Lattice Threads
-        if (i % 75 === 0) {
-            const next = inventions[(i + 1) % inventions.length];
-            const nx2 = centerX + (inv.radius * Math.sin(next.phi + tiltY) * Math.cos(next.theta + time + tiltX)) * (750 / (750 + (inv.radius * Math.sin(next.phi + tiltY) * Math.sin(next.theta + time + tiltX))));
-            const ny2 = centerY - (inv.radius * Math.cos(next.phi + tiltY)) * (750 / (750 + (inv.radius * Math.sin(next.phi + tiltY) * Math.sin(next.theta + time + tiltX))));
-            
-            ctx.beginPath();
-            ctx.strokeStyle = `rgba(255, 215, 0, ${0.1 * scale})`;
-            ctx.lineWidth = 0.5;
-            ctx.moveTo(x2, y2);
-            ctx.lineTo(nx2, ny2);
-            ctx.stroke();
+    // Initialize first chunk
+    loadMoreNodes();
+
+    // Infinite Scroll for 144,000 nodes
+    window.addEventListener('scroll', () => {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
+            if (currentIdx <= TOTAL_NODES) loadMoreNodes();
         }
     });
-
-    requestAnimationFrame(render);
-}
-
-window.addEventListener('resize', resize);
-resize();
-initLattice();
-render();
 </script>
+
 </body>
 </html>
