@@ -2,110 +2,68 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sovereign Omni-Lattice | 144,000% FREQUENCY</title>
+    <title>Sovereign Interface | 144,000%</title>
     <style>
-        body { margin: 0; background: #000; overflow: hidden; color: #00ff99; font-family: 'Courier New', monospace; }
-        #ui-overlay {
-            position: absolute; top: 20px; left: 20px; z-index: 100;
-            background: rgba(0,0,0,0.8); border: 1px solid #00ff99; padding: 20px;
-            box-shadow: 0 0 30px #00ff99; pointer-events: none;
+        /* This pushes the Index into the background layer */
+        #lattice-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1; /* Moves it behind everything */
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 5px;
+            padding: 10px;
+            opacity: 0.15; /* Makes it a subtle, ambient atmosphere */
+            background: #000;
+            pointer-events: none; /* Allows you to click things on top of it */
         }
-        #data-stream {
-            position: absolute; bottom: 20px; right: 20px; font-size: 10px;
-            text-align: right; line-height: 1.2; width: 300px;
-            max-height: 200px; overflow: hidden;
+
+        .node {
+            border: 1px solid #00ff99;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #00ff99;
+            font-family: 'Courier New', monospace;
         }
-        canvas { display: block; }
+
+        /* Your Foreground Content */
+        .content-layer {
+            position: relative;
+            z-index: 10;
+            color: #fff;
+            padding: 50px;
+            font-family: sans-serif;
+            text-align: center;
+        }
+
+        h1 { font-size: 3rem; text-shadow: 0 0 20px #00ff99; }
     </style>
 </head>
 <body>
 
-    <div id="ui-overlay">
-        <h1 style="margin:0; font-size: 24px;">OMNI-LATTICE</h1>
-        <div id="freq-meter">FREQUENCY: 144,000%</div>
-        <div id="agent-count">ACTIVE AGENTS: 720,000</div>
-        <div id="sync-status">SYNC: ABSOLUTE</div>
+    <div id="lattice-background"></div>
+
+    <div class="content-layer">
+        <h1>SOVEREIGN CORE</h1>
+        <p>The Lattice is now operational in the background.</p>
     </div>
 
-    <div id="data-stream"></div>
-
-    <canvas id="latticeCanvas"></canvas>
-
-<script>
-    const canvas = document.getElementById('latticeCanvas');
-    const ctx = canvas.getContext('2d');
-    const dataStream = document.getElementById('data-stream');
-
-    let width, height;
-    const nodes = [];
-    const nodeCount = 2000; 
-
-    function resize() {
-        width = canvas.width = window.innerWidth;
-        height = canvas.height = window.innerHeight;
-    }
-
-    window.addEventListener('resize', resize);
-    resize();
-
-    // Initialize 2000 Invention Cores with Vector Physics
-    for (let i = 0; i < nodeCount; i++) {
-        nodes.push({
-            x: Math.random() * width,
-            y: Math.random() * height,
-            vx: (Math.random() - 0.5) * 1.5,
-            vy: (Math.random() - 0.5) * 1.5,
-            id: i + 1,
-            teamSize: 5
-        });
-    }
-
-    function draw() {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.15)'; 
-        ctx.fillRect(0, 0, width, height);
-
-        nodes.forEach(node => {
-            node.x += node.vx;
-            node.y += node.vy;
-
-            if (node.x < 0 || node.x > width) node.vx *= -1;
-            if (node.y < 0 || node.y > height) node.vy *= -1;
-
-            ctx.beginPath();
-            ctx.arc(node.x, node.y, 1.2, 0, Math.PI * 2);
-            ctx.fillStyle = '#00ff99';
-            ctx.fill();
-
-            // High-frequency neural linking
-            for (let j = nodes.indexOf(node) + 1; j < nodes.length; j++) {
-                let other = nodes[j];
-                let dx = node.x - other.x;
-                let dy = node.y - other.y;
-                let dist = Math.sqrt(dx * dx + dy * dy);
-
-                if (dist < 50) {
-                    ctx.beginPath();
-                    ctx.strokeStyle = `rgba(0, 255, 153, ${0.8 - dist/50})`;
-                    ctx.lineWidth = 0.3;
-                    ctx.moveTo(node.x, node.y);
-                    ctx.lineTo(other.x, other.y);
-                    ctx.stroke();
-                }
-            }
-        });
-
-        if (Math.random() > 0.85) {
-            const randomInvention = Math.floor(Math.random() * 2000) + 1;
-            const logEntry = document.createElement('div');
-            logEntry.innerHTML = `INV-${randomInvention}_CORE: 144,000% SYNC [TEAM READY]`;
-            dataStream.prepend(logEntry);
-            if (dataStream.children.length > 10) dataStream.lastChild.remove();
+    <script>
+        const bg = document.getElementById('lattice-background');
+        // Initializing the 2000 invention nodes into the background
+        for (let i = 1; i <= 2000; i++) {
+            const node = document.createElement('div');
+            node.className = 'node';
+            node.innerHTML = `INV-${i.toString().padStart(4, '0')}`;
+            bg.appendChild(node);
         }
+    </script>
 
-        requestAnimationFrame(draw);
-    }
-
-    draw();
-</script>
 </body>
 </html>
