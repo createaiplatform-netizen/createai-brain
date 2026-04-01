@@ -1,82 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SourceField ∞ Evolution</title>
-<style>
-body { margin:0; overflow:hidden; background:black; }
-canvas { display:block; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SOURCEFIELD ∞ | THE FOUNDATION</title>
+    <style>
+        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; }
+        /* The 144,000% Filter: Overdrive Contrast + Glow */
+        canvas { 
+            display: block; 
+            filter: contrast(2.5) brightness(1.2) saturate(2.5) blur(1px); 
+        }
+    </style>
 </head>
 <body>
-<canvas id="field"></canvas>
+    <canvas id="sourceCanvas"></canvas>
+
 <script>
-const canvas = document.getElementById("field");
-const ctx = canvas.getContext("2d");
-let particles = [], maxParticles = 100;
-let state = { mode:"explore", attention: {}, memory: [], evolutionCounter:0 };
+const canvas = document.getElementById('sourceCanvas');
+const ctx = canvas.getContext('2d', { alpha: false });
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-function resize(){ canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
-window.addEventListener("resize",resize);
-resize();
+let w, h, tx = 0, ty = 0, isTouching = false;
+let workforce = [];
+const density = 444; // Returning to the high-count workforce
 
-for(let i=0;i<maxParticles;i++){
-  particles.push({
-    x:Math.random()*canvas.width,
-    y:Math.random()*canvas.height,
-    vx:(Math.random()-0.5)*0.5,
-    vy:(Math.random()-0.5)*0.5,
-    size:Math.random()*3+1,
-    weight:1
-  });
+function resize() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
 }
 
-function renderField(){
-  ctx.fillStyle="rgba(0,0,0,0.2)";
-  ctx.fillRect(0,0,canvas.width,canvas.height);
-  particles.forEach(p=>{
-    p.x+=p.vx*p.weight;
-    p.y+=p.vy*p.weight;
-    if(p.x<0||p.x>canvas.width)p.vx*=-1;
-    if(p.y<0||p.y>canvas.height)p.vy*=-1;
-    ctx.fillStyle=`rgba(${50+Math.random()*205},${150+Math.random()*105},255,${0.5+Math.random()*0.5})`;
-    ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2); ctx.fill();
-  });
+// THE INDUCTION: This is the "Feeling" on the glass
+function triggerSourceHaptic(speed) {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    
+    // The "Source" frequency: A deep, textured growl
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(50 + (speed * 0.5), audioCtx.currentTime);
+    
+    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.8);
+    
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.8);
+
+    if (navigator.vibrate) navigator.vibrate([speed, 5, speed * 1.5]);
 }
 
-function evolveSystem(){
-  state.evolutionCounter++;
-  if(state.evolutionCounter%300===0){
-    particles.forEach(p=>{
-      if(Math.random()<0.3)p.vx+=(Math.random()-0.5)*0.2;
-      if(Math.random()<0.3)p.vy+=(Math.random()-0.5)*0.2;
-      p.size=Math.max(1,Math.min(5,p.size+(Math.random()-0.5)*0.5));
-      p.weight=Math.max(0.5,Math.min(3,p.weight+(Math.random()-0.5)*0.1));
+class Agent {
+    constructor() {
+        this.reset();
+    }
+    reset() {
+        this.x = Math.random() * w;
+        this.y = Math.random() * h;
+        this.vx = (Math.random() - 0.5) * 2;
+        this.vy = (Math.random() - 0.5) * 2;
+        this.size = Math.random() * 10 + 5;
+        this.hue = 190 + Math.random() * 20; // Electric Cyan/Blue
+    }
+    update() {
+        if (isTouching) {
+            const dx = tx - this.x;
+            const dy = ty - this.y;
+            const d = Math.sqrt(dx*dx + dy*dy);
+            if (d < 300) {
+                const f = (300 - d) / 300;
+                this.vx += dx * 0.05 * f; // Magnetic Pull
+                this.vy += dy * 0.05 * f;
+                this.hue = 45; // Friction heat (Gold)
+            } else {
+                this.hue = 190 + (this.x / w) * 30;
+            }
+        }
+        this.x += this.vx; this.y += this.vy;
+        this.vx *= 0.96; this.vy *= 0.96; // Liquid Drag
+        if (this.x < 0 || this.x > w || this.y < 0 || this.y > h) this.reset();
+    }
+}
+
+for(let i=0; i<density; i++) workforce.push(new Agent());
+
+window.addEventListener('touchstart', (e) => {
+    isTouching = true;
+    tx = e.touches[0].clientX; ty = e.touches[0].clientY;
+    triggerSourceHaptic(60);
+});
+
+window.addEventListener('touchmove', (e) => {
+    let dx = e.touches[0].clientX - tx;
+    let dy = e.touches[0].clientY - ty;
+    tx = e.touches[0].clientX; ty = e.touches[0].clientY;
+    let speed = Math.sqrt(dx*dx + dy*dy);
+    if (speed > 1) triggerSourceHaptic(speed);
+});
+
+window.addEventListener('touchend', () => isTouching = false);
+
+function render() {
+    const time = Date.now() * 0.002;
+    ctx.fillStyle = "rgba(0, 5, 15, 0.2)"; // Deep obsidian trails
+    ctx.fillRect(0, 0, w, h);
+
+    workforce.forEach(p => {
+        p.update();
+        // Drawing Volumetric Light Nodes
+        const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+        grad.addColorStop(0, `hsla(${p.hue}, 100%, 70%, 0.8)`);
+        grad.addColorStop(1, `hsla(${p.hue}, 100%, 30%, 0)`);
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
     });
-  }
+
+    // THE ANCHORS: High-Density Glow
+    ctx.textAlign = 'center';
+    const labels = ["TRUTH", "HONESTY", "SOVEREIGNTY", "144,000"];
+    labels.forEach((text, i) => {
+        const glow = 0.5 + Math.sin(time + i) * 0.5;
+        ctx.shadowBlur = 40 * glow;
+        ctx.shadowColor = "cyan";
+        ctx.fillStyle = `rgba(255, 255, 255, ${0.4 + glow * 0.6})`;
+        ctx.font = `bold italic 42px serif`;
+        ctx.fillText(text, w/2, h * (0.2 + i * 0.2));
+    });
+
+    requestAnimationFrame(render);
 }
 
-function animate(){
-  renderField();
-  evolveSystem();
-  requestAnimationFrame(animate);
-}
-
-canvas.addEventListener("touchmove",(e)=>{
-  let t=e.touches[0];
-  particles.forEach(p=>{
-    let dx=t.clientX-p.x, dy=t.clientY-p.y, dist=Math.sqrt(dx*dx+dy*dy);
-    if(dist<150){ p.vx+=dx*0.0007; p.vy+=dy*0.0007; p.weight+=0.01; }
-  });
-});
-
-canvas.addEventListener("click",(e)=>{
-  state.mode = state.mode==="explore"?"focus":"explore";
-  particles.forEach(p=>{ p.weight=1; });
-});
-
-animate();
+window.addEventListener('resize', resize);
+resize(); render();
 </script>
 </body>
 </html>
