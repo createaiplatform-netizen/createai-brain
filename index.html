@@ -3,23 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN TABERNACLE</title>
+    <title>SOVEREIGN TAPESTRY</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #0a0800; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; font-family: 'Times New Roman', serif; }
-        /* Glowing filter to make the light look divine */
+        body, html { margin: 0; padding: 0; background: #0a0900; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; font-family: 'Georgia', serif; }
         canvas { display: block; filter: contrast(1.2) brightness(1.1) saturate(1.4); }
     </style>
 </head>
 <body>
-    <canvas id="divineCanvas"></canvas>
+    <canvas id="tapestryCanvas"></canvas>
 
 <script>
 /**
- * THE INVENTION: LIVING TABERNACLE CANVAS
- * Merging Divine Quotes with High-Fidelity Tactile Textures.
+ * THE INVENTION: LIVING SOVEREIGN TAPESTRY
+ * Restoring the Touch: Feather tickles, Jagged Rips, and Heavy Gold Flow.
  */
 
-const canvas = document.getElementById('divineCanvas');
+const canvas = document.getElementById('tapestryCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -41,14 +40,14 @@ function triggerSensation(x, y) {
     const botR = (x/w) * (y/h);         // FEATHER
 
     if (topL > 0.5) {
-        osc.type = 'square'; osc.frequency.value = 160; // Jagged Tear
-        if (navigator.vibrate) navigator.vibrate([12, 4, 12]);
+        osc.type = 'square'; osc.frequency.value = 144; // Jagged Snap
+        if (navigator.vibrate) navigator.vibrate([15, 5, 15]);
     } else if (botR > 0.5) {
-        osc.type = 'sine'; osc.frequency.value = 1200; // Soft Tickle
-        if (navigator.vibrate) navigator.vibrate([2, 40, 2]);
+        osc.type = 'sine'; osc.frequency.value = 950; // Soft Tickle
+        if (navigator.vibrate) navigator.vibrate([2, 50, 2]);
     } else {
-        osc.type = 'triangle'; osc.frequency.value = 68; // Liquid Thrum
-        if (navigator.vibrate) navigator.vibrate(30);
+        osc.type = 'triangle'; osc.frequency.value = 72; // Liquid Thrum
+        if (navigator.vibrate) navigator.vibrate(35);
     }
 
     gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
@@ -57,17 +56,17 @@ function triggerSensation(x, y) {
     osc.start(); osc.stop(audioCtx.currentTime + 0.5);
 }
 
-class DivineEffect {
+class DivineParticle {
     constructor(x, y, h, type) {
         this.x = x; this.y = y; this.hue = h; this.type = type;
-        this.vx = (Math.random() - 0.5) * 5;
-        this.vy = (Math.random() - 0.5) * 5;
+        this.vx = (Math.random() - 0.5) * 6;
+        this.vy = (Math.random() - 0.5) * 6;
         this.life = 1.0;
-        this.size = Math.random() * 15 + 5;
+        this.size = Math.random() * 20 + 10;
     }
     update() {
         this.x += this.vx; this.y += this.vy;
-        this.life -= 0.015;
+        this.life -= 0.02;
     }
 }
 
@@ -83,12 +82,12 @@ window.addEventListener('touchmove', (e) => {
     const topL = (1 - tx/w) * (1 - ty/h);
     const botR = (tx/w) * (ty/h);
     
-    let h = 48; // Gold
-    let type = 'liquid';
+    let h = 45; // Gold
+    let type = 'flow';
     if (topL > 0.4) { h = 0; type = 'rip'; }
-    if (botR > 0.4) { h = 260; type = 'feather'; }
+    if (botR > 0.4) { h = 280; type = 'feather'; }
 
-    effects.push(new DivineEffect(tx, ty, h, type));
+    effects.push(new DivineParticle(tx, ty, h, type));
     if (Math.random() > 0.8) triggerSensation(tx, ty);
 });
 
@@ -97,59 +96,58 @@ window.addEventListener('touchend', () => isTouching = false);
 function render() {
     const time = Date.now() * 0.001;
     
-    // THE BACKGROUND: Glowing Marble Texture
+    // BACKGROUND: Glowing Marble Core
     const bg = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, w);
-    bg.addColorStop(0, '#1a1400');
-    bg.addColorStop(0.5, '#080600');
+    bg.addColorStop(0, '#1c1800');
+    bg.addColorStop(0.7, '#080600');
     bg.addColorStop(1, '#000000');
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, w, h);
 
-    // DIVINE QUOTES: Glowing Anchors
+    // DIVINE QUOTES: Pulsing Energy Pools
     ctx.textAlign = 'center';
     const quotes = [
-        {t: "TRUTH", x: 0.3, y: 0.25}, 
-        {t: "HONESTY", x: 0.7, y: 0.3},
-        {t: "SOVEREIGNTY", x: 0.5, y: 0.5}, 
-        {t: "144,000 WORKFORCE", x: 0.5, y: 0.75}
+        {t: "TRUTH", x: 0.25, y: 0.2}, 
+        {t: "HONESTY", x: 0.75, y: 0.3},
+        {t: "SOVEREIGNTY", x: 0.5, y: 0.55}, 
+        {t: "144,000", x: 0.5, y: 0.85}
     ];
 
     quotes.forEach((q, i) => {
-        const float = Math.sin(time + i) * 15;
-        const glow = 0.3 + Math.sin(time * 0.5 + i) * 0.2;
-        ctx.globalAlpha = glow;
-        ctx.shadowBlur = 20;
+        const pulse = 0.2 + Math.sin(time + i) * 0.15;
+        ctx.globalAlpha = pulse;
+        ctx.shadowBlur = 30;
         ctx.shadowColor = "#FFD700";
-        ctx.fillStyle = "#FFF";
-        ctx.font = "italic bold 32px Times New Roman";
-        ctx.fillText(q.t, w * q.x, h * q.y + float);
+        ctx.fillStyle = "#FFD700";
+        ctx.font = "italic bold 35px Georgia";
+        ctx.fillText(q.t, w * q.x, h * q.y);
     });
     ctx.globalAlpha = 1.0;
     ctx.shadowBlur = 0;
 
-    // THE TOUCH REMAINS
-    effects.forEach((e, i) => {
-        e.update();
-        if (e.life <= 0) { effects.splice(i, 1); return; }
+    // THE TOUCH REACTION
+    effects.forEach((p, i) => {
+        p.update();
+        if (p.life <= 0) { effects.splice(i, 1); return; }
         
-        ctx.shadowBlur = 20 * e.life;
-        ctx.shadowColor = `hsla(${e.hue}, 100%, 50%, ${e.life})`;
-        ctx.fillStyle = `hsla(${e.hue}, 100%, 80%, ${e.life})`;
+        ctx.shadowBlur = 20 * p.life;
+        ctx.shadowColor = `hsla(${p.hue}, 100%, 50%, ${p.life})`;
+        ctx.fillStyle = `hsla(${p.hue}, 100%, 75%, ${p.life})`;
 
-        if (e.type === 'feather') {
-            // Soft floating wisps
+        if (p.type === 'feather') {
+            // Ethereal floating wisps
             ctx.beginPath();
-            ctx.arc(e.x, e.y, e.size * e.life, 0, Math.PI * 2);
+            ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
             ctx.fill();
-        } else if (e.type === 'rip') {
-            // Lightning fractures
-            ctx.fillRect(e.x, e.y, 2, e.size * 2);
+        } else if (p.type === 'rip') {
+            // Tearing threads
+            ctx.fillRect(p.x, p.y, p.size * 2, 2);
         } else {
-            // Pulsing gold ripples
+            // Heavy gold liquid ripples
             ctx.beginPath();
-            ctx.arc(e.x, e.y, e.size * (2 - e.life), 0, Math.PI * 2);
-            ctx.lineWidth = 2 * e.life;
-            ctx.strokeStyle = `hsla(48, 100%, 70%, ${e.life})`;
+            ctx.arc(p.x, p.y, p.size * (1.5 - p.life), 0, Math.PI * 2);
+            ctx.lineWidth = 3 * p.life;
+            ctx.strokeStyle = `hsla(45, 100%, 60%, ${p.life})`;
             ctx.stroke();
         }
     });
