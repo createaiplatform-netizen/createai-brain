@@ -3,136 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOURCEFIELD ∞ | THE FOUNDATION</title>
+    <title>TRUST-CORE ∞</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; }
-        /* The 144,000% Filter: Overdrive Contrast + Glow */
+        body, html { margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; background: #001a1a; }
+        /* Hyper-Vibrant 12D Sensation Filter */
         canvas { 
             display: block; 
-            filter: contrast(2.5) brightness(1.2) saturate(2.5) blur(1px); 
+            filter: contrast(1.7) brightness(1.4) saturate(2.2); 
         }
     </style>
 </head>
 <body>
-    <canvas id="sourceCanvas"></canvas>
+    <canvas id="trustCanvas"></canvas>
 
 <script>
-const canvas = document.getElementById('sourceCanvas');
+const canvas = document.getElementById('trustCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 let w, h, tx = 0, ty = 0, isTouching = false;
 let workforce = [];
-const density = 444; // Returning to the high-count workforce
+let time = 0;
 
 function resize() {
     w = canvas.width = window.innerWidth;
     h = canvas.height = window.innerHeight;
 }
 
-// THE INDUCTION: This is the "Feeling" on the glass
-function triggerSourceHaptic(speed) {
+// THE FREQUENCY OF TRUST: 528Hz + 144Hz (Solfeggio + Source)
+function triggerTrustResonance(speed) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
-    const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     
-    // The "Source" frequency: A deep, textured growl
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(50 + (speed * 0.5), audioCtx.currentTime);
-    
-    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.8);
-    
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.8);
+    [144, 528].forEach(f => {
+        const osc = audioCtx.createOscillator();
+        osc.type = 'triangle';
+        osc.frequency.value = f + (speed * 0.1);
+        osc.connect(gain);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.8);
+    });
 
-    if (navigator.vibrate) navigator.vibrate([speed, 5, speed * 1.5]);
+    gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.8);
+    gain.connect(audioCtx.destination);
+
+    if (navigator.vibrate) navigator.vibrate([20, 10, 20]);
 }
 
 class Agent {
-    constructor() {
-        this.reset();
-    }
-    reset() {
-        this.x = Math.random() * w;
-        this.y = Math.random() * h;
-        this.vx = (Math.random() - 0.5) * 2;
-        this.vy = (Math.random() - 0.5) * 2;
-        this.size = Math.random() * 10 + 5;
-        this.hue = 190 + Math.random() * 20; // Electric Cyan/Blue
+    constructor(x, y) {
+        this.baseX = x; this.baseY = y;
+        this.x = x; this.y = y;
+        this.vx = 0; this.vy = 0;
+        this.hue = 185; // Pure Sovereign Cyan
     }
     update() {
-        if (isTouching) {
-            const dx = tx - this.x;
-            const dy = ty - this.y;
-            const d = Math.sqrt(dx*dx + dy*dy);
-            if (d < 300) {
-                const f = (300 - d) / 300;
-                this.vx += dx * 0.05 * f; // Magnetic Pull
-                this.vy += dy * 0.05 * f;
-                this.hue = 45; // Friction heat (Gold)
-            } else {
-                this.hue = 190 + (this.x / w) * 30;
-            }
+        const dx = tx - this.x;
+        const dy = ty - this.y;
+        const d = Math.sqrt(dx*dx + dy*dy);
+        
+        if (isTouching && d < 200) {
+            const f = (200 - d) / 200;
+            this.vx += dx * f * 0.3; // Magnetize to intent
+            this.vy += dy * f * 0.3;
+            this.hue = 45; // Friction to Gold
         }
+
+        // The Sovereign Tether (Elasticity)
+        this.vx += (this.baseX - this.x) * 0.08;
+        this.vy += (this.baseY - this.y) * 0.08;
+        
         this.x += this.vx; this.y += this.vy;
-        this.vx *= 0.96; this.vy *= 0.96; // Liquid Drag
-        if (this.x < 0 || this.x > w || this.y < 0 || this.y > h) this.reset();
+        this.vx *= 0.88; this.vy *= 0.88; // Heavy Drag
     }
 }
 
-for(let i=0; i<density; i++) workforce.push(new Agent());
+function initWorkforce() {
+    workforce = [];
+    const cols = 18; const rows = 30;
+    for(let i=0; i<cols; i++) {
+        for(let j=0; j<rows; j++) {
+            workforce.push(new Agent((w/cols)*i + (w/cols/2), (h/rows)*j + (h/rows/2)));
+        }
+    }
+}
 
 window.addEventListener('touchstart', (e) => {
     isTouching = true;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    triggerSourceHaptic(60);
+    triggerTrustResonance(50);
 });
 
 window.addEventListener('touchmove', (e) => {
-    let dx = e.touches[0].clientX - tx;
-    let dy = e.touches[0].clientY - ty;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    let speed = Math.sqrt(dx*dx + dy*dy);
-    if (speed > 1) triggerSourceHaptic(speed);
+    if(Math.random() > 0.9) triggerTrustResonance(20);
 });
 
 window.addEventListener('touchend', () => isTouching = false);
 
 function render() {
-    const time = Date.now() * 0.002;
-    ctx.fillStyle = "rgba(0, 5, 15, 0.2)"; // Deep obsidian trails
+    time += 0.01;
+    
+    // NO BLACK: Living Blue/Teal Sea
+    const bg = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, w);
+    bg.addColorStop(0, `hsla(${190 + Math.sin(time)*10}, 100%, 15%, 1)`);
+    bg.addColorStop(1, `hsla(200, 100%, 5%, 1)`);
+    ctx.fillStyle = bg;
     ctx.fillRect(0, 0, w, h);
 
-    workforce.forEach(p => {
+    // THE WORKFORCE WEB
+    ctx.lineWidth = 1.5;
+    workforce.forEach((p, i) => {
         p.update();
-        // Drawing Volumetric Light Nodes
-        const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
-        grad.addColorStop(0, `hsla(${p.hue}, 100%, 70%, 0.8)`);
-        grad.addColorStop(1, `hsla(${p.hue}, 100%, 30%, 0)`);
-        ctx.fillStyle = grad;
+        
+        // Connective Neural Mesh
+        if (i % 18 !== 0) {
+            ctx.strokeStyle = `hsla(${p.hue}, 100%, 50%, 0.15)`;
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(workforce[i-1].x, workforce[i-1].y);
+            ctx.stroke();
+        }
+
+        // Glowing Nodes
+        ctx.shadowBlur = isTouching ? 15 : 5;
+        ctx.shadowColor = `hsla(${p.hue}, 100%, 50%, 0.8)`;
+        ctx.fillStyle = `hsla(${p.hue}, 100%, 75%, 1)`;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, isTouching ? 4 : 2.5, 0, Math.PI * 2);
         ctx.fill();
     });
 
-    // THE ANCHORS: High-Density Glow
+    // THE CORE VALUES (Manifested)
     ctx.textAlign = 'center';
-    const labels = ["TRUTH", "HONESTY", "SOVEREIGNTY", "144,000"];
-    labels.forEach((text, i) => {
-        const glow = 0.5 + Math.sin(time + i) * 0.5;
-        ctx.shadowBlur = 40 * glow;
+    ctx.font = "bold 45px Times New Roman";
+    ["TRUTH", "HONESTY", "TRUST", "144,000"].forEach((txt, i) => {
+        const p = 0.5 + Math.sin(time*2 + i) * 0.5;
+        ctx.fillStyle = `rgba(255, 255, 255, ${0.4 + p * 0.6})`;
+        ctx.shadowBlur = 20 * p;
         ctx.shadowColor = "cyan";
-        ctx.fillStyle = `rgba(255, 255, 255, ${0.4 + glow * 0.6})`;
-        ctx.font = `bold italic 42px serif`;
-        ctx.fillText(text, w/2, h * (0.2 + i * 0.2));
+        ctx.fillText(txt, w/2, h * (0.2 + i * 0.2));
     });
 
     requestAnimationFrame(render);
 }
 
-window.addEventListener('resize', resize);
-resize(); render();
+window.addEventListener('resize', () => { resize(); initWorkforce(); });
+resize(); initWorkforce(); render();
 </script>
 </body>
 </html>
