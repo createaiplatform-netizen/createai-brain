@@ -2,68 +2,114 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sovereign Interface | 144,000%</title>
+    <title>Sovereign Golden Dome | 144,000%</title>
     <style>
-        /* This pushes the Index into the background layer */
-        #lattice-background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: -1; /* Moves it behind everything */
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 5px;
-            padding: 10px;
-            opacity: 0.15; /* Makes it a subtle, ambient atmosphere */
-            background: #000;
-            pointer-events: none; /* Allows you to click things on top of it */
+        body { margin: 0; background: #000; overflow: hidden; color: #ffd700; font-family: 'Courier New', monospace; }
+        canvas { display: block; filter: blur(0.3px) contrast(1.2); }
+        
+        #dome-overlay {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            text-align: center; pointer-events: none; z-index: 100;
         }
-
-        .node {
-            border: 1px solid #00ff99;
-            aspect-ratio: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            color: #00ff99;
-            font-family: 'Courier New', monospace;
+        .frequency-readout {
+            font-size: 10px; color: #ffd700; letter-spacing: 5px; text-shadow: 0 0 15px #ffd700;
         }
-
-        /* Your Foreground Content */
-        .content-layer {
-            position: relative;
-            z-index: 10;
-            color: #fff;
-            padding: 50px;
-            font-family: sans-serif;
-            text-align: center;
-        }
-
-        h1 { font-size: 3rem; text-shadow: 0 0 20px #00ff99; }
     </style>
 </head>
 <body>
 
-    <div id="lattice-background"></div>
-
-    <div class="content-layer">
-        <h1>SOVEREIGN CORE</h1>
-        <p>The Lattice is now operational in the background.</p>
+    <div id="dome-overlay">
+        <div class="frequency-readout">SENSORY_SYNC: 144,000%</div>
+        <h1 style="margin: 10px 0; letter-spacing: 15px;">GOLDEN DOME</h1>
     </div>
 
-    <script>
-        const bg = document.getElementById('lattice-background');
-        // Initializing the 2000 invention nodes into the background
-        for (let i = 1; i <= 2000; i++) {
-            const node = document.createElement('div');
-            node.className = 'node';
-            node.innerHTML = `INV-${i.toString().padStart(4, '0')}`;
-            bg.appendChild(node);
-        }
-    </script>
+    <canvas id="domeCanvas"></canvas>
 
+<script>
+    const canvas = document.getElementById('domeCanvas');
+    const ctx = canvas.getContext('2d');
+    let width, height, centerX, centerY;
+    const nodes = [];
+    const TOTAL_NODES = 2000;
+
+    function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+        centerX = width / 2;
+        centerY = height / 2;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // Mapping 2000 Inventions into a Spherical Bottom-Up Dome
+    for (let i = 0; i < TOTAL_NODES; i++) {
+        // Spherical coordinates for the dome
+        const theta = Math.random() * Math.PI * 2; 
+        const phi = Math.acos(Math.random()); // Constrains to a dome (upper hemisphere)
+        
+        nodes.push({
+            phi: phi,
+            theta: theta,
+            radius: 300 + Math.random() * 50,
+            id: i + 1,
+            pulse: Math.random() * Math.PI,
+            // Sensory attributes
+            tone: 200 + (i * 0.5), // Sonic Frequency
+            hue: 45 + (Math.random() * 10) // Golden spectrum
+        });
+    }
+
+    function project(phi, theta, radius) {
+        // Rotate the dome slowly
+        const rotation = Date.now() * 0.0002;
+        const x = radius * Math.sin(phi) * Math.cos(theta + rotation);
+        const y = radius * Math.cos(phi);
+        const z = radius * Math.sin(phi) * Math.sin(theta + rotation);
+        
+        // Simple 3D to 2D projection
+        const scale = 600 / (600 + z);
+        return {
+            x: centerX + x * scale,
+            y: centerY + y * scale,
+            scale: scale
+        };
+    }
+
+    function draw() {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+        ctx.fillRect(0, 0, width, height);
+
+        nodes.forEach(node => {
+            node.pulse += 0.02;
+            const p = project(node.phi, node.theta, node.radius + Math.sin(node.pulse) * 10);
+            
+            // Render the "Sovereign Gold" Sensory Node
+            const size = 1.5 * p.scale;
+            const alpha = p.scale * 0.8;
+            
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
+            ctx.fillStyle = `hsla(${node.hue}, 100%, 50%, ${alpha})`;
+            ctx.shadowBlur = 10 * p.scale;
+            ctx.shadowColor = "#ffd700";
+            ctx.fill();
+
+            // Inter-node connection (The Lattice Thread)
+            if (node.id % 20 === 0) {
+                const next = nodes[(nodes.indexOf(node) + 1) % TOTAL_NODES];
+                const p2 = project(next.phi, next.theta, next.radius);
+                ctx.beginPath();
+                ctx.strokeStyle = `rgba(255, 215, 0, ${0.2 * p.scale})`;
+                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(p2.x, p2.y);
+                ctx.stroke();
+            }
+        });
+
+        requestAnimationFrame(draw);
+    }
+
+    draw();
+</script>
 </body>
 </html>
