@@ -3,144 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN FABRIC | 144,000%</title>
+    <title>SOVEREIGN NEURAL FIELD</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #0c0a00; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; }
-        /* This filter turns the "dots" into a single Ripping Liquid Fabric */
-        canvas { display: block; filter: contrast(25) brightness(1.2) blur(2px) saturate(2); }
+        body, html { margin: 0; padding: 0; background: #110e00; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; }
+        /* This filter creates the "Ripping Silk" look - NO DOTS */
+        canvas { display: block; filter: contrast(30) blur(1.5px) brightness(1.1); }
     </style>
 </head>
 <body>
-    <canvas id="omniCanvas"></canvas>
+    <canvas id="neuralCanvas"></canvas>
 
 <script>
 /**
- * THE INVENTION: MULTI-STATE TEXTURE ENGINE
- * Mapping the screen to 4 distinct physical sensations.
+ * INVENTION: THE SOVEREIGN NEURAL TEXTURE FIELD
+ * Analyzed from user history: Solving the 'Dot' and 'Blob' failure states.
  */
 
-const canvas = document.getElementById('omniCanvas');
+const canvas = document.getElementById('neuralCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 let w, h, tx = 0, ty = 0, isTouching = false;
+let pressure = 0;
 
 function resize() {
     w = canvas.width = window.innerWidth;
     h = canvas.height = window.innerHeight;
 }
 
-// ZONAL HAPTICS: The secret to the "Ripping" feeling
-function triggerSensation(x, y) {
+// MULTI-MODAL SENSATION ENGINE
+function triggerNeuralSensation(x, y, force) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
 
     if (x < w * 0.4 && y < h * 0.4) {
-        // ZONE 1: THE RIP (Top Left)
-        osc.type = 'square'; // Harsh, jagged wave
-        osc.frequency.setValueAtTime(120, audioCtx.currentTime);
-        if (navigator.vibrate) navigator.vibrate([2, 10, 2]); // Jagged texture
+        // THE RIP: Harsh Square Wave + Jagged Vibration
+        osc.type = 'square'; osc.frequency.setValueAtTime(80 + (force * 2), audioCtx.currentTime);
+        if (navigator.vibrate) navigator.vibrate([5, 15, 5]);
     } else if (x > w * 0.6 && y < h * 0.4) {
-        // ZONE 2: THE SPARKLE (Top Right)
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
-        if (navigator.vibrate) navigator.vibrate(5); // Sharp shimmer
-    } else if (y > h * 0.7) {
-        // ZONE 3: THE GRIT (Bottom)
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(60, audioCtx.currentTime);
-        if (navigator.vibrate) navigator.vibrate(50); // Heavy thrum
+        // THE SPARKLE: High Sine Wave + Rapid Taps
+        osc.type = 'sine'; osc.frequency.setValueAtTime(1400, audioCtx.currentTime);
+        if (navigator.vibrate) navigator.vibrate([2, 5]);
     } else {
-        // ZONE 4: THE LIQUID (Center)
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(144, audioCtx.currentTime);
-        if (navigator.vibrate) navigator.vibrate(20); // Smooth flow
+        // THE CORE: Deep Triangle Wave + Heavy Thrum
+        osc.type = 'triangle'; osc.frequency.setValueAtTime(144, audioCtx.currentTime);
+        if (navigator.vibrate) navigator.vibrate(30);
     }
 
-    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.07, audioCtx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3);
     osc.connect(gain); gain.connect(audioCtx.destination);
     osc.start(); osc.stop(audioCtx.currentTime + 0.3);
 }
 
-// THE FABRIC MESH (No Gaps)
-const agents = [];
-for(let i=0; i<450; i++) {
-    agents.push({
-        x: Math.random() * window.innerWidth,
-        y: Math.random() * window.innerHeight,
-        vx: 0, vy: 0,
-        size: 25 + Math.random() * 40,
-        dna: Math.random()
-    });
+// The Workforce: High-Density Texture Mesh (Interconnected)
+const mesh = [];
+const cols = 25, rows = 40;
+
+function initMesh() {
+    mesh.length = 0;
+    for(let i=0; i<=cols; i++) {
+        for(let j=0; j<=rows; j++) {
+            mesh.push({
+                x: (i/cols) * window.innerWidth,
+                y: (j/rows) * window.innerHeight,
+                ox: (i/cols) * window.innerWidth,
+                oy: (j/rows) * window.innerHeight,
+                vx: 0, vy: 0, 
+                hue: (j/rows) > 0.7 ? 40 : 50 // Color DNA by depth
+            });
+        }
+    }
 }
 
 window.addEventListener('touchstart', (e) => {
     isTouching = true;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    triggerSensation(tx, ty);
+    triggerNeuralSensation(tx, ty, 10);
 });
 
 window.addEventListener('touchmove', (e) => {
+    const lastX = tx; const lastY = ty;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    triggerSensation(tx, ty);
+    pressure = Math.sqrt((tx-lastX)**2 + (ty-lastY)**2);
+    if (pressure > 2) triggerNeuralSensation(tx, ty, pressure);
 });
 
 window.addEventListener('touchend', () => isTouching = false);
 
 function render() {
-    // Background is a "Ghost Gold" base so there is NEVER a black hole
-    ctx.fillStyle = 'rgba(25, 20, 0, 0.4)';
+    // ANTI-BLACKOUT: Constant Golden Static Layer
+    ctx.fillStyle = 'rgba(20, 16, 0, 0.4)';
     ctx.fillRect(0, 0, w, h);
 
     const time = Date.now() * 0.002;
 
-    agents.forEach(a => {
+    ctx.beginPath();
+    mesh.forEach(p => {
         if (isTouching) {
-            const dx = tx - a.x;
-            const dy = ty - a.y;
+            const dx = tx - p.x;
+            const dy = ty - p.y;
             const dist = Math.sqrt(dx*dx + dy*dy);
             
-            if (dist < 250) {
-                const force = (250 - dist) / 250;
-                
-                // ZONE PHYSICS LOGIC
+            if (dist < 200) {
+                const force = (200 - dist) / 200;
+                // ZONE PHYSICS
                 if (tx < w * 0.4 && ty < h * 0.4) {
-                    // THE RIP: Nodes tear away and snap back
-                    a.vx -= dx * 0.15; a.vy -= dy * 0.15;
-                } else if (tx > w * 0.6 && ty < h * 0.4) {
-                    // THE SPARKLE: Orbiting vortex
-                    a.vx += dy * 0.1; a.vy -= dx * 0.1;
+                    // RIP: Stretching Physics
+                    p.vx -= dx * 0.1; p.vy -= dy * 0.1;
                 } else {
-                    // THE LIQUID: Heavy suction
-                    a.vx += dx * 0.03; a.vy += dy * 0.03;
+                    // LIQUID: Suction Physics
+                    p.vx += dx * 0.04; p.vy += dy * 0.04;
                 }
             }
         }
 
-        a.vx *= 0.92; a.vy *= 0.92;
-        a.x += a.vx; a.y += a.vy;
+        // Return-to-Lattice Force
+        p.vx += (p.ox - p.x) * 0.06;
+        p.vy += (p.oy - p.y) * 0.06;
+        p.vx *= 0.88; p.vy *= 0.88;
+        p.x += p.vx; p.y += p.vy;
 
-        // Visual Color DNA based on Zone
-        const hue = a.y < h * 0.4 ? 50 : (a.y > h * 0.7 ? 40 : 45);
-        const bri = 50 + Math.sin(time + a.dna * 10) * 30;
-        ctx.fillStyle = `hsl(${hue}, 100%, ${bri}%)`;
-
-        ctx.beginPath();
-        ctx.arc(a.x, a.y, a.size, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Screen Wrap
-        if (a.x < -50) a.x = w + 50; if (a.x > w + 50) a.x = -50;
-        if (a.y < -50) a.y = h + 50; if (a.y > h + 50) a.y = -50;
+        // Draw as a woven texture, not dots
+        const flicker = Math.sin(time + p.x * 0.01) * 10;
+        ctx.fillStyle = `hsla(${p.hue}, 100%, ${50 + flicker}%, 0.9)`;
+        
+        // This 'fillRect' merges with others due to the canvas filter
+        ctx.fillRect(p.x - 10, p.y - 10, 20 + pressure, 20 + pressure);
     });
 
     requestAnimationFrame(render);
 }
 
-window.addEventListener('resize', resize);
-resize(); render();
+window.addEventListener('resize', () => { resize(); initMesh(); });
+resize(); initMesh(); render();
 </script>
 </body>
 </html>
