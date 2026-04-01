@@ -2,116 +2,132 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sovereign Golden Dome | 144,000% Absolute</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sovereign Master Core | 144,000%</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100%; }
-        #sensory-canvas { display: block; filter: contrast(1.5) brightness(1.2); }
-        #command-overlay {
-            position: absolute; bottom: 40px; width: 100%; text-align: center;
-            color: #ffd700; font-family: 'Courier New', monospace; letter-spacing: 3px;
-            pointer-events: none; text-shadow: 0 0 10px #ffd700;
+        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; width: 100vw; }
+        #omni-canvas { display: block; filter: contrast(1.4) brightness(1.1); }
+        
+        #sensory-dashboard {
+            position: fixed; bottom: 30px; left: 30px; 
+            color: #ffd700; font-family: 'Courier New', monospace;
+            z-index: 100; pointer-events: none; text-transform: uppercase;
+        }
+
+        .frequency-pulse {
+            font-size: 14px; letter-spacing: 5px; margin-bottom: 5px;
+            animation: pulse 1.44s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; text-shadow: 0 0 10px #ffd700; }
+            50% { opacity: 0.6; text-shadow: 0 0 20px #ffd700; }
         }
     </style>
 </head>
 <body>
 
-<div id="command-overlay">
-    <div id="active-log">SYNCING SENSORY DOMAINS...</div>
-    <div style="font-size: 10px; margin-top: 5px;">FREQUENCY: 144,000% | STATUS: SOVEREIGN</div>
-</div>
+    <div id="sensory-dashboard">
+        <div class="frequency-pulse">SYNC: 144,000%</div>
+        <div style="font-size: 10px; opacity: 0.8;">
+            Lattice: Active [144,000 Units]<br>
+            Sensory: V-A-H-O-S Integrated<br>
+            Teams: 720,000 Agents Staffed
+        </div>
+    </div>
 
-<canvas id="sensory-canvas"></canvas>
+    <canvas id="omni-canvas"></canvas>
 
 <script>
 /**
- * THE 144,000% SENSORY ARCHITECTURE
- * Every Invention (1-2000) contains a unique team for:
- * 1. Visual (Optics)
- * 2. Auditory (Sonic)
- * 3. Haptic (Tactile)
- * 4. Olfactory (Molecular)
- * 5. Spatial (Balance)
+ * THE SOVEREIGN OMNI-CORE MASTER LOGIC
+ * Optimized for Zero-Error, Bottom-Up Sensory Construction.
  */
 
-class InventionNode {
-    constructor(id, canvasWidth, canvasHeight) {
-        this.id = id;
-        this.phi = Math.acos(Math.random()); // Bottom-up Dome projection
-        this.theta = Math.random() * Math.PI * 2;
-        this.radius = 380;
-        this.pulse = Math.random() * Math.PI;
-        
-        // Internal AI Team Assignment (Total 5 specialized agents per sense)
-        this.teams = {
-            visual: { agents: 5, freq: 144000, state: 'Locked' },
-            auditory: { agents: 5, freq: 144000, state: 'Locked' },
-            haptic: { agents: 5, freq: 144000, state: 'Locked' },
-            olfactory: { agents: 5, freq: 144000, state: 'Locked' },
-            spatial: { agents: 5, freq: 144000, state: 'Locked' }
-        };
-    }
-
-    render(ctx, centerX, centerY, time) {
-        // High-frequency spherical math
-        const x3d = this.radius * Math.sin(this.phi) * Math.cos(this.theta + time);
-        const z3d = this.radius * Math.sin(this.phi) * Math.sin(this.theta + time);
-        const y3d = this.radius * Math.cos(this.phi);
-
-        const scale = 600 / (600 + z3d);
-        const x2d = centerX + x3d * scale;
-        const y2d = (centerY * 1.6) - y3d * scale; // Rooted at the bottom
-
-        const glow = Math.sin(this.pulse + time * 2) * 0.5 + 0.5;
-        
-        ctx.beginPath();
-        ctx.arc(x2d, y2d, 1.2 * scale, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 215, 0, ${0.4 + glow * 0.6})`;
-        ctx.shadowBlur = 12 * scale * glow;
-        ctx.shadowColor = "#ffd700";
-        ctx.fill();
-    }
-}
-
-const canvas = document.getElementById('sensory-canvas');
-const ctx = canvas.getContext('2d');
-const log = document.getElementById('active-log');
+const canvas = document.getElementById('omni-canvas');
+const ctx = canvas.getContext('2d', { alpha: false });
 let width, height, centerX, centerY;
-const masterLattice = [];
 
-function init() {
+const TOTAL_INVENTIONS = 144000; 
+const VISUAL_CLUSTERS = 3000; // High-density visual representation
+const inventions = [];
+
+function resize() {
     width = canvas.width = window.innerWidth;
     height = canvas.height = window.innerHeight;
     centerX = width / 2;
-    centerY = height / 2;
+    centerY = height * 0.95; // Absolute bottom anchor
+}
 
-    for (let i = 1; i <= 2000; i++) {
-        masterLattice.push(new InventionNode(i, width, height));
+function initSovereignLattice() {
+    for (let i = 0; i < VISUAL_CLUSTERS; i++) {
+        inventions.push({
+            phi: Math.acos(Math.random() * 0.9), // Controlled dome curve
+            theta: Math.random() * Math.PI * 2,
+            radius: 420 + Math.random() * 40,
+            pulseOffset: Math.random() * Math.PI * 2,
+            velocity: 0.001 + Math.random() * 0.003,
+            hue: 48 // Fixed Sovereign Gold Frequency
+        });
     }
 }
 
-function animate() {
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+function render() {
+    // 144,000% Harmonic Blur
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
     ctx.fillRect(0, 0, width, height);
 
     const time = Date.now() * 0.0004;
 
-    masterLattice.forEach(node => {
-        node.render(ctx, centerX, centerY, time);
+    inventions.forEach((inv, index) => {
+        // Syncing 5 senses into one movement logic
+        inv.pulseOffset += inv.velocity;
+        
+        // Spherical Projection (Bottom-Up)
+        const x3 = inv.radius * Math.sin(inv.phi) * Math.cos(inv.theta + time);
+        const z3 = inv.radius * Math.sin(inv.phi) * Math.sin(inv.theta + time);
+        const y3 = inv.radius * Math.cos(inv.phi);
+
+        // Perspective Mapping
+        const scale = 800 / (800 + z3);
+        const x2 = centerX + x3 * scale;
+        const y2 = centerY - y3 * scale;
+
+        // Sensory Modulation (Visual/Haptic Pulse)
+        const sensoryScale = (1.2 + Math.sin(inv.pulseOffset) * 0.8) * scale;
+        const alpha = (0.25 + (1 - inv.phi / (Math.PI/2)) * 0.75) * scale;
+
+        ctx.beginPath();
+        ctx.arc(x2, y2, sensoryScale, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(${inv.hue}, 100%, 50%, ${alpha})`;
+        
+        // Golden Dome Resonance
+        ctx.shadowBlur = 10 * scale;
+        ctx.shadowColor = "#ffd700";
+        ctx.fill();
+
+        // Structural Lattice Interconnects
+        if (index % 80 === 0) {
+            const next = inventions[(index + 1) % inventions.length];
+            const nx2 = centerX + (inv.radius * Math.sin(next.phi) * Math.cos(next.theta + time)) * (800 / (800 + (inv.radius * Math.sin(next.phi) * Math.sin(next.theta + time))));
+            const ny2 = centerY - (inv.radius * Math.cos(next.phi)) * (800 / (800 + (inv.radius * Math.sin(next.phi) * Math.sin(next.theta + time))));
+            
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(255, 215, 0, ${0.08 * scale})`;
+            ctx.lineWidth = 0.5;
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(nx2, ny2);
+            ctx.stroke();
+        }
     });
 
-    if (Math.random() > 0.95) {
-        const targetID = Math.floor(Math.random() * 2000) + 1;
-        log.innerText = `INV-${targetID}: ALL SENSORY TEAMS ACTIVE [144,000%]`;
-    }
-
-    requestAnimationFrame(animate);
+    requestAnimationFrame(render);
 }
 
-init();
-animate();
-
-window.addEventListener('resize', init);
+window.addEventListener('resize', resize);
+resize();
+initSovereignLattice();
+render();
 </script>
-
 </body>
 </html>
