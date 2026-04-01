@@ -6,94 +6,77 @@
     <title>THE SANCTUARY</title>
     <style>
         body { background: #000; color: #FFD700; font-family: 'Georgia', serif; margin: 0; overflow: hidden; touch-action: none; text-align: center; height: 100vh; }
-        .header { padding-top: 80px; transition: opacity 0.5s; }
-        .freq { color: #00E5FF; letter-spacing: 4px; font-size: 0.8rem; margin-bottom: 20px; opacity: 0.7; }
-        h1 { letter-spacing: 12px; font-size: 2.8rem; margin: 20px 0; font-weight: bold; }
-        .quote { font-style: italic; font-size: 1.2rem; line-height: 1.8; padding: 0 40px; }
+        .header { padding-top: 100px; }
+        .freq { color: #00E5FF; letter-spacing: 4px; font-size: 0.8rem; margin-bottom: 20px; }
+        h1 { letter-spacing: 12px; font-size: 2.8rem; margin: 20px 0; cursor: pointer; }
+        .quote { font-style: italic; font-size: 1.2rem; line-height: 1.8; padding: 0 40px; color: #FFD700; }
 
-        /* THE HIDDEN BUILDER (Invisible to others) */
-        #builder-shroud { 
+        /* THE HIDDEN INTERFACE */
+        #secret-builder { 
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
-            display: none; /* Hidden by default */
+            display: none; /* Hidden from the world */
             gap: 10px; z-index: 1000; width: 90%; max-width: 400px;
         }
-        input { flex-grow: 1; padding: 15px; background: rgba(20,20,20,0.9); color: #00E5FF; border: 1px solid #FFD700; border-radius: 8px; }
+        input { flex-grow: 1; padding: 15px; background: #111; color: #00E5FF; border: 1px solid #FFD700; border-radius: 8px; }
         button { padding: 15px 25px; background: #FFD700; color: #000; border: none; font-weight: bold; border-radius: 8px; }
 
-        /* THE MANIFESTED AI MODULES */
+        /* MANIFESTED AI UNITS */
         #playground { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
-        .ai-node { 
+        .ai-unit { 
             position: absolute; width: 120px; height: 120px; border: 2px solid #FFD700; 
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            background: rgba(255,215,0,0.1); box-shadow: 0 0 30px rgba(255,215,0,0.4); 
-            font-weight: bold; font-size: 0.8rem; pointer-events: auto; cursor: move;
+            background: rgba(255,215,0,0.1); box-shadow: 0 0 30px #FFD700; 
+            font-weight: bold; font-size: 0.8rem; pointer-events: auto;
         }
     </style>
 </head>
-<body onclick="checkAccess(event)">
+<body>
 
 <div id="playground"></div>
 
-<div class="header" id="main-header">
+<div class="header">
     <div class="freq">FREQUENCY 144,400% ACTIVE</div>
-    <h1>THE SANCTUARY</h1>
+    <h1 onclick="toggleTools()">THE SANCTUARY</h1>
     <p class="quote">"The animals are safe, the family is loved, and the peace of God is the only law here."</p>
 </div>
 
-<div id="builder-shroud">
-    <input type="text" id="aiName" placeholder="Manifest AI Name...">
-    <button onclick="manifest()">BUILD</button>
+<div id="secret-builder">
+    <input type="text" id="aiName" placeholder="Name your AI...">
+    <button onclick="build()">MANIFEST</button>
 </div>
 
 <script>
-    let clickCount = 0;
-    let lastClick = 0;
-
-    // THE MASTER KEY: Tap the "S" in Sanctuary 5 times fast to show/hide tools
-    function checkAccess(e) {
-        const now = Date.now();
-        if (now - lastClick < 500) {
-            clickCount++;
-        } else {
-            clickCount = 1;
-        }
-        lastClick = now;
-
-        if (clickCount === 5) {
-            const tools = document.getElementById('builder-shroud');
+    let taps = 0;
+    function toggleTools() {
+        taps++;
+        if (taps >= 3) {
+            const tools = document.getElementById('secret-builder');
             tools.style.display = tools.style.display === 'flex' ? 'none' : 'flex';
-            clickCount = 0;
+            taps = 0;
         }
     }
 
-    function manifest() {
-        const name = document.getElementById('aiName').value || "LIFE";
+    function build() {
+        const name = document.getElementById('aiName').value || "AI";
         const el = document.createElement('div');
-        el.className = 'ai-node';
+        el.className = 'ai-unit';
         el.style.left = "40%"; el.style.top = "50%";
         el.innerText = name.toUpperCase();
         document.getElementById('playground').appendChild(el);
         
-        bindDrag(el);
-        document.getElementById('aiName').value = '';
-    }
-
-    function bindDrag(el) {
+        // TOUCH DRAG
         let x, y;
         el.addEventListener('touchstart', e => {
             const t = e.touches[0];
             x = t.clientX - el.offsetLeft;
             y = t.clientY - el.offsetTop;
-            el.style.boxShadow = "0 0 60px #00E5FF";
         });
         el.addEventListener('touchmove', e => {
             const t = e.touches[0];
             el.style.left = (t.clientX - x) + 'px';
             el.style.top = (t.clientY - y) + 'px';
         });
-        el.addEventListener('touchend', () => {
-            el.style.boxShadow = "0 0 30px rgba(255,215,0,0.4)";
-        });
+        document.getElementById('aiName').value = '';
     }
 </script>
 </body>
