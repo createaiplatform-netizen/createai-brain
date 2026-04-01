@@ -27,7 +27,6 @@
             padding: 15px; backdrop-filter: blur(10px); z-index: 100; font-size: 0.8rem;
         }
 
-        /* THE INTELLIGENCE GATE (STAGE 3) */
         #gate {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 85%; max-width: 400px; background: rgba(0,0,0,0.98);
@@ -77,7 +76,6 @@
     let pendingAction = null;
     const playground = document.getElementById('playground');
 
-    // STAGE 1 & 3: SOVEREIGN MEMORY (IndexedDB)
     const request = indexedDB.open("SovereignSanctuaryDB", 2);
     request.onupgradeneeded = e => {
         const d = e.target.result;
@@ -88,7 +86,6 @@
         loadReality();
     };
 
-    // THE BRAIN: INTERPRETATION & GATE
     function propose() {
         const input = document.getElementById('cmdInput');
         const val = input.value;
@@ -98,7 +95,6 @@
         const gate = document.getElementById('gate');
         const msg = document.getElementById('gate-msg');
 
-        // CLEAR COMMAND (The Reset)
         if (cmd === "clear" || cmd === "reset") {
             msg.innerText = "Commander, shall I wipe the manifestations and return to Source?";
             pendingAction = () => {
@@ -107,33 +103,30 @@
                 location.reload();
             };
         } 
-        // STYLE CHANGES
         else if (cmd.includes("background") || cmd.includes("color")) {
             const color = cmd.split(" ").pop();
-            msg.innerText = `I have prepared the code to shift the atmosphere to ${color.toUpperCase()}. Shall I proceed?`;
+            msg.innerText = `Manifest atmosphere shift to ${color.toUpperCase()}?`;
             pendingAction = () => { 
                 document.body.style.background = color; 
                 saveToDB({id: 'bg', val: color}); 
             };
         }
-        // TITLE CHANGES
         else if (cmd.includes("title")) {
             const newTitle = val.replace(/title/i, "").trim().toUpperCase();
-            msg.innerText = `Decree received: "${newTitle}". Shall I manifest this title?`;
+            msg.innerText = `Decree title change to "${newTitle}"?`;
             pendingAction = () => { 
                 document.getElementById('site-title').innerText = newTitle; 
                 saveToDB({id: 'title', val: newTitle}); 
             };
         }
-        // MANIFEST UNIT
         else {
-            if (val.length > 30) {
-                alert("The command is too long for a unit. Keep it concise, Commander.");
-                return;
+            if (val.length > 50) {
+                msg.innerText = "This command contains complex logic. Shall I manifest this hidden unit?";
+            } else {
+                msg.innerText = `Bring the unit "${val.toUpperCase()}" into the Sanctuary?`;
             }
-            msg.innerText = `I have drafted the 'Little AI' for "${val.toUpperCase()}". Shall I bring it into the Sanctuary?`;
             pendingAction = () => {
-                const data = { id: 'ai_' + Date.now(), name: val, x: window.innerWidth/2 - 70, y: window.innerHeight/2 };
+                const data = { id: 'ai_' + Date.now(), name: val.substring(0, 50), x: window.innerWidth/2 - 70, y: window.innerHeight/2 };
                 createNode(data);
                 saveToDB(data);
             };
@@ -192,7 +185,6 @@
         };
     }
 
-    // STARFIELD GENERATOR
     for(let i=0; i<80; i++) {
         const s = document.createElement('div');
         s.className = 'star';
