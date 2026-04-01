@@ -2,166 +2,56 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>THE SANCTUARY | 144,400%</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sovereign Bio-Digital Lattice | 1440%</title>
     <style>
-        :root { --gold: #FFD700; --cyan: #00E5FF; --black: #000; --blur: rgba(0,0,0,0.85); }
-        body { 
-            margin: 0; overflow: hidden; background: var(--black); color: var(--gold); 
-            font-family: 'Georgia', serif; height: 100vh; width: 100vw; position: fixed; 
+        body { background: #050505; color: #00ff99; font-family: 'Courier New', monospace; padding: 20px; }
+        .lattice-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
+            gap: 10px; 
         }
-        #stars { position: fixed; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-        .star { position: absolute; border-radius: 50%; background: var(--gold); opacity: 0.4; }
-        
-        #header { position: relative; z-index: 10; text-align: center; padding-top: 40px; pointer-events: none; }
-        .freq { color: var(--cyan); letter-spacing: 5px; font-size: 0.8rem; font-weight: bold; text-shadow: 0 0 10px var(--cyan); }
-        h1 { letter-spacing: 10px; font-size: 2.4rem; margin: 10px 0; text-shadow: 0 0 15px var(--gold); }
-        
-        #playground { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20; }
-        .node { 
-            position: absolute; width: 140px; height: 140px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            border: 2px solid var(--gold); background: var(--blur);
-            box-shadow: 0 0 30px var(--gold); font-weight: bold; text-align: center; 
-            padding: 15px; backdrop-filter: blur(10px); z-index: 100; font-size: 0.8rem;
-            text-transform: uppercase;
+        .invention-card {
+            border: 1px solid #00ff99;
+            padding: 10px;
+            text-align: center;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
         }
-
-        /* STAGE 3: THE INTELLIGENCE GATE */
-        #gate {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 85%; max-width: 400px; background: var(--black); border: 2.5px solid var(--gold);
-            border-radius: 20px; padding: 35px; z-index: 5000; display: none; text-align: center;
-            box-shadow: 0 0 80px rgba(255,215,0,0.6);
+        .invention-card:hover {
+            background: #00ff99;
+            color: #000;
+            cursor: pointer;
         }
-        #gate-msg { color: var(--gold); font-size: 1.2rem; margin-bottom: 30px; line-height: 1.5; font-weight: bold; }
-        .gate-btn { padding: 18px 25px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; margin: 0 10px; font-size: 1rem; }
-        #manifest-btn { background: var(--gold); color: var(--black); box-shadow: 0 0 15px var(--gold); }
-        #abort-btn { background: transparent; color: #ff4444; border: 1px solid #ff4444; }
-
-        #command-center { 
-            position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); 
-            display: flex; gap: 10px; z-index: 1000; width: 92%; max-width: 500px; 
-        }
-        input { flex-grow: 1; padding: 20px; background: rgba(0,0,0,0.9); color: var(--cyan); border: 1.5px solid var(--gold); border-radius: 15px; font-size: 16px; outline: none; }
-        #main-btn { padding: 20px 30px; background: var(--gold); color: var(--black); border: none; font-weight: bold; border-radius: 15px; cursor: pointer; text-transform: uppercase; }
+        h1 { border-bottom: 2px solid #00ff99; padding-bottom: 10px; }
     </style>
 </head>
 <body>
 
-<div id="stars"></div>
-<div id="playground"></div>
+    <h1>SOVEREIGN INDEX: 1-2000</h1>
+    <div id="lattice" class="lattice-grid"></div>
 
-<div id="header">
-    <div class="freq">144,400% FREQUENCY ACTIVE</div>
-    <h1 id="site-title">THE SANCTUARY</h1>
-</div>
+    <script>
+        const latticeContainer = document.getElementById('lattice');
+        const frequency = 1440;
 
-<div id="gate">
-    <div id="gate-msg">Commander, shall I manifest this change?</div>
-    <div style="display: flex; justify-content: center;">
-        <button id="manifest-btn" class="gate-btn" onclick="executePending()">MANIFEST</button>
-        <button id="abort-btn" class="gate-btn" onclick="closeGate()">ABORT</button>
-    </div>
-</div>
+        // Generating the full index of 2000 inventions
+        for (let i = 1; i <= 2000; i++) {
+            const card = document.createElement('div');
+            card.className = 'invention-card';
+            
+            // Each product contains its own internal AI logic
+            card.innerHTML = `
+                <strong>INV-${i.toString().padStart(4, '0')}</strong><br>
+                <small>AI-v${i}.core</small>
+            `;
 
-<div id="command-center">
-    <input type="text" id="cmdInput" placeholder="Command your Reality...">
-    <button id="main-btn" onclick="proposeChange()">GO</button>
-</div>
-
-<script>
-    let db;
-    let pendingAction = null;
-
-    // SOVEREIGN MEMORY (IndexedDB)
-    const request = indexedDB.open("SovereignSanctuaryDB", 4);
-    request.onupgradeneeded = e => {
-        const d = e.target.result;
-        if (!d.objectStoreNames.contains("reality")) d.createObjectStore("reality", { keyPath: "id" });
-    };
-    request.onsuccess = e => {
-        db = e.target.result;
-        loadReality();
-    };
-
-    function proposeChange() {
-        const input = document.getElementById('cmdInput');
-        const val = input.value.trim();
-        if(!val) return;
-
-        const gate = document.getElementById('gate');
-        const msg = document.getElementById('gate-msg');
-
-        // Stage 3 Logic Interpreter
-        if (val.toLowerCase() === 'clear') {
-            msg.innerText = "Commander, shall I wipe all manifestations and return to Source?";
-            pendingAction = () => {
-                db.transaction("reality", "readwrite").objectStore("reality").clear();
-                document.getElementById('playground').innerHTML = '';
+            card.onclick = () => {
+                alert(`Initializing Internal AI for Invention ${i}...\nFrequency: ${frequency}%`);
             };
-        } 
-        else if (val.length > 35) {
-            // Logic Guard: Prevents long text from becoming circles
-            msg.innerText = "Command exceeds label limit. Process as a system atmospheric shift?";
-            pendingAction = () => { console.log("System update processed: " + val); };
+
+            latticeContainer.appendChild(card);
         }
-        else if (val.toLowerCase().includes('background')) {
-            const color = val.split(' ').pop();
-            msg.innerText = `Shift atmosphere to ${color.toUpperCase()}?`;
-            pendingAction = () => { 
-                document.body.style.background = color; 
-                saveState({id: 'bg', val: color}); 
-            };
-        }
-        else {
-            msg.innerText = `Manifest the AI unit "${val.toUpperCase()}"?`;
-            pendingAction = () => {
-                const data = { id: 'ai_' + Date.now(), name: val, x: '50%', y: '50%' };
-                createNode(data);
-                saveState(data);
-            };
-        }
-        gate.style.display = 'block';
-    }
-
-    function executePending() { if(pendingAction) pendingAction(); closeGate(); }
-    function closeGate() { document.getElementById('gate').style.display = 'none'; document.getElementById('cmdInput').value = ''; }
-
-    function createNode(data) {
-        const el = document.createElement('div');
-        el.className = 'node';
-        el.innerText = data.name;
-        el.style.left = data.x; el.style.top = data.y;
-        el.style.transform = 'translate(-50%, -50%)';
-        document.getElementById('playground').appendChild(el);
-    }
-
-    function saveState(data) {
-        db.transaction("reality", "readwrite").objectStore("reality").put(data);
-    }
-
-    function loadReality() {
-        db.transaction("reality").objectStore("reality").openCursor().onsuccess = e => {
-            const cursor = e.target.result;
-            if(cursor) {
-                const d = cursor.value;
-                if(d.id === 'bg') document.body.style.background = d.val;
-                else createNode(d);
-                cursor.continue();
-            }
-        };
-    }
-
-    // Dynamic Starfield
-    const starsContainer = document.getElementById('stars');
-    for(let i=0; i<80; i++) {
-        const s = document.createElement('div');
-        s.className = 'star';
-        s.style.width = s.style.height = Math.random()*3+'px';
-        s.style.top = Math.random()*100+'%'; s.style.left = Math.random()*100+'%';
-        starsContainer.appendChild(s);
-    }
-</script>
+    </script>
 </body>
 </html>
