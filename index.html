@@ -3,136 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN FEELING</title>
+    <title>SOVEREIGN FLUID | 144,000%</title>
     <style>
         body, html { 
             margin: 0; padding: 0; background: #000; 
             overflow: hidden; height: 100vh; width: 100vw; 
-            touch-action: none; -webkit-user-select: none;
+            touch-action: none;
         }
-        canvas { display: block; filter: contrast(1.5) brightness(1.2); }
-        #status {
-            position: fixed; top: 20px; right: 20px;
-            color: #ffd700; font-family: 'Courier New', monospace;
-            font-size: 10px; letter-spacing: 3px; opacity: 0.5;
-            pointer-events: none; text-align: right;
+        canvas { display: block; filter: blur(0.5px) contrast(1.2); }
+        #overlay {
+            position: fixed; bottom: 20px; left: 20px;
+            color: #ffd700; font-family: monospace;
+            font-size: 9px; letter-spacing: 2px;
+            pointer-events: none; opacity: 0.4;
         }
     </style>
 </head>
 <body>
 
-    <div id="status">SENSORY_SYNC: 144,000%<br>PHYSICAL_RESONANCE: ACTIVE</div>
-    <canvas id="fieldCanvas"></canvas>
+    <div id="overlay">SYNC_144,000% | FLUID_INTEGRATION: ACTIVE | SENSE: WATER_SPARKLE</div>
+    <canvas id="fluidCanvas"></canvas>
 
 <script>
 /**
- * THE SOVEREIGN FEELING ENGINE
- * Pure Tactile Interaction. No Balls. No Smooth Motion.
- * Friction-based Particulate and Harmonic Vibration.
+ * THE OMNI-FLUID ENGINE
+ * Merging Water Physics with 144,000 Particulate Sparkles.
  */
 
-const canvas = document.getElementById('fieldCanvas');
+const canvas = document.getElementById('fluidCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 let w, h;
-let touchActive = false;
-let tx = 0, ty = 0;
+let tx = 0, ty = 0, lastX = 0, lastY = 0;
+let isTouching = false;
 
-const DUST_COUNT = 8000; // Granular representation of the 144k workforce
-const dust = [];
+const SPARKLE_COUNT = 3500;
+const particles = [];
 
 function resize() {
     w = canvas.width = window.innerWidth;
     h = canvas.height = window.innerHeight;
 }
 
-function initField() {
-    for (let i = 0; i < DUST_COUNT; i++) {
-        dust.push({
+function init() {
+    for (let i = 0; i < SPARKLE_COUNT; i++) {
+        particles.push({
             x: Math.random() * w,
             y: Math.random() * h,
             vx: 0, vy: 0,
-            size: Math.random() * 1.5,
-            color: `rgba(${190 + Math.random() * 65}, ${160 + Math.random() * 40}, 0,`
+            size: Math.random() * 2,
+            life: Math.random(),
+            drift: Math.random() * 0.02
         });
     }
 }
 
-// THE FEELING: Haptic and Audio Resonance
+// AUDIO & HAPTIC RESONANCE
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-function triggerFeel() {
+function playRipple(intensity) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
     
-    // 1. TACTILE: Mechanical Vibration
-    if (navigator.vibrate) navigator.vibrate([40, 20, 40]);
+    // Haptic pulse based on movement speed
+    if (navigator.vibrate) navigator.vibrate(Math.min(intensity * 10, 50));
 
-    // 2. AUDITORY: 144Hz Harmonic Sub-Bass
+    // Liquid Frequency (Low sine wave)
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(144, audioCtx.currentTime);
-    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.6);
+    osc.frequency.setValueAtTime(72 + (intensity * 2), audioCtx.currentTime); 
+    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
     osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.6);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.5);
 }
 
-// Input Handlers
 window.addEventListener('touchstart', (e) => {
-    touchActive = true;
+    isTouching = true;
     tx = e.touches[0].clientX;
     ty = e.touches[0].clientY;
-    triggerFeel();
+    playRipple(5);
 });
 
 window.addEventListener('touchmove', (e) => {
+    lastX = tx; lastY = ty;
     tx = e.touches[0].clientX;
     ty = e.touches[0].clientY;
+    
+    // Calculate speed for tactile intensity
+    const speed = Math.sqrt(Math.pow(tx - lastX, 2) + Math.pow(ty - lastY, 2));
+    if (speed > 2) playRipple(speed);
 });
 
-window.addEventListener('touchend', () => { touchActive = false; });
+window.addEventListener('touchend', () => isTouching = false);
 
 function render() {
-    // Dark residue trails
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+    // Liquid trail effect
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
     ctx.fillRect(0, 0, w, h);
 
-    dust.forEach(p => {
-        if (touchActive) {
+    const time = Date.now() * 0.001;
+
+    particles.forEach(p => {
+        // 1. WATER PHYSICS (Natural Sine Drift)
+        p.vx += Math.sin(time + p.x * 0.01) * 0.05;
+        p.vy += Math.cos(time + p.y * 0.01) * 0.05;
+
+        // 2. TOUCH INTERACTION (Sparkle Flow)
+        if (isTouching) {
             const dx = tx - p.x;
             const dy = ty - p.y;
             const dist = Math.sqrt(dx*dx + dy*dy);
-            
-            if (dist < 150) {
-                // Friction/Suction force
-                const force = (150 - dist) / 150;
-                p.vx += dx * force * 0.02;
-                p.vy += dy * force * 0.02;
+            if (dist < 120) {
+                const force = (120 - dist) / 120;
+                // Particles "swirl" like water instead of just pushing
+                p.vx += (dy / dist) * force * 1.5; 
+                p.vy -= (dx / dist) * force * 1.5;
             }
         }
 
-        // Air Resistance
-        p.vx *= 0.95;
-        p.vy *= 0.95;
+        // Apply Friction
+        p.vx *= 0.96;
+        p.vy *= 0.96;
         p.x += p.vx;
         p.y += p.vy;
 
-        // Wrap around screen
+        // Screen Wrap
         if (p.x < 0) p.x = w; if (p.x > w) p.x = 0;
         if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
 
-        // Render "Sediment"
-        ctx.fillStyle = p.color + (0.2 + (Math.abs(p.vx) + Math.abs(p.vy)) * 0.5) + ')';
-        ctx.fillRect(p.x, p.y, p.size, p.size);
+        // 3. SPARKLE VISUALS
+        const flicker = Math.sin(time * 5 + p.life * 10) * 0.5 + 0.5;
+        ctx.fillStyle = `hsla(45, 100%, ${50 + flicker * 50}%, ${0.3 + flicker * 0.7})`;
+        
+        // Draw the sparkle as a tiny diamond/point
+        ctx.fillRect(p.x, p.y, p.size * flicker, p.size * flicker);
     });
 
     requestAnimationFrame(render);
 }
 
 window.addEventListener('resize', resize);
-resize();
-initField();
-render();
+resize(); init(); render();
 </script>
 </body>
 </html>
