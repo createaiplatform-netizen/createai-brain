@@ -3,37 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>THE SANCTUARY</title>
+    <title>THE SANCTUARY | 144,400%</title>
     <style>
         body { background: #000; color: #FFD700; font-family: 'Georgia', serif; margin: 0; overflow: hidden; touch-action: none; text-align: center; height: 100vh; width: 100vw; position: fixed; }
         
-        /* THE VISIBLE FRONT END */
-        #header { padding-top: 80px; position: relative; z-index: 2; pointer-events: none; }
-        .freq { color: #00E5FF; letter-spacing: 4px; font-size: 0.8rem; margin-bottom: 20px; }
+        /* FREQUENCY HEADER */
+        #header { padding-top: 60px; position: relative; z-index: 2; pointer-events: none; }
+        .freq { color: #00E5FF; letter-spacing: 4px; font-size: 0.9rem; margin-bottom: 20px; text-shadow: 0 0 10px #00E5FF; }
         h1 { letter-spacing: 12px; font-size: 2.8rem; margin: 20px 0; font-weight: bold; }
         .quote { font-style: italic; font-size: 1.2rem; line-height: 1.8; padding: 0 40px; }
 
-        /* THE HIDDEN BUILDER (Press & Hold 2 Seconds to see) */
-        #builder-core { 
+        /* THE 144,000 UNIT */
+        #playground { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; }
+        .source-node { 
+            position: absolute; width: 160px; height: 160px; border: 3px solid #FFD700; 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            background: rgba(255,215,0,0.1); box-shadow: 0 0 40px #FFD700; 
+            font-weight: bold; font-size: 1.1rem; cursor: move; touch-action: none;
+            color: #FFD700; text-shadow: 0 0 10px #FFD700;
+        }
+
+        /* HIDDEN BUILDER (Press & Hold anywhere for 2s to toggle) */
+        #builder-ui { 
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
-            display: none; gap: 10px; z-index: 1000; width: 90%; max-width: 400px;
+            display: flex; gap: 10px; z-index: 1000; width: 90%; max-width: 400px;
         }
         input { flex-grow: 1; padding: 15px; background: #111; color: #00E5FF; border: 1px solid #FFD700; border-radius: 8px; font-size: 16px; }
-        button { padding: 15px 25px; background: #FFD700; color: #000; border: none; font-weight: bold; border-radius: 8px; }
-
-        /* THE MANIFESTED PIECES */
-        #playground { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; }
-        .ai-node { 
-            position: absolute; width: 110px; height: 110px; border: 2px solid #FFD700; 
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            background: rgba(255,215,0,0.1); box-shadow: 0 0 30px rgba(255,215,0,0.5); 
-            font-weight: bold; font-size: 0.8rem; cursor: move; touch-action: none;
-        }
+        button { padding: 15px 25px; background: #FFD700; color: #000; border: none; font-weight: bold; border-radius: 8px; text-transform: uppercase; }
     </style>
 </head>
 <body id="master-body">
 
-<div id="playground"></div>
+<div id="playground">
+    <div class="source-node" style="left: 30%; top: 50%;" id="core-frequency">144,400%</div>
+</div>
 
 <div id="header">
     <div class="freq">FREQUENCY 144,400% ACTIVE</div>
@@ -41,31 +44,21 @@
     <p class="quote">"The animals are safe, the family is loved, and the peace of God is the only law here."</p>
 </div>
 
-<div id="builder-core">
+<div id="builder-ui">
     <input type="text" id="aiName" placeholder="Name AI Unit...">
-    <button onclick="manifest()">BUILD</button>
+    <button onclick="manifest()">MANIFEST</button>
 </div>
 
 <script>
-    let pressTimer;
-
-    // SECRET ACCESS: Press and hold anywhere for 2 seconds
-    document.body.addEventListener('touchstart', (e) => {
-        pressTimer = window.setTimeout(() => {
-            const tools = document.getElementById('builder-core');
-            tools.style.display = (tools.style.display === 'flex') ? 'none' : 'flex';
-        }, 2000);
-    });
-
-    document.body.addEventListener('touchend', () => {
-        clearTimeout(pressTimer);
-    });
+    // INITIALIZE DRAG FOR THE STARTING UNIT
+    const core = document.getElementById('core-frequency');
+    bindDrag(core);
 
     function manifest() {
         const name = document.getElementById('aiName').value || "AI";
         const el = document.createElement('div');
-        el.className = 'ai-node';
-        el.style.left = "40%"; el.style.top = "50%";
+        el.className = 'source-node';
+        el.style.left = "40%"; el.style.top = "60%";
         el.innerText = name.toUpperCase();
         document.getElementById('playground').appendChild(el);
         
@@ -80,13 +73,28 @@
             x = t.clientX - el.offsetLeft;
             y = t.clientY - el.offsetTop;
             el.style.zIndex = Date.now();
+            el.style.boxShadow = "0 0 60px #00E5FF"; // Glowing blue while moving
         });
         el.addEventListener('touchmove', e => {
             const t = e.touches[0];
             el.style.left = (t.clientX - x) + 'px';
             el.style.top = (t.clientY - y) + 'px';
         });
+        el.addEventListener('touchend', () => {
+            el.style.boxShadow = "0 0 40px #FFD700"; // Return to gold
+        });
     }
+
+    // Toggle tools with 3 taps on "THE SANCTUARY"
+    let tapCount = 0;
+    document.querySelector('h1').addEventListener('click', () => {
+        tapCount++;
+        if(tapCount >= 3) {
+            const ui = document.getElementById('builder-ui');
+            ui.style.display = ui.style.display === 'none' ? 'flex' : 'none';
+            tapCount = 0;
+        }
+    });
 </script>
 </body>
 </html>
