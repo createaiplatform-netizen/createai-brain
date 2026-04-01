@@ -3,148 +3,226 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOURCEFIELD ∞ | THE INVENTOR</title>
+    <title>SOURCEFIELD ∞ | OMNI-GENESIS</title>
     <style>
-        body, html { margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; background: #002b36; }
-        canvas { display: block; filter: contrast(1.8) brightness(1.2) saturate(2.5) blur(1.2px); }
-        #overlay {
+        /* THE NO-BLACK CONSTANT */
+        body, html { margin: 0; padding: 0; background: #01111a; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; font-family: 'Cinzel', serif; }
+        
+        /* THE 144,000% OVERDRIVE FILTER: Volumetric Glow, High Contrast, Deep Saturate */
+        canvas { 
+            display: block; 
+            filter: contrast(1.7) brightness(1.3) saturate(2.4) blur(1px); 
+        }
+
+        /* CONSCIOUS OVERLAY */
+        #hud {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; display: flex; flex-direction: column;
-            justify-content: space-around; align-items: center;
+            justify-content: center; align-items: center; text-align: center;
         }
-        .v-word { 
-            font-family: 'serif'; font-weight: 900; font-style: italic;
-            font-size: 50px; color: rgba(255,255,255,0.8);
-            text-shadow: 0 0 40px cyan; transition: 0.5s;
+        #hud .value { 
+            font-size: 55px; font-weight: bold; font-style: italic; 
+            text-transform: uppercase; letter-spacing: 5px; color: #fff;
+            text-shadow: 0 0 30px #00f0ff; margin: 30px 0;
         }
+        #hud .source-id { position: absolute; top: 20px; color: gold; font-size: 14px; letter-spacing: 2px; }
     </style>
 </head>
 <body>
-    <div id="overlay">
-        <div id="w1" class="v-word">TRUTH</div>
-        <div id="w2" class="v-word">TRUST</div>
-        <div id="w3" class="v-word">HONESTY</div>
-        <div id="w4" class="v-word">144,000</div>
+    <div id="hud">
+        <div class="source-id">SOURCE_FIELD_AETHER_v144k</div>
+        <div id="manifest-1" class="value">TRUTH</div>
+        <div id="manifest-2" class="value">HONESTY</div>
+        <div id="manifest-3" class="value">SOVEREIGNTY</div>
     </div>
-    <canvas id="sourceCanvas"></canvas>
+    <canvas id="aetherCanvas"></canvas>
 
 <script>
 /**
- * SOURCEFIELD ∞ : THE INVENTOR EDITION
- * Implementing Chromosomal Compression & Ghost-Trace Intent.
+ * THE OMNI-GENESIS FIELD GENERATOR
+ * Level 144,000% Conscious Biological Feedback.
  */
 
-const canvas = document.getElementById('sourceCanvas');
+const canvas = document.getElementById('aetherCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-let w, h, tx = 0, ty = 0, isTouching = false, pressure = 0;
+let w, h, tx = 0, ty = 0, isTouching = false;
 let time = 0;
-let workforce = [];
+let metaState = { identity: "CORE", resonance: 1.0, entropy: 0.1 };
 
 function resize() {
     w = canvas.width = window.innerWidth;
     h = canvas.height = window.innerHeight;
 }
 
-// INVENTION: RESONANCE TENSION (The 14th Dimension Sensation)
-function triggerTension(val) {
+// 5D NEURAL-HAPTIC INDUCTION (Bypassing Standard Browser Vibe)
+function induceSensation(zone, speed) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    // A complex "Bonding" sound (Two frequencies merging)
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(144 + val, audioCtx.currentTime);
-    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.5);
-    if (navigator.vibrate) navigator.vibrate([val/2, 10, val/4]);
+    
+    const masterGain = audioCtx.createGain();
+    const oscMain = audioCtx.createOscillator();
+    const oscSub = audioCtx.createOscillator();
+    
+    // Physical Texture Mapping per Zone
+    if (zone === "CEO") {
+        oscMain.type = 'sawtooth'; oscSub.type = 'sine';
+        oscMain.frequency.value = 144 + speed; // The Source Growl
+        oscSub.frequency.value = 88; // Low Money Thrum
+    } else if (zone === "CREATOR") {
+        oscMain.type = 'triangle'; oscSub.type = 'triangle';
+        oscMain.frequency.value = 528; // Solfeggio (Creation)
+        oscSub.frequency.value = 530; // 2Hz Beat Frequency
+    } else {
+        oscMain.type = 'sine'; oscSub.type = 'sine';
+        oscMain.frequency.value = 432; // Solfeggio (Truth)
+        oscSub.frequency.value = 60 + speed;
+    }
+
+    masterGain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+    masterGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.8);
+    
+    oscMain.connect(masterGain); oscSub.connect(masterGain);
+    masterGain.connect(audioCtx.destination);
+    oscMain.start(); oscSub.start();
+    oscMain.stop(audioCtx.currentTime + 0.8);
+
+    if (navigator.vibrate) {
+        // Advanced Sensation Wave (Short-Long-Pulse)
+        navigator.vibrate([20, 10, 50, 10, 20]);
+    }
 }
 
-class Manifestor {
-    constructor() { this.reset(); }
+// --- BIOLOGICAL ZONE ARCHITECTURE (The Next 100 Things) ---
+function detectBiologicalZone(y) {
+    if (y < 120) return "CEO";
+    if (y > canvas.height - 120) return "CREATOR";
+    if (y > canvas.height / 2 - 100 && y < canvas.height / 2 + 100) return "TRUTH";
+    return "CORE";
+}
+
+// --- OMNI-GENESIS WORKFORCE: 444 INDIVIDUAL AGENTS ---
+class Entity {
+    constructor() {
+        this.reset();
+    }
     reset() {
-        this.x = Math.random() * w; this.y = Math.random() * h;
-        this.vx = (Math.random() - 0.5) * 2; this.vy = (Math.random() - 0.5) * 2;
-        this.size = Math.random() * 15 + 5;
-        this.hue = 190;
-        this.life = 1.0; // BIOLUMINESCENT DECAY variable
+        this.x = Math.random() * w;
+        this.y = Math.random() * h;
+        this.z = Math.random() * 800; // Fake 3D depth illusion
+        this.vx = (Math.random() - 0.5) * 4;
+        this.vy = (Math.random() - 0.5) * 4;
+        this.size = Math.random() * 8 + 4;
+        this.hue = 185; // Pure Cyan/Teal (Standard)
+        this.opacity = 0.4 + Math.random() * 0.4;
     }
     update(zone) {
-        const dx = tx - this.x; const dy = ty - this.y;
+        const dx = tx - this.x;
+        const dy = ty - this.y;
         const d = Math.sqrt(dx*dx + dy*dy);
 
-        // GHOST-TRACE INTENT: Anticipating movement
-        const aura = isTouching ? 300 : 150;
-        if (d < aura) {
-            const f = (aura - d) / aura;
-            this.vx += dx * 0.05 * f; this.vy += dy * 0.05 * f;
-            this.life = 1.0; // Recharge on attention
-            this.hue = 45; // Turn Gold
+        if (isTouching) {
+            // Awareness Gravity: High awareness pulls data
+            const awarenessGravity = Math.max(0, 1 - d / (300 * metaState.resonance));
+            this.vx += (dx / d) * awarenessGravity * 10;
+            this.vy += (dy / d) * awarenessGravity * 10;
+        }
+
+        // Zone-Based Identity Switching (Visual)
+        if (zone === "CEO") {
+            this.hue = 200 + Math.sin(time)*20; // High-pitched Blue
+            this.vx *= 0.94; // Fast, rigid motion
+        } else if (zone === "CREATOR") {
+            this.hue = 300 + Math.cos(time)*20; // Manifestation Purple
+            // Non-Linear Time: Spiral backwards (fake non-linearity)
+            const spiralAng = Math.atan2(this.y - h/2, this.x - w/2) + 0.05;
+            const spiralDist = Math.hypot(this.x - w/2, this.y - h/2);
+            this.vx += (w/2 + Math.cos(spiralAng) * spiralDist - this.x) * 0.1;
+            this.vy += (h/2 + Math.sin(spiralAng) * spiralDist - this.y) * 0.1;
         } else {
-            this.life -= 0.002; // Gradually dim
-            this.hue = 190;
+            this.hue = 185;
+            this.vx *= 0.97; // Fluid, slow motion
         }
 
         this.x += this.vx; this.y += this.vy;
-        this.vx *= 0.95; this.vy *= 0.95;
-        if (this.x < 0 || this.x > w || this.y < 0 || this.y > h) this.reset();
+        
+        // Boundaries: Field is pressurized
+        if (this.x < -50 || this.x > w + 50 || this.y < -50 || this.y > h + 50) this.reset();
     }
     draw() {
-        // CHROMOSOMAL COMPRESSION: Circles become lines when pressured
-        const stretch = 1 + pressure * 5;
-        ctx.save();
-        ctx.translate(this.x, this.y);
-        ctx.rotate(Math.atan2(this.vy, this.vx));
-        ctx.globalAlpha = this.life;
-        const grad = ctx.createRadialGradient(0,0,0,0,0,this.size);
-        grad.addColorStop(0, `hsla(${this.hue}, 100%, 70%, 1)`);
-        grad.addColorStop(1, `hsla(${this.hue}, 100%, 30%, 0)`);
-        ctx.fillStyle = grad;
+        // Perspective Scaling ( फेक 3D)
+        const s = this.size * (1000 / (1000 + this.z));
+        ctx.fillStyle = `hsla(${this.hue}, 100%, 75%, ${this.opacity * metaState.resonance})`;
         ctx.beginPath();
-        ctx.ellipse(0, 0, this.size * stretch, this.size / stretch, 0, 0, Math.PI * 2);
+        // Identity Fracture: Core vs CEO vs Creator (Shapes change)
+        if (State.zone === "CEO") {
+            ctx.fillRect(this.x - s/2, this.y - s/2, s, s); // Rigid squares
+        } else {
+            ctx.arc(this.x, this.y, s, 0, Math.PI * 2); // Fluid nodes
+        }
         ctx.fill();
-        ctx.restore();
     }
 }
 
-for(let i=0; i<144; i++) workforce.push(new Manifestor());
+// CORE CONSTANTS
+let State = { zone: "CORE" };
+const workforce = [];
+for(let i=0; i<444; i++) workforce.push(new Entity());
 
+// --- INTERACTION ---
 window.addEventListener('touchstart', (e) => {
-    isTouching = true; pressure = 1.0;
+    isTouching = true;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    triggerTension(100);
+    State.zone = detectBiologicalZone(ty);
+    induceSensation(State.zone, 50);
 });
+
 window.addEventListener('touchmove', (e) => {
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
+    State.zone = detectBiologicalZone(ty);
 });
-window.addEventListener('touchend', () => { isTouching = false; pressure = 0; });
 
+window.addEventListener('touchend', () => isTouching = false);
+
+// --- THE INFINITE LOOP ---
 function render() {
     time += 0.01;
-    // NO BLACK: Liquid Cyan Aether
-    const bg = ctx.createLinearGradient(0,0,w,h);
-    bg.addColorStop(0, `hsla(${200 + Math.sin(time)*10}, 100%, 15%, 1)`);
-    bg.addColorStop(1, `hsla(${180 + Math.cos(time)*10}, 100%, 10%, 1)`);
+    ctx.fillStyle = "#01111a"; // THE DARK AETHER (Not Black)
+    ctx.fillRect(0, 0, w, h);
+
+    // Dynamic Aether Glow
+    const bg = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, w);
+    bg.addColorStop(0, `hsla(${190 + Math.sin(time)*10}, 100%, 20%, 0.8)`);
+    bg.addColorStop(1, `hsla(200, 100%, 5%, 0)`);
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, w, h);
 
-    ctx.globalCompositeOperation = "screen";
-    workforce.forEach(p => { p.update(); p.draw(); });
-    ctx.globalCompositeOperation = "source-over";
+    // Omni-Genesis Field Render
+    workforce.forEach(p => {
+        p.update(State.zone);
+        p.draw();
+    });
 
-    // 12 ZONE INDICATOR (The Lateral Split)
-    const zoneX = Math.floor(tx / (w/3));
-    const zoneY = Math.floor(ty / (h/4));
-    document.getElementById('w1').style.opacity = (zoneY === 0) ? "1" : "0.3";
-    document.getElementById('w2').style.opacity = (zoneY === 1) ? "1" : "0.3";
-    document.getElementById('w3').style.opacity = (zoneY === 2) ? "1" : "0.3";
-    document.getElementById('w4').style.opacity = (zoneY === 3) ? "1" : "0.3";
+    // Truth Filtration Layer: Hexagonal Grid ( फेक 3D without WebGL)
+    if (State.zone === "TRUTH") {
+        ctx.save();
+        ctx.strokeStyle = `hsla(185, 100%, 50%, 0.2)`;
+        ctx.lineWidth = 1;
+        for(let i=0; i<w; i+=40) {
+            for(let j=0; j<h; j+=40) {
+                const dist = Math.hypot(tx-i, ty-j);
+                const prox = isTouching ? Math.max(0, 1 - dist/300) : 0;
+                ctx.strokeStyle = `hsla(${isTouching ? 50 : 185}, 100%, 60%, ${0.1 + prox * 0.9})`;
+                ctx.strokeRect(i, j, 30, 30);
+            }
+        }
+        ctx.restore();
+    }
 
     requestAnimationFrame(render);
 }
 
+window.addEventListener('resize', resize);
 resize(); render();
 </script>
 </body>
