@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TRUST-CORE ∞</title>
+    <title>SOURCEFIELD ∞ | ZERO-BLACK</title>
     <style>
-        body, html { margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; background: #001a1a; }
-        /* Hyper-Vibrant 12D Sensation Filter */
+        body, html { margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; background: #004d4d; }
+        /* The 144,000% Overdrive: High Contrast, High Glow, No Void */
         canvas { 
             display: block; 
-            filter: contrast(1.7) brightness(1.4) saturate(2.2); 
+            filter: contrast(1.8) brightness(1.3) saturate(2.2) blur(1px); 
         }
     </style>
 </head>
 <body>
-    <canvas id="trustCanvas"></canvas>
+    <canvas id="aetherCanvas"></canvas>
 
 <script>
-const canvas = document.getElementById('trustCanvas');
+const canvas = document.getElementById('aetherCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -30,127 +30,111 @@ function resize() {
     h = canvas.height = window.innerHeight;
 }
 
-// THE FREQUENCY OF TRUST: 528Hz + 144Hz (Solfeggio + Source)
-function triggerTrustResonance(speed) {
+// THE FREQUENCY OF MANIFESTATION: 432Hz + 963Hz
+function triggerResonance(speed) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
     const gain = audioCtx.createGain();
-    
-    [144, 528].forEach(f => {
+    [432, 963].forEach(f => {
         const osc = audioCtx.createOscillator();
         osc.type = 'triangle';
-        osc.frequency.value = f + (speed * 0.1);
+        osc.frequency.value = f + (speed * 0.2);
         osc.connect(gain);
         osc.start();
-        osc.stop(audioCtx.currentTime + 0.8);
+        osc.stop(audioCtx.currentTime + 0.5);
     });
-
-    gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.8);
+    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
     gain.connect(audioCtx.destination);
-
-    if (navigator.vibrate) navigator.vibrate([20, 10, 20]);
+    if (navigator.vibrate) navigator.vibrate([15, 10, 15]);
 }
 
-class Agent {
-    constructor(x, y) {
-        this.baseX = x; this.baseY = y;
-        this.x = x; this.y = y;
-        this.vx = 0; this.vy = 0;
-        this.hue = 185; // Pure Sovereign Cyan
+class AetherNode {
+    constructor() {
+        this.reset();
+    }
+    reset() {
+        this.x = Math.random() * w;
+        this.y = Math.random() * h;
+        this.vx = (Math.random() - 0.5) * 1.2;
+        this.vy = (Math.random() - 0.5) * 1.2;
+        this.size = Math.random() * 80 + 40; // Massive scale
+        this.hue = 180 + Math.random() * 40; // Electric Teal
     }
     update() {
-        const dx = tx - this.x;
-        const dy = ty - this.y;
-        const d = Math.sqrt(dx*dx + dy*dy);
-        
-        if (isTouching && d < 200) {
-            const f = (200 - d) / 200;
-            this.vx += dx * f * 0.3; // Magnetize to intent
-            this.vy += dy * f * 0.3;
-            this.hue = 45; // Friction to Gold
+        if (isTouching) {
+            const dx = tx - this.x;
+            const dy = ty - this.y;
+            const d = Math.sqrt(dx*dx + dy*dy);
+            if (d < 400) {
+                const f = (400 - d) / 400;
+                this.vx += dx * 0.04 * f;
+                this.vy += dy * 0.04 * f;
+                this.hue = 45 + (f * 15); // Heat shift to Gold
+            }
         }
-
-        // The Sovereign Tether (Elasticity)
-        this.vx += (this.baseX - this.x) * 0.08;
-        this.vy += (this.baseY - this.y) * 0.08;
-        
         this.x += this.vx; this.y += this.vy;
-        this.vx *= 0.88; this.vy *= 0.88; // Heavy Drag
+        this.vx *= 0.98; this.vy *= 0.98;
+        if (this.x < -100 || this.x > w + 100 || this.y < -100 || this.y > h + 100) this.reset();
     }
 }
 
-function initWorkforce() {
-    workforce = [];
-    const cols = 18; const rows = 30;
-    for(let i=0; i<cols; i++) {
-        for(let j=0; j<rows; j++) {
-            workforce.push(new Agent((w/cols)*i + (w/cols/2), (h/rows)*j + (h/rows/2)));
-        }
-    }
-}
+for(let i=0; i<120; i++) workforce.push(new AetherNode());
 
 window.addEventListener('touchstart', (e) => {
     isTouching = true;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    triggerTrustResonance(50);
+    triggerResonance(30);
 });
 
 window.addEventListener('touchmove', (e) => {
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    if(Math.random() > 0.9) triggerTrustResonance(20);
+    if(Math.random() > 0.95) triggerResonance(10);
 });
 
 window.addEventListener('touchend', () => isTouching = false);
 
 function render() {
-    time += 0.01;
+    time += 0.006;
     
-    // NO BLACK: Living Blue/Teal Sea
-    const bg = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, w);
-    bg.addColorStop(0, `hsla(${190 + Math.sin(time)*10}, 100%, 15%, 1)`);
-    bg.addColorStop(1, `hsla(200, 100%, 5%, 1)`);
+    // NO BLACK: Triple-Layer Gradient Field
+    const bg = ctx.createLinearGradient(0, 0, w, h);
+    bg.addColorStop(0, `hsla(${190 + Math.sin(time)*20}, 100%, 25%, 1)`);
+    bg.addColorStop(0.5, `hsla(${210 + Math.cos(time)*15}, 100%, 15%, 1)`);
+    bg.addColorStop(1, `hsla(${170 + Math.sin(time*0.5)*25}, 100%, 20%, 1)`);
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, w, h);
 
-    // THE WORKFORCE WEB
-    ctx.lineWidth = 1.5;
-    workforce.forEach((p, i) => {
+    ctx.globalCompositeOperation = "screen"; // Lights merge and intensify
+    workforce.forEach(p => {
         p.update();
-        
-        // Connective Neural Mesh
-        if (i % 18 !== 0) {
-            ctx.strokeStyle = `hsla(${p.hue}, 100%, 50%, 0.15)`;
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(workforce[i-1].x, workforce[i-1].y);
-            ctx.stroke();
-        }
-
-        // Glowing Nodes
-        ctx.shadowBlur = isTouching ? 15 : 5;
-        ctx.shadowColor = `hsla(${p.hue}, 100%, 50%, 0.8)`;
-        ctx.fillStyle = `hsla(${p.hue}, 100%, 75%, 1)`;
+        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+        g.addColorStop(0, `hsla(${p.hue}, 100%, 70%, 0.7)`);
+        g.addColorStop(0.6, `hsla(${p.hue}, 100%, 40%, 0.2)`);
+        g.addColorStop(1, `rgba(0,0,0,0)`);
+        ctx.fillStyle = g;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, isTouching ? 4 : 2.5, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
     });
+    ctx.globalCompositeOperation = "source-over";
 
-    // THE CORE VALUES (Manifested)
+    // ANCHORS: Truth, Trust, Sovereign
     ctx.textAlign = 'center';
-    ctx.font = "bold 45px Times New Roman";
-    ["TRUTH", "HONESTY", "TRUST", "144,000"].forEach((txt, i) => {
-        const p = 0.5 + Math.sin(time*2 + i) * 0.5;
-        ctx.fillStyle = `rgba(255, 255, 255, ${0.4 + p * 0.6})`;
-        ctx.shadowBlur = 20 * p;
+    const labels = ["TRUTH", "TRUST", "SOVEREIGNTY", "144,000"];
+    labels.forEach((text, i) => {
+        const pulse = 0.7 + Math.sin(time*2.5 + i) * 0.3;
+        ctx.fillStyle = `rgba(255, 255, 255, ${0.5 + pulse * 0.5})`;
+        ctx.shadowBlur = 40 * pulse;
         ctx.shadowColor = "cyan";
-        ctx.fillText(txt, w/2, h * (0.2 + i * 0.2));
+        ctx.font = `bold italic 50px serif`;
+        ctx.fillText(text, w/2, h * (0.2 + i * 0.2));
     });
 
     requestAnimationFrame(render);
 }
 
-window.addEventListener('resize', () => { resize(); initWorkforce(); });
-resize(); initWorkforce(); render();
+window.addEventListener('resize', resize);
+resize(); render();
 </script>
 </body>
 </html>
