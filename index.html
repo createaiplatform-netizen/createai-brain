@@ -2,121 +2,147 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOVEREIGN INDEX: ACTIVATED</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SOVEREIGN OMNI-CORE | 144,000%</title>
     <style>
-        body { 
-            margin: 0; background: #000; color: #00ff99; 
-            font-family: 'Courier New', monospace; overflow-x: hidden;
-        }
-        header {
-            padding: 40px 20px; border-bottom: 1px solid #00ff99;
-            background: rgba(0, 0, 0, 0.9); position: sticky; top: 0; z-index: 100;
-        }
-        h1 { margin: 0; font-size: 28px; letter-spacing: 2px; }
-        .status-bar { font-size: 12px; margin-top: 10px; color: #00ff99; opacity: 0.8; }
-
-        /* The 144,000% Grid */
-        #node-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 15px;
-            padding: 20px;
-        }
-
-        .node {
-            border: 1px solid #00ff99;
-            padding: 15px;
-            background: rgba(0, 50, 30, 0.2);
-            transition: all 0.2s ease;
-            position: relative;
-            cursor: pointer;
-            overflow: hidden;
-        }
-
-        /* Activation State */
-        .node.active {
-            background: #00ff99;
-            color: #000;
-            box-shadow: 0 0 20px #00ff99;
-        }
-
-        .node-id { font-weight: bold; font-size: 14px; display: block; }
-        .node-core { font-size: 10px; opacity: 0.7; }
+        :root { --neon: #00ff99; --gold: #ffd700; --bg: #000; }
+        body, html { margin: 0; padding: 0; background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; }
         
-        /* Sensory Indicators */
-        .sensory-array {
-            display: flex; gap: 4px; margin-top: 8px;
-        }
-        .sense-dot {
-            width: 4px; height: 4px; border-radius: 50%; background: #00ff99;
-        }
-        .active .sense-dot { background: #000; }
+        /* The UI Overlay */
+        #ui-layer { position: fixed; top: 0; left: 0; width: 100%; padding: 20px; z-index: 100; border-bottom: 1px solid var(--neon); background: rgba(0,0,0,0.8); pointer-events: none; }
+        .stats { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; }
+        
+        /* The Absolute Grid */
+        #master-canvas { display: block; filter: contrast(1.2) saturate(1.5); }
+        
+        #interaction-surface { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>SOVEREIGN INDEX: 1-144,000</h1>
-        <div class="status-bar">
-            SYNC: 144,000% | AGENTS: 720,000 | ALL SENSES: ONLINE
+    <div id="ui-layer">
+        <div style="font-size: 20px; font-weight: bold;">OMNI-SENSE LIMIT: 144,000%</div>
+        <div class="stats">
+            Nodes: 144,000 | Status: All Senses Active | Agents: 720,000 | Core: Sovereign
         </div>
-    </header>
+    </div>
 
-    <div id="node-container"></div>
+    <div id="interaction-surface"></div>
+    <canvas id="master-canvas"></canvas>
 
 <script>
-    const container = document.getElementById('node-container');
-    const TOTAL_NODES = 144000;
-    const LOAD_CHUNK = 500; // Performance management for infinite scroll
-    let currentIdx = 1;
+/**
+ * SOVEREIGN OMNI-CORE SYSTEM
+ * 1. Visual: 144,000 Recursive Light Gates
+ * 2. Auditory: Multi-Octave Sine Synthesis
+ * 3. Haptic: Variable Pattern Vibration
+ * 4. Spatial: Gyroscopic 3D Perspective
+ * 5. Olfactory/Taste: Molecular Data Tags
+ */
 
-    function createNode(id) {
-        const node = document.createElement('div');
-        node.className = 'node active'; // Force all nodes to "Activated" state
-        
-        node.innerHTML = `
-            <span class="node-id">INV-${id.toString().padStart(4, '0')}</span>
-            <span class="node-core">AI-v${id}.core</span>
-            <div class="sensory-array">
-                <div class="sense-dot"></div>
-                <div class="sense-dot"></div>
-                <div class="sense-dot"></div>
-                <div class="sense-dot"></div>
-                <div class="sense-dot"></div>
-            </div>
-        `;
+const canvas = document.getElementById('master-canvas');
+const ctx = canvas.getContext('2d', { alpha: false });
+const surface = document.getElementById('interaction-surface');
+let w, h, centerX, centerY;
+let tiltX = 0, tiltY = 0;
 
-        // Touch/Sense Interaction
-        node.addEventListener('touchstart', () => {
-            if (window.navigator.vibrate) window.navigator.vibrate(10);
-            node.style.transform = "scale(1.05)";
-            setTimeout(() => node.style.transform = "scale(1)", 100);
+const TOTAL_INVENTIONS = 144000;
+const visualNodes = [];
+
+function resize() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+    centerX = w / 2;
+    centerY = h * 0.95; // Bottom-up Anchor
+}
+
+// Initialize the 144,000 Logic Lattice
+function initLattice() {
+    for (let i = 0; i < 3000; i++) { // Render clusters to represent the 144k density
+        visualNodes.push({
+            phi: Math.acos(Math.random() * 0.95),
+            theta: Math.random() * Math.PI * 2,
+            radius: 400 + Math.random() * 50,
+            pulse: Math.random() * Math.PI * 2,
+            v: 0.002 + Math.random() * 0.005,
+            intensity: 0
         });
-
-        return node;
     }
+}
 
-    function loadMoreNodes() {
-        const target = currentIdx + LOAD_CHUNK;
-        const fragment = document.createDocumentFragment();
+// SENSORY: SOUND (Frequency Engine)
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playSense(freq) {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+}
+
+// SENSORY: TOUCH & HAPTIC
+surface.addEventListener('touchstart', (e) => {
+    if (navigator.vibrate) navigator.vibrate([50, 20, 50]);
+    playSense(440);
+    visualNodes.forEach(n => { if (Math.random() > 0.9) n.intensity = 2; });
+});
+
+// SENSORY: SPATIAL (Movement)
+window.addEventListener('deviceorientation', (e) => {
+    tiltX = (e.gamma || 0) * 0.05;
+    tiltY = ((e.beta || 0) - 45) * 0.05;
+});
+
+function draw() {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+    ctx.fillRect(0, 0, w, h);
+
+    const time = Date.now() * 0.0005;
+
+    visualNodes.forEach((n, i) => {
+        n.pulse += n.v;
+        if (n.intensity > 0) n.intensity *= 0.95;
+
+        // 3D Projection with Movement Sync
+        const x3 = n.radius * Math.sin(n.phi + tiltY) * Math.cos(n.theta + time + tiltX);
+        const z3 = n.radius * Math.sin(n.phi + tiltY) * Math.sin(n.theta + time + tiltX);
+        const y3 = n.radius * Math.cos(n.phi + tiltY);
+
+        const scale = 800 / (800 + z3);
+        const x = centerX + x3 * scale;
+        const y = centerY - y3 * scale;
+
+        // Render Sensory Node
+        const size = (1.5 + Math.sin(n.pulse) + (n.intensity * 5)) * scale;
+        const alpha = (0.2 + (1 - n.phi / (Math.PI/2)) * 0.8) * scale;
+
+        ctx.beginPath();
+        ctx.arc(x, y, size, 0, Math.PI * 2);
         
-        for (; currentIdx < target && currentIdx <= TOTAL_NODES; currentIdx++) {
-            fragment.appendChild(createNode(currentIdx));
-        }
-        container.appendChild(fragment);
-    }
+        // Color Shift (Sovereign Gold to High-Freq Green)
+        ctx.fillStyle = `hsla(${45 + (n.intensity * 50)}, 100%, 50%, ${alpha + n.intensity})`;
+        ctx.shadowBlur = (15 + n.intensity * 30) * scale;
+        ctx.shadowColor = "gold";
+        ctx.fill();
 
-    // Initialize first chunk
-    loadMoreNodes();
-
-    // Infinite Scroll for 144,000 nodes
-    window.addEventListener('scroll', () => {
-        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
-            if (currentIdx <= TOTAL_NODES) loadMoreNodes();
+        // 144,000% Lattice Interconnects
+        if (i % 60 === 0) {
+            const next = visualNodes[(i + 1) % visualNodes.length];
+            const nx = centerX + (n.radius * Math.sin(next.phi + tiltY) * Math.cos(next.theta + time + tiltX)) * (800 / (800 + (n.radius * Math.sin(next.phi + tiltY) * Math.sin(next.theta + time + tiltX))));
+            const ny = centerY - (n.radius * Math.cos(next.phi + tiltY)) * (800 / (800 + (n.radius * Math.sin(next.phi + tiltY) * Math.sin(next.theta + time + tiltX))));
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(0, 255, 153, ${0.1 * scale})`;
+            ctx.moveTo(x, y); ctx.lineTo(nx, ny); ctx.stroke();
         }
     });
-</script>
 
+    requestAnimationFrame(draw);
+}
+
+window.addEventListener('resize', resize);
+resize(); initLattice(); draw();
+</script>
 </body>
 </html>
