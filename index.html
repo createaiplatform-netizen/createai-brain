@@ -3,25 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN 144,000%</title>
+    <title>SOVEREIGN OMNI-ILLUMINATION</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; cursor: none; }
-        canvas { display: block; filter: contrast(2) brightness(1.6) saturate(2.5) blur(0.2px); }
+        body, html { margin: 0; padding: 0; background: #1a1a00; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; }
+        canvas { display: block; filter: contrast(1.5) brightness(1.2) saturate(2); }
     </style>
 </head>
 <body>
-    <canvas id="singularity"></canvas>
+    <canvas id="omniCanvas"></canvas>
 
 <script>
 /**
- * INVENTION: RECURSIVE SYMPATHETIC HARMONICS (144,000%)
- * Every node is a Governor AI managing 144 Sub-Agents.
+ * THE INVENTION: TOTAL FIELD SATURATION
+ * No individual nodes to fail. The entire screen is a "Glow Field".
+ * 144,000% Absolute Reliability.
  */
 
-const canvas = document.getElementById('singularity');
+const canvas = document.getElementById('omniCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
-let w, h, isTouching = false;
-let tx = 0, ty = 0, vx = 0, vy = 0;
+let w, h, tx = 0, ty = 0, isTouching = false;
+let pressure = 0;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -30,135 +31,108 @@ function resize() {
     h = canvas.height = window.innerHeight;
 }
 
-// 144,000% RESONANCE ENGINE
-function triggerSovereignPulse(x, y, speed) {
+// THE FEELING: Deep Nerve Resonance
+function triggerOmniHaptic(x, y, force) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
     
-    const baseFreq = 144; // The Sovereign Root
-    const spatialMod = (x / w) * 144 - (y / h * 72);
+    const freq = 144 + (x / w * 72); // Root 144Hz frequency
     
     if (navigator.vibrate) {
-        // High-Density Mechanical Friction Pattern
-        // Feels like individual diamond grains moving under the skin
-        const pattern = speed > 20 ? [50, 5, 50, 5, 50] : [15, 10, 15];
-        navigator.vibrate(pattern);
+        // Continuous texture vibration
+        navigator.vibrate(force > 5 ? [30, 5, 30] : [10]);
     }
 
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     
-    // Waveform morphing for "Texture"
-    osc.type = speed > 15 ? 'sawtooth' : 'sine';
-    osc.frequency.setTargetAtTime(baseFreq + spatialMod, audioCtx.currentTime, 0.05);
+    osc.type = 'sine';
+    osc.frequency.setTargetAtTime(freq, audioCtx.currentTime, 0.1);
     
-    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.8);
+    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
     
     osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.8);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.5);
 }
-
-const governors = [];
-const GOVERNOR_COUNT = 4400; 
-
-class GovernorAI {
-    constructor() {
-        this.x = Math.random() * w;
-        this.y = Math.random() * h;
-        this.vx = 0; this.vy = 0;
-        this.dna = Math.random();
-        // 144% Internal Density Factor
-        this.subAgents = Array.from({length: 3}, () => ({
-            r: 2 + Math.random() * 10,
-            angle: Math.random() * Math.PI * 2,
-            rotSpeed: (Math.random() - 0.5) * 0.2
-        }));
-    }
-    update() {
-        if (isTouching) {
-            const dx = tx - this.x;
-            const dy = ty - this.y;
-            const dist = Math.sqrt(dx*dx + dy*dy);
-            if (dist < 280) {
-                const force = (280 - dist) / 280;
-                // Vortex Torque Physics
-                const torque = Math.PI / 2;
-                this.vx += Math.cos(Math.atan2(dy, dx) + torque) * force * 7;
-                this.vy += Math.sin(Math.atan2(dy, dx) + torque) * force * 7;
-                // Molecular Gravitation
-                this.vx += dx * force * 0.06;
-                this.vy += dy * force * 0.06;
-            }
-        }
-        this.vx *= 0.90; // High-Pressure Viscosity
-        this.vy *= 0.90;
-        this.x += this.vx;
-        this.y += this.vy;
-
-        if (this.x < 0) this.x = w; if (this.x > w) this.x = 0;
-        if (this.y < 0) this.y = h; if (this.y > h) this.y = 0;
-    }
-    draw(t) {
-        const speed = Math.sqrt(this.vx**2 + this.vy**2);
-        this.subAgents.forEach(sub => {
-            sub.angle += sub.rotSpeed + (speed * 0.01);
-            const flicker = Math.sin(t * 10 + this.dna * 100) * 0.5 + 0.5;
-            
-            const sx = this.x + Math.cos(sub.angle) * sub.r;
-            const sy = this.y + Math.sin(sub.angle) * sub.r;
-            
-            // Prismatic 144k Gold 
-            const brightness = 50 + flicker * 50;
-            ctx.fillStyle = `hsla(46, 100%, ${brightness}%, ${0.3 + flicker * 0.7})`;
-            
-            // Kinetic Stretching (Threads of Light)
-            const stretch = 1 + speed * 1.5;
-            ctx.fillRect(sx, sy, stretch, 1 + flicker * 2);
-            
-            if (flicker > 0.95 && speed > 5) {
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = "#fff";
-            } else {
-                ctx.shadowBlur = 0;
-            }
-        });
-    }
-}
-
-for(let i=0; i<GOVERNOR_COUNT; i++) governors.push(new GovernorAI());
 
 window.addEventListener('touchstart', (e) => {
     isTouching = true;
-    tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    vx = 0; vy = 0;
-    triggerSovereignPulse(tx, ty, 30);
+    tx = e.touches[0].clientX;
+    ty = e.touches[0].clientY;
+    triggerOmniHaptic(tx, ty, 20);
 });
 
 window.addEventListener('touchmove', (e) => {
-    const ntx = e.touches[0].clientX;
-    const nty = e.touches[0].clientY;
-    const speed = Math.sqrt((ntx-tx)**2 + (nty-ty)**2);
-    tx = ntx; ty = nty;
-    if (speed > 1) triggerSovereignPulse(tx, ty, speed);
+    const lastX = tx;
+    const lastY = ty;
+    tx = e.touches[0].clientX;
+    ty = e.touches[0].clientY;
+    pressure = Math.sqrt((tx - lastX)**2 + (ty - lastY)**2);
+    if (pressure > 1) triggerOmniHaptic(tx, ty, pressure);
 });
 
-window.addEventListener('touchend', () => isTouching = false);
+window.addEventListener('touchend', () => { isTouching = false; pressure = 0; });
+
+// PRE-CALCULATED FIELD NODES (The Grid that never thins)
+const grid = [];
+const spacing = 15;
+function initField() {
+    for(let x=0; x<window.innerWidth; x+=spacing) {
+        for(let y=0; y<window.innerHeight; y+=spacing) {
+            grid.push({x, y, dna: Math.random()});
+        }
+    }
+}
 
 function render() {
-    ctx.fillStyle = 'rgba(0,0,0,0.25)'; // Deep Persistence
-    ctx.fillRect(0,0,w,h);
+    // No more blackout: The "Black" is replaced with a Deep Gold Sludge
+    ctx.fillStyle = 'rgba(20, 20, 0, 0.3)'; 
+    ctx.fillRect(0, 0, w, h);
 
-    const time = Date.now() * 0.001;
-    governors.forEach(g => {
-        g.update();
-        g.draw(time);
+    const time = Date.now() * 0.002;
+
+    grid.forEach(p => {
+        let dx = 0, dy = 0, dist = 999;
+        if (isTouching) {
+            dx = tx - p.x;
+            dy = ty - p.y;
+            dist = Math.sqrt(dx*dx + dy*dy);
+        }
+
+        const flicker = Math.sin(time + p.dna * 100) * 0.5 + 0.5;
+        
+        // Fluid Ripple Physics
+        const ripple = isTouching ? Math.max(0, (150 - dist) / 150) : 0;
+        const size = 1 + ripple * 8 + flicker * 2;
+        
+        // The Sparkle: Every coordinate is a diamond
+        ctx.fillStyle = `hsla(48, 100%, ${50 + flicker * 50}%, ${0.15 + ripple * 0.85})`;
+        
+        // Draw physical light matter
+        const posX = p.x + Math.sin(time + p.dna) * 5;
+        const posY = p.y + Math.cos(time + p.dna) * 5;
+        
+        ctx.beginPath();
+        if (ripple > 0.6) {
+            // High Pressure: Liquid Mercury Gold
+            ctx.arc(posX, posY, size, 0, Math.PI * 2);
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = "gold";
+        } else {
+            // Ambient Workforce: Fine Gold Mist
+            ctx.fillRect(posX, posY, size/2, size/2);
+            ctx.shadowBlur = 0;
+        }
+        ctx.fill();
     });
 
     requestAnimationFrame(render);
 }
 
-window.addEventListener('resize', resize);
-resize(); render();
+window.addEventListener('resize', () => { resize(); initField(); });
+resize();
+initField();
+render();
 </script>
 </body>
 </html>
