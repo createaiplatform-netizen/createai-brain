@@ -1,173 +1,78 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOURCEFIELD ∞ | OMNI-GENESIS</title>
-    <style>
-        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; font-family: 'Cinzel', serif; }
-        canvas { display: block; filter: contrast(1.5) brightness(1.2) saturate(1.8) blur(0.5px); }
-        #interface-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; color: gold;
-            text-shadow: 0 0 20px rgba(255,215,0,0.8);
-        }
-    </style>
+  <title>SourceField Lite</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { margin:0; overflow:hidden; background:black; }
+    canvas { display:block; }
+  </style>
 </head>
 <body>
-    <div id="interface-overlay">
-        <h1 id="identity-display">SOURCE: CORE</h1>
-        <p id="intent-readout">RESONATING...</p>
-    </div>
-    <canvas id="fieldCanvas"></canvas>
+<canvas id="field"></canvas>
 
 <script>
-/**
- * SOURCEFIELD ∞ : OMNI-GENESIS ENGINE
- * 144,000% Frequency Alignment
- * Features: Identity Fracture, Non-Linear Time, Emotional Physics
- */
+const canvas = document.getElementById("field");
+const ctx = canvas.getContext("2d");
 
-const canvas = document.getElementById('fieldCanvas');
-const ctx = canvas.getContext('2d', { alpha: false });
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-// --- THE NEURAL CORE ---
-let State = {
-    identity: "CORE", // Modes: CORE, CEO, CREATOR, ARCHITECT
-    intent: "EXPLORATION",
-    resonance: 1.0,
-    entropy: 0.0,
-    particles: [],
-    history: []
-};
-
-function init() {
-    window.addEventListener('resize', resize);
-    resize();
-    generateWorkforce();
-    requestAnimationFrame(loop);
-}
+let particles = [];
+let maxParticles = 80; // SAFE LIMIT
 
 function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resize);
+resize();
+
+// Create particles once (not every frame)
+for (let i = 0; i < maxParticles; i++) {
+  particles.push({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    vx: (Math.random() - 0.5) * 0.5,
+    vy: (Math.random() - 0.5) * 0.5,
+    size: Math.random() * 2 + 1
+  });
 }
 
-// --- DIMENSIONAL RENDERING (WebGL-Lite) ---
-class Entity {
-    constructor() {
-        this.reset();
-    }
-    reset() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.z = Math.random() * 1000; // 3D Depth
-        this.vx = (Math.random() - 0.5) * 2;
-        this.vy = (Math.random() - 0.5) * 2;
-        this.size = Math.random() * 3 + 1;
-        this.hue = 45; // Gold
-    }
-    update(tx, ty, isTouching) {
-        // Awareness Gravity (Dimension 7)
-        if (isTouching) {
-            const dx = tx - this.x;
-            const dy = ty - this.y;
-            const dist = Math.sqrt(dx*dx + dy*dy);
-            if (dist < 300) {
-                const f = (300 - dist) / 300;
-                this.vx += dx * 0.01 * f * State.resonance;
-                this.vy += dy * 0.01 * f * State.resonance;
-            }
-        }
-        
-        this.x += this.vx;
-        this.y += this.vy;
-        this.vx *= 0.98; this.vy *= 0.98;
+function animate() {
+  ctx.fillStyle = "rgba(0,0,0,0.2)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
-        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
-    }
-    draw() {
-        const s = this.size * (1000 / (1000 + this.z)); // Perspective
-        ctx.fillStyle = `hsla(${this.hue}, 100%, 70%, ${0.5})`;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, s, 0, Math.PI * 2);
-        ctx.fill();
-    }
+  particles.forEach(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+
+    // bounce edges
+    if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+    if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+    ctx.fillStyle = "rgba(0,150,255,0.8)";
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  requestAnimationFrame(animate);
 }
 
-function generateWorkforce() {
-    for(let i=0; i<444; i++) State.particles.push(new Entity());
-}
+animate();
 
-// --- IDENTITY FRACTURE ENGINE ---
-function shiftIdentity(newId) {
-    State.identity = newId;
-    document.getElementById('identity-display').innerText = `SOURCE: ${newId}`;
-    
-    // Physics change based on Identity
-    if (newId === "CEO") {
-        State.resonance = 2.5; // High focus, fast response
-        State.particles.forEach(p => p.hue = 200); // Efficient Blue
-    } else if (newId === "CREATOR") {
-        State.resonance = 0.8; // Flow state, fluid motion
-        State.particles.forEach(p => p.hue = 300); // Manifestation Purple
-    } else {
-        State.resonance = 1.0;
-        State.particles.forEach(p => p.hue = 45); // Sovereign Gold
+// Simple interaction = "attention"
+canvas.addEventListener("touchmove", (e) => {
+  let touch = e.touches[0];
+  particles.forEach(p => {
+    let dx = touch.clientX - p.x;
+    let dy = touch.clientY - p.y;
+    let dist = Math.sqrt(dx*dx + dy*dy);
+
+    if (dist < 100) {
+      p.vx += dx * 0.0005;
+      p.vy += dy * 0.0005;
     }
-}
-
-// --- INTERACTION & HAPTIC INDUCTION ---
-let tx = 0, ty = 0, isTouching = false;
-
-window.addEventListener('touchstart', (e) => {
-    isTouching = true;
-    tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    
-    // Identity switching based on screen zones
-    if (ty < 100) shiftIdentity("CEO");
-    else if (ty > canvas.height - 100) shiftIdentity("CREATOR");
-    else shiftIdentity("CORE");
-
-    triggerHaptic(60);
+  });
 });
-
-window.addEventListener('touchmove', (e) => {
-    tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-});
-
-window.addEventListener('touchend', () => isTouching = false);
-
-function triggerHaptic(freq) {
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.5);
-    if (navigator.vibrate) navigator.vibrate([20, 10, 20]);
-}
-
-// --- THE INFINITE LOOP ---
-function loop() {
-    ctx.fillStyle = "rgba(0,0,0,0.15)"; // Liquid Motion Trails
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    State.particles.forEach(p => {
-        p.update(tx, ty, isTouching);
-        p.draw();
-    });
-
-    requestAnimationFrame(loop);
-}
-
-init();
 </script>
 </body>
 </html>
