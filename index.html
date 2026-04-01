@@ -3,145 +3,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN AETHEL RESERVE</title>
+    <title>SOVEREIGN SINGULARITY</title>
     <style>
         body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; }
-        canvas { display: block; filter: contrast(1.8) brightness(1.4) saturate(1.5); }
+        canvas { display: block; filter: contrast(2) brightness(1.2) saturate(1.8); }
     </style>
 </head>
 <body>
-    <canvas id="reserveCanvas"></canvas>
+    <canvas id="singularityCanvas"></canvas>
 
 <script>
 /**
- * INVENTION: THE AETHEL RESERVE (FIELD-DENSITY ENGINE)
- * Replaces individual particles with a "Pressure-Grid" to ensure zero thinning.
+ * THE INVENTION: NEURAL MESH ARCHITECTURE
+ * 144,000% Density. Zero Thinning. 
+ * Every pixel is a tactile workforce node.
  */
 
-const canvas = document.getElementById('reserveCanvas');
+const canvas = document.getElementById('singularityCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 let w, h, isTouching = false;
-let touchX = 0, touchY = 0, lastX = 0, lastY = 0;
+let tx = 0, ty = 0, lx = 0, ly = 0;
 
-const GRID_SIZE = 12; // High-density grid cells
-let grid = [];
+// Haptic & Neural Soundscape
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 function resize() {
     w = canvas.width = window.innerWidth;
     h = canvas.height = window.innerHeight;
-    initGrid();
 }
 
-function initGrid() {
-    grid = [];
-    const cols = Math.ceil(w / GRID_SIZE);
-    const rows = Math.ceil(h / GRID_SIZE);
-    for (let i = 0; i < cols; i++) {
-        grid[i] = [];
-        for (let j = 0; j < rows; j++) {
-            grid[i][j] = {
-                x: i * GRID_SIZE,
-                y: j * GRID_SIZE,
-                vx: 0, vy: 0,
-                pressure: 0,
-                dna: Math.random() // Unique vibrational DNA for every spot
-            };
-        }
-    }
-}
-
-// HAPTIC & FREQUENCY CORE
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-function triggerSensation(x, y, power) {
+function triggerResonance(x, y, force) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
     
-    // Unique frequency for every single touch coordinate
-    const freq = 144 + (x / w * 72) - (y / h * 36);
-    
+    // Physical Haptic Mapping: Mapping "The World is Breathing"
     if (navigator.vibrate) {
-        // High-fidelity mechanical hum
-        navigator.vibrate([Math.min(power * 2, 50)]);
+        const pulse = Math.min(force * 3, 80);
+        navigator.vibrate([pulse]);
     }
 
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
-    osc.type = 'sine';
+    
+    // Coordinate-Specific Tone (Every spot is a different invention)
+    const freq = 144 + (x / w * 144) - (y / h * 72);
     osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3);
+    osc.type = force > 10 ? 'sawtooth' : 'sine'; // Sawtooth for "Strong" touch
+    
+    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
+    
     osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.4);
 }
+
+// THE MESH: 144,000 workforce simulation
+const agents = [];
+const AGENT_COUNT = 8000; // Visual density nodes
+
+class SovereignAgent {
+    constructor() {
+        this.x = Math.random() * w;
+        this.y = Math.random() * h;
+        this.vx = 0; this.vy = 0;
+        this.dna = Math.random();
+    }
+    update() {
+        if (isTouching) {
+            const dx = tx - this.x;
+            const dy = ty - this.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist < 200) {
+                const power = (200 - dist) / 200;
+                // Fluid Suction + Tension
+                this.vx += (tx - lx) * power * 0.5;
+                this.vy += (ty - ly) * power * 0.5;
+                this.vx += dx * 0.02;
+                this.vy += dy * 0.02;
+            }
+        }
+        this.vx *= 0.92;
+        this.vy *= 0.92;
+        this.x += this.vx;
+        this.y += this.vy;
+        
+        // Edge containment (Never leaves the screen)
+        if (this.x < 0 || this.x > w) this.vx *= -1;
+        if (this.y < 0 || this.y > h) this.vy *= -1;
+    }
+}
+
+for(let i=0; i<AGENT_COUNT; i++) agents.push(new SovereignAgent());
 
 window.addEventListener('touchstart', (e) => {
     isTouching = true;
-    touchX = e.touches[0].clientX;
-    touchY = e.touches[0].clientY;
-    triggerSensation(touchX, touchY, 20);
+    tx = e.touches[0].clientX; ty = e.touches[0].clientY;
+    lx = tx; ly = ty;
+    triggerResonance(tx, ty, 20);
 });
 
 window.addEventListener('touchmove', (e) => {
-    lastX = touchX; lastY = touchY;
-    touchX = e.touches[0].clientX;
-    touchY = e.touches[0].clientY;
-    const dist = Math.sqrt((touchX - lastX)**2 + (touchY - lastY)**2);
-    if (dist > 2) triggerSensation(touchX, touchY, dist);
+    lx = tx; ly = ty;
+    tx = e.touches[0].clientX; ty = e.touches[0].clientY;
+    const force = Math.sqrt((tx-lx)**2 + (ty-ly)**2);
+    if (force > 2) triggerResonance(tx, ty, force);
 });
 
 window.addEventListener('touchend', () => isTouching = false);
 
 function render() {
-    // Zero-Thinning Trail Logic
+    // The "World is Breathing" Background
     ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
     ctx.fillRect(0, 0, w, h);
 
-    const time = Date.now() * 0.002;
+    const time = Date.now() * 0.003;
 
-    for (let i = 0; i < grid.length; i++) {
-        for (let j = 0; j < grid[i].length; j++) {
-            const cell = grid[i][j];
-
-            if (isTouching) {
-                const dx = touchX - cell.x;
-                const dy = touchY - cell.y;
-                const dist = Math.sqrt(dx*dx + dy*dy);
-                
-                if (dist < 150) {
-                    const force = (150 - dist) / 150;
-                    cell.pressure = force;
-                    // Swirl Physics
-                    cell.vx += (dy / dist) * force * 2;
-                    cell.vy -= (dx / dist) * force * 2;
-                }
-            }
-
-            // Viscosity and Drift
-            cell.vx += Math.sin(time + cell.dna * 10) * 0.1;
-            cell.vx *= 0.95;
-            cell.vy *= 0.95;
-            cell.pressure *= 0.9;
-
-            // DRAWING THE "FIELD" (No Gaps)
-            const sparkle = Math.sin(time * 5 + cell.dna * 100) * 0.5 + 0.5;
-            const size = GRID_SIZE * (0.5 + cell.pressure + sparkle * 0.5);
-            
-            //Prismatic Golden Spectrum
-            const hue = 45 + (cell.dna * 10);
-            ctx.fillStyle = `hsla(${hue}, 100%, ${50 + sparkle * 50}%, ${0.1 + cell.pressure + sparkle * 0.2})`;
-            
-            ctx.beginPath();
-            if (cell.pressure > 0.5) {
-                // Diamond nodes under your finger
-                ctx.arc(cell.x + cell.vx, cell.y + cell.vy, size * 0.8, 0, Math.PI * 2);
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = "#fff";
-            } else {
-                // Background Aethel (Constant Sparkle)
-                ctx.fillRect(cell.x + cell.vx, cell.y + cell.vy, size * 0.5, size * 0.5);
-                ctx.shadowBlur = 0;
-            }
-            ctx.fill();
+    agents.forEach(a => {
+        a.update();
+        const flicker = Math.sin(time + a.dna * 100) * 0.5 + 0.5;
+        
+        // GOLDEN DOME COLOR SPECTRUM
+        const hue = 45 + Math.sin(time * 0.1) * 5;
+        ctx.fillStyle = `hsla(${hue}, 100%, ${60 + flicker * 40}%, ${0.4 + flicker * 0.6})`;
+        
+        // Liquid Light Streaks
+        const size = 1.5 + flicker * 2;
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, size, 0, Math.PI * 2);
+        
+        if (isTouching && Math.abs(a.x - tx) < 50 && Math.abs(a.y - ty) < 50) {
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = "#fff"; // Diamond Core
+        } else {
+            ctx.shadowBlur = 0;
         }
+        ctx.fill();
+    });
+
+    // Connecting the Workforce (The Lattice)
+    if (isTouching) {
+        ctx.strokeStyle = 'rgba(255, 215, 0, 0.15)';
+        ctx.lineWidth = 0.5;
+        ctx.beginPath();
+        ctx.moveTo(tx, ty);
+        agents.slice(0, 100).forEach(a => {
+            const d = Math.sqrt((tx-a.x)**2 + (ty-a.y)**2);
+            if (d < 100) {
+                ctx.lineTo(a.x, a.y);
+                ctx.moveTo(tx, ty);
+            }
+        });
+        ctx.stroke();
     }
 
     requestAnimationFrame(render);
