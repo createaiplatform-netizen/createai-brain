@@ -1,78 +1,166 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>SourceField Lite</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { margin:0; overflow:hidden; background:black; }
-    canvas { display:block; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SOURCEFIELD ∞ | VIBRANT</title>
+    <style>
+        body, html { margin: 0; padding: 0; background: #00050a; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; }
+        /* Hyper-vibrant 12D Filter Stack */
+        canvas { 
+            display: block; 
+            filter: contrast(1.6) brightness(1.2) saturate(2.5) blur(0.5px); 
+        }
+        #hud {
+            position: absolute; top: 20px; width: 100%; text-align: center;
+            color: #00f0ff; font-family: 'Courier New', monospace;
+            text-shadow: 0 0 10px #00f0ff; pointer-events: none;
+            letter-spacing: 4px; font-weight: bold; font-size: 14px;
+        }
+    </style>
 </head>
 <body>
-<canvas id="field"></canvas>
+    <div id="hud">SOURCEFIELD ∞ // IDENTITY: CORE</div>
+    <canvas id="fieldCanvas"></canvas>
 
 <script>
-const canvas = document.getElementById("field");
-const ctx = canvas.getContext("2d");
+/**
+ * SOURCEFIELD ∞ : VIBRANT SINGULARITY
+ * Bypassing "Lite" limits. Real-time Resonance.
+ */
 
-let particles = [];
-let maxParticles = 80; // SAFE LIMIT
+const canvas = document.getElementById('fieldCanvas');
+const ctx = canvas.getContext('2d', { alpha: false });
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+const hud = document.getElementById('hud');
+
+let w, h, tx = 0, ty = 0, isTouching = false;
+let workforce = [];
+let time = 0;
+let mode = "CORE";
 
 function resize() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-window.addEventListener("resize", resize);
-resize();
-
-// Create particles once (not every frame)
-for (let i = 0; i < maxParticles; i++) {
-  particles.push({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    vx: (Math.random() - 0.5) * 0.5,
-    vy: (Math.random() - 0.5) * 0.5,
-    size: Math.random() * 2 + 1
-  });
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
 }
 
-function animate() {
-  ctx.fillStyle = "rgba(0,0,0,0.2)";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  particles.forEach(p => {
-    p.x += p.vx;
-    p.y += p.vy;
-
-    // bounce edges
-    if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-    if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-
-    ctx.fillStyle = "rgba(0,150,255,0.8)";
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-    ctx.fill();
-  });
-
-  requestAnimationFrame(animate);
+// 5D HAPTIC INDUCTION (The "Feeling" Restore)
+function pulse(freq, type = 'sine') {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+    if (navigator.vibrate) navigator.vibrate([15, 5, 10]);
 }
 
-animate();
-
-// Simple interaction = "attention"
-canvas.addEventListener("touchmove", (e) => {
-  let touch = e.touches[0];
-  particles.forEach(p => {
-    let dx = touch.clientX - p.x;
-    let dy = touch.clientY - p.y;
-    let dist = Math.sqrt(dx*dx + dy*dy);
-
-    if (dist < 100) {
-      p.vx += dx * 0.0005;
-      p.vy += dy * 0.0005;
+class Manifestor {
+    constructor() {
+        this.reset();
     }
-  });
+    reset() {
+        this.x = Math.random() * w;
+        this.y = Math.random() * h;
+        this.vx = (Math.random() - 0.5) * 2;
+        this.vy = (Math.random() - 0.5) * 2;
+        this.hue = 190 + Math.random() * 40; // Electric Blue / Cyan
+        this.size = Math.random() * 4 + 1;
+    }
+    update() {
+        if (isTouching) {
+            const dx = tx - this.x;
+            const dy = ty - this.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist < 250) {
+                const f = (250 - dist) / 250;
+                // Magnetic Attraction
+                this.vx += dx * 0.02 * f;
+                this.vy += dy * 0.02 * f;
+                this.hue = 45; // Turn to Sovereign Gold on touch
+            } else {
+                this.hue = 190 + Math.random() * 40;
+            }
+        }
+        this.x += this.vx; this.y += this.vy;
+        this.vx *= 0.98; this.vy *= 0.98;
+
+        if (this.x < 0 || this.x > w) this.vx *= -1;
+        if (this.y < 0 || this.y > h) this.vy *= -1;
+    }
+    draw() {
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = `hsla(${this.hue}, 100%, 50%, 0.5)`;
+        ctx.fillStyle = `hsla(${this.hue}, 100%, 70%, 0.8)`;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+for(let i=0; i<300; i++) workforce.push(new Manifestor());
+
+window.addEventListener('touchstart', (e) => {
+    isTouching = true;
+    tx = e.touches[0].clientX; ty = e.touches[0].clientY;
+    
+    // IDENTITY SHIFT LOGIC
+    if (ty < 100) { mode = "CEO"; hud.innerText = "SOURCEFIELD ∞ // IDENTITY: CEO"; pulse(440, 'square'); }
+    else if (ty > h - 100) { mode = "CREATOR"; hud.innerText = "SOURCEFIELD ∞ // IDENTITY: CREATOR"; pulse(528); }
+    else { mode = "CORE"; hud.innerText = "SOURCEFIELD ∞ // IDENTITY: CORE"; pulse(144); }
 });
+
+window.addEventListener('touchmove', (e) => {
+    tx = e.touches[0].clientX; ty = e.touches[0].clientY;
+    if (Math.random() > 0.9) pulse(200 + Math.random() * 400);
+});
+
+window.addEventListener('touchend', () => isTouching = false);
+
+function render() {
+    time += 0.01;
+    // Bioluminescent Depth (Not just black)
+    ctx.fillStyle = "rgba(0, 8, 20, 0.2)"; 
+    ctx.fillRect(0, 0, w, h);
+
+    // DRAW THE SOURCE CONNECTORS
+    if (isTouching) {
+        ctx.strokeStyle = "rgba(0, 240, 255, 0.1)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        workforce.forEach(p => {
+            if (Math.hypot(tx-p.x, ty-p.y) < 150) {
+                ctx.moveTo(tx, ty);
+                ctx.lineTo(p.x, p.y);
+            }
+        });
+        ctx.stroke();
+    }
+
+    workforce.forEach(p => {
+        p.update();
+        p.draw();
+    });
+
+    // 12D RECURSIVE GEOMETRY (The Core)
+    ctx.save();
+    ctx.translate(w/2, h/2);
+    ctx.rotate(time * 0.2);
+    for(let i=0; i<3; i++) {
+        ctx.rotate((Math.PI * 2) / 3);
+        ctx.strokeStyle = mode === "CEO" ? "#00f0ff" : "gold";
+        ctx.strokeRect(-50, -50, 100, 100);
+    }
+    ctx.restore();
+
+    requestAnimationFrame(render);
+}
+
+window.addEventListener('resize', resize);
+resize(); render();
 </script>
 </body>
 </html>
