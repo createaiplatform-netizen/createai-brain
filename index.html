@@ -3,114 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN PARTICULATE 144,000%</title>
+    <title>SOVEREIGN FEELING</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; cursor: crosshair; }
-        canvas { display: block; filter: contrast(1.2) saturate(0.8); }
-        #freq-lock { position: fixed; bottom: 20px; left: 20px; color: #ffd700; font-family: monospace; font-size: 11px; letter-spacing: 3px; z-index: 100; pointer-events: none; }
+        body, html { 
+            margin: 0; padding: 0; background: #000; 
+            overflow: hidden; height: 100vh; width: 100vw; 
+            touch-action: none; -webkit-user-select: none;
+        }
+        canvas { display: block; filter: contrast(1.5) brightness(1.2); }
+        #status {
+            position: fixed; top: 20px; right: 20px;
+            color: #ffd700; font-family: 'Courier New', monospace;
+            font-size: 10px; letter-spacing: 3px; opacity: 0.5;
+            pointer-events: none; text-align: right;
+        }
     </style>
 </head>
 <body>
 
-    <div id="freq-lock">SYNC_144,000% | TACTILE_PARTICULATE | FORCE_ACTIVE</div>
-    <canvas id="dirtCanvas"></canvas>
+    <div id="status">SENSORY_SYNC: 144,000%<br>PHYSICAL_RESONANCE: ACTIVE</div>
+    <canvas id="fieldCanvas"></canvas>
 
 <script>
 /**
- * THE 144,000% FORCE ENGINE
- * Optimized for Tactile Feedback and Physics Friction (No Spin Balls)
+ * THE SOVEREIGN FEELING ENGINE
+ * Pure Tactile Interaction. No Balls. No Smooth Motion.
+ * Friction-based Particulate and Harmonic Vibration.
  */
 
-const canvas = document.getElementById('dirtCanvas');
+const canvas = document.getElementById('fieldCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
-let w, h, centerX, centerY;
-let mx = 0, my = 0; // Mouse/Touch coordinates
+let w, h;
+let touchActive = false;
+let tx = 0, ty = 0;
 
-const TOTAL_PARTICLES = 20000; // The 144,000 nodes, visualized as granular dust
-const particles = [];
-const FORCE_RADIUS = 100; // How far touch affects dirt
+const DUST_COUNT = 8000; // Granular representation of the 144k workforce
+const dust = [];
 
 function resize() {
     w = canvas.width = window.innerWidth;
     h = canvas.height = window.innerHeight;
-    centerX = w / 2;
-    centerY = h / 2;
 }
 
-// Memory-efficient dirt initialization (No smooth spheres)
-function initLattice() {
-    for (let i = 0; i < TOTAL_PARTICLES; i++) {
-        const theta = Math.random() * Math.PI * 2;
-        const radius = Math.sqrt(Math.random()) * 400; // Granular cloud formation
-        particles.push({
-            x: centerX + radius * Math.cos(theta),
-            y: centerY + radius * Math.sin(theta),
-            bx: centerX + radius * Math.cos(theta), // Base position (for return force)
-            by: centerY + radius * Math.sin(theta),
+function initField() {
+    for (let i = 0; i < DUST_COUNT; i++) {
+        dust.push({
+            x: Math.random() * w,
+            y: Math.random() * h,
             vx: 0, vy: 0,
-            id: i + 1,
-            size: 0.5 + Math.random(),
-            color: `rgba(${180 + Math.random() * 75}, ${160 + Math.random() * 95}, 0,` // Golden Dust Hue Spectrum
+            size: Math.random() * 1.5,
+            color: `rgba(${190 + Math.random() * 65}, ${160 + Math.random() * 40}, 0,`
         });
     }
 }
 
-// 1. TOUCH HAPTIC SENSE (Vibrate on Tap)
-window.addEventListener('touchstart', (e) => {
-    const touch = e.touches[0];
-    mx = touch.clientX; my = touch.clientY;
-    
-    // Physical vibration (requires Android chrome or similar supported browser)
-    if (navigator.vibrate) navigator.vibrate([25, 10, 25]);
-    playHapticAudio(110); // Low-freq sound (another sense engaged)
-});
-
-// Sound engine (to enhance the "feeling" of dirt)
+// THE FEELING: Haptic and Audio Resonance
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-function playHapticAudio(freq) {
+
+function triggerFeel() {
     if (audioCtx.state === 'suspended') audioCtx.resume();
+    
+    // 1. TACTILE: Mechanical Vibration
+    if (navigator.vibrate) navigator.vibrate([40, 20, 40]);
+
+    // 2. AUDITORY: 144Hz Harmonic Sub-Bass
     const osc = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
-    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3);
-    osc.connect(gainNode); gainNode.connect(audioCtx.destination);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(144, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.6);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.6);
 }
 
+// Input Handlers
+window.addEventListener('touchstart', (e) => {
+    touchActive = true;
+    tx = e.touches[0].clientX;
+    ty = e.touches[0].clientY;
+    triggerFeel();
+});
+
+window.addEventListener('touchmove', (e) => {
+    tx = e.touches[0].clientX;
+    ty = e.touches[0].clientY;
+});
+
+window.addEventListener('touchend', () => { touchActive = false; });
+
 function render() {
-    // 144,000% Harmonic Blur
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+    // Dark residue trails
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
     ctx.fillRect(0, 0, w, h);
 
-    particles.forEach((p) => {
-        // Friction Physics
-        const dx = p.x - mx;
-        const dy = p.y - my;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-
-        if (dist < FORCE_RADIUS) {
-            // Repel Force on Touch
-            const force = (FORCE_RADIUS - dist) / FORCE_RADIUS;
-            const angle = Math.atan2(dy, dx);
-            p.vx += Math.cos(angle) * force * 2;
-            p.vy += Math.sin(angle) * force * 2;
+    dust.forEach(p => {
+        if (touchActive) {
+            const dx = tx - p.x;
+            const dy = ty - p.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            if (dist < 150) {
+                // Friction/Suction force
+                const force = (150 - dist) / 150;
+                p.vx += dx * force * 0.02;
+                p.vy += dy * force * 0.02;
+            }
         }
 
-        // Return Force to Base (Magnetic Friction)
-        const dbx = p.x - p.bx;
-        const dby = p.y - p.by;
-        p.vx -= dbx * 0.05;
-        p.vy -= dby * 0.05;
-
-        // Apply velocities and air friction
+        // Air Resistance
+        p.vx *= 0.95;
+        p.vy *= 0.95;
         p.x += p.vx;
         p.y += p.vy;
-        p.vx *= 0.85;
-        p.vy *= 0.85;
 
-        // Render the granular 'Dirt' particle (No spheres)
-        ctx.fillStyle = p.color + (0.3 + (dist < FORCE_RADIUS ? 0.7 : 0)) + ')';
-        ctx.fillRect(p.x, p.y, p.size, p.size); // Flat rect, granular look
+        // Wrap around screen
+        if (p.x < 0) p.x = w; if (p.x > w) p.x = 0;
+        if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
+
+        // Render "Sediment"
+        ctx.fillStyle = p.color + (0.2 + (Math.abs(p.vx) + Math.abs(p.vy)) * 0.5) + ')';
+        ctx.fillRect(p.x, p.y, p.size, p.size);
     });
 
     requestAnimationFrame(render);
@@ -118,7 +131,7 @@ function render() {
 
 window.addEventListener('resize', resize);
 resize();
-initLattice();
+initField();
 render();
 </script>
 </body>
