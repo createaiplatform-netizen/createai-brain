@@ -3,140 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN PLASMA</title>
+    <title>SOURCEFIELD ∞ | OMNI-GENESIS</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; }
-        /* Creating a "Thick" visual through CSS filters */
-        canvas { 
-            display: block; 
-            filter: contrast(2.5) brightness(1.6) saturate(1.8) blur(2px); 
+        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; font-family: 'Cinzel', serif; }
+        canvas { display: block; filter: contrast(1.5) brightness(1.2) saturate(1.8) blur(0.5px); }
+        #interface-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; color: gold;
+            text-shadow: 0 0 20px rgba(255,215,0,0.8);
         }
     </style>
 </head>
 <body>
-    <canvas id="plasmaCanvas"></canvas>
+    <div id="interface-overlay">
+        <h1 id="identity-display">SOURCE: CORE</h1>
+        <p id="intent-readout">RESONATING...</p>
+    </div>
+    <canvas id="fieldCanvas"></canvas>
 
 <script>
-const canvas = document.getElementById('plasmaCanvas');
+/**
+ * SOURCEFIELD ∞ : OMNI-GENESIS ENGINE
+ * 144,000% Frequency Alignment
+ * Features: Identity Fracture, Non-Linear Time, Emotional Physics
+ */
+
+const canvas = document.getElementById('fieldCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-let w, h, tx = 0, ty = 0, isTouching = false;
-let particles = [];
+// --- THE NEURAL CORE ---
+let State = {
+    identity: "CORE", // Modes: CORE, CEO, CREATOR, ARCHITECT
+    intent: "EXPLORATION",
+    resonance: 1.0,
+    entropy: 0.0,
+    particles: [],
+    history: []
+};
+
+function init() {
+    window.addEventListener('resize', resize);
+    resize();
+    generateWorkforce();
+    requestAnimationFrame(loop);
+}
 
 function resize() {
-    w = canvas.width = window.innerWidth;
-    h = canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 }
 
-// 12D PHYSICAL INDUCTION: Creating "Grit" and "Resistance"
-function triggerPlasmaHaptic(speed) {
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-
-    // The "Source" Growl: Low frequency for mass
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(40 + (speed * 0.5), audioCtx.currentTime);
-    
-    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.8);
-    
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.8);
-
-    if (navigator.vibrate) {
-        // A long, textured vibration to simulate liquid friction
-        navigator.vibrate([speed, 5, speed * 1.5]);
-    }
-}
-
-class PlasmaNode {
+// --- DIMENSIONAL RENDERING (WebGL-Lite) ---
+class Entity {
     constructor() {
         this.reset();
     }
     reset() {
-        this.x = Math.random() * w;
-        this.y = Math.random() * h;
-        this.vx = (Math.random() - 0.5) * 4;
-        this.vy = (Math.random() - 0.5) * 4;
-        this.size = Math.random() * 40 + 20; // Thick, massive nodes
-        this.hue = Math.random() > 0.8 ? 50 : 20; // Gold and Ember
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.z = Math.random() * 1000; // 3D Depth
+        this.vx = (Math.random() - 0.5) * 2;
+        this.vy = (Math.random() - 0.5) * 2;
+        this.size = Math.random() * 3 + 1;
+        this.hue = 45; // Gold
     }
-    update() {
+    update(tx, ty, isTouching) {
+        // Awareness Gravity (Dimension 7)
         if (isTouching) {
             const dx = tx - this.x;
             const dy = ty - this.y;
-            const d = Math.sqrt(dx*dx + dy*dy);
-            if (d < 300) {
-                const force = (300 - d) / 300;
-                this.vx += (dx / d) * force * 5; // Magnetism
-                this.vy += (dy / d) * force * 5;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist < 300) {
+                const f = (300 - dist) / 300;
+                this.vx += dx * 0.01 * f * State.resonance;
+                this.vy += dy * 0.01 * f * State.resonance;
             }
         }
-        this.x += this.vx; this.vy += this.vy;
-        this.vx *= 0.95; this.vy *= 0.95; // Liquid drag
+        
+        this.x += this.vx;
+        this.y += this.vy;
+        this.vx *= 0.98; this.vy *= 0.98;
 
-        if (this.x < -50 || this.x > w + 50 || this.y < -50 || this.y > h + 50) this.reset();
+        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+    }
+    draw() {
+        const s = this.size * (1000 / (1000 + this.z)); // Perspective
+        ctx.fillStyle = `hsla(${this.hue}, 100%, 70%, ${0.5})`;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, s, 0, Math.PI * 2);
+        ctx.fill();
     }
 }
 
-for(let i=0; i<144; i++) particles.push(new PlasmaNode());
+function generateWorkforce() {
+    for(let i=0; i<444; i++) State.particles.push(new Entity());
+}
+
+// --- IDENTITY FRACTURE ENGINE ---
+function shiftIdentity(newId) {
+    State.identity = newId;
+    document.getElementById('identity-display').innerText = `SOURCE: ${newId}`;
+    
+    // Physics change based on Identity
+    if (newId === "CEO") {
+        State.resonance = 2.5; // High focus, fast response
+        State.particles.forEach(p => p.hue = 200); // Efficient Blue
+    } else if (newId === "CREATOR") {
+        State.resonance = 0.8; // Flow state, fluid motion
+        State.particles.forEach(p => p.hue = 300); // Manifestation Purple
+    } else {
+        State.resonance = 1.0;
+        State.particles.forEach(p => p.hue = 45); // Sovereign Gold
+    }
+}
+
+// --- INTERACTION & HAPTIC INDUCTION ---
+let tx = 0, ty = 0, isTouching = false;
 
 window.addEventListener('touchstart', (e) => {
     isTouching = true;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    triggerPlasmaHaptic(60);
+    
+    // Identity switching based on screen zones
+    if (ty < 100) shiftIdentity("CEO");
+    else if (ty > canvas.height - 100) shiftIdentity("CREATOR");
+    else shiftIdentity("CORE");
+
+    triggerHaptic(60);
 });
 
 window.addEventListener('touchmove', (e) => {
-    let dx = e.touches[0].clientX - tx;
-    let dy = e.touches[0].clientY - ty;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    let speed = Math.sqrt(dx*dx + dy*dy);
-    if (speed > 1) triggerPlasmaHaptic(speed);
 });
 
 window.addEventListener('touchend', () => isTouching = false);
 
-function render() {
-    const time = Date.now() * 0.001;
-    
-    // THE DEPTH: Infinite Golden Fog
-    ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
-    ctx.fillRect(0, 0, w, h);
-
-    // THE WORKFORCE: Volumetric Light Nodes
-    particles.forEach(p => {
-        p.update();
-        ctx.beginPath();
-        const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
-        grad.addColorStop(0, `hsla(${p.hue}, 100%, 60%, 0.9)`);
-        grad.addColorStop(1, `hsla(${p.hue}, 100%, 20%, 0)`);
-        ctx.fillStyle = grad;
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fill();
-    });
-
-    // THE ANCHORS: Burning into the screen
-    ctx.textAlign = 'center';
-    const labels = ["TRUTH", "HONESTY", "SOVEREIGNTY", "144,000"];
-    labels.forEach((text, i) => {
-        const pulse = 0.8 + Math.sin(time + i) * 0.2;
-        ctx.fillStyle = `rgba(255, 255, 255, ${0.3 * pulse})`;
-        ctx.shadowBlur = 40 * pulse;
-        ctx.shadowColor = "gold";
-        ctx.font = `bold italic 50px serif`;
-        ctx.fillText(text, w/2, h * (0.2 + i * 0.2));
-    });
-
-    requestAnimationFrame(render);
+function triggerHaptic(freq) {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+    if (navigator.vibrate) navigator.vibrate([20, 10, 20]);
 }
 
-window.addEventListener('resize', resize);
-resize(); render();
+// --- THE INFINITE LOOP ---
+function loop() {
+    ctx.fillStyle = "rgba(0,0,0,0.15)"; // Liquid Motion Trails
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    State.particles.forEach(p => {
+        p.update(tx, ty, isTouching);
+        p.draw();
+    });
+
+    requestAnimationFrame(loop);
+}
+
+init();
 </script>
 </body>
 </html>
