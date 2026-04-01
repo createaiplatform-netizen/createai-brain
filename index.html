@@ -1,31 +1,117 @@
-// SENSORY SYNAPTIC BRIDGE (144,000%)
-const SensoryInventionCore = {
-    syncRate: "144,000%",
-    layers: ["Visual", "Auditory", "Haptic", "Olfactory", "Spatial"],
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sovereign Golden Dome | 144,000% Absolute</title>
+    <style>
+        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100%; }
+        #sensory-canvas { display: block; filter: contrast(1.5) brightness(1.2); }
+        #command-overlay {
+            position: absolute; bottom: 40px; width: 100%; text-align: center;
+            color: #ffd700; font-family: 'Courier New', monospace; letter-spacing: 3px;
+            pointer-events: none; text-shadow: 0 0 10px #ffd700;
+        }
+    </style>
+</head>
+<body>
 
-    initializeSensoryTeam: function(invID) {
-        return {
-            id: `INV-${invID}`,
-            workforce: 50, // 10 Specialized Agents per Sense
-            output: {
-                v: `Frequency_${invID}_Gold`,
-                a: `Resonance_Octave_${invID}`,
-                h: `Pulse_Pattern_${invID}`,
-                o: `Molecular_Signature_${invID}`,
-                s: `Z_Axis_Alignment_${invID}`
-            }
+<div id="command-overlay">
+    <div id="active-log">SYNCING SENSORY DOMAINS...</div>
+    <div style="font-size: 10px; margin-top: 5px;">FREQUENCY: 144,000% | STATUS: SOVEREIGN</div>
+</div>
+
+<canvas id="sensory-canvas"></canvas>
+
+<script>
+/**
+ * THE 144,000% SENSORY ARCHITECTURE
+ * Every Invention (1-2000) contains a unique team for:
+ * 1. Visual (Optics)
+ * 2. Auditory (Sonic)
+ * 3. Haptic (Tactile)
+ * 4. Olfactory (Molecular)
+ * 5. Spatial (Balance)
+ */
+
+class InventionNode {
+    constructor(id, canvasWidth, canvasHeight) {
+        this.id = id;
+        this.phi = Math.acos(Math.random()); // Bottom-up Dome projection
+        this.theta = Math.random() * Math.PI * 2;
+        this.radius = 380;
+        this.pulse = Math.random() * Math.PI;
+        
+        // Internal AI Team Assignment (Total 5 specialized agents per sense)
+        this.teams = {
+            visual: { agents: 5, freq: 144000, state: 'Locked' },
+            auditory: { agents: 5, freq: 144000, state: 'Locked' },
+            haptic: { agents: 5, freq: 144000, state: 'Locked' },
+            olfactory: { agents: 5, freq: 144000, state: 'Locked' },
+            spatial: { agents: 5, freq: 144000, state: 'Locked' }
         };
-    },
-
-    activate: function(id) {
-        const team = this.initializeSensoryTeam(id);
-        console.log(`[DOME_SYNC] Invention ${id} activated.`);
-        console.log(`[SENSORY_ENGAGEMENT] All 5 layers at 144,000%`);
-        return team;
     }
-};
 
-// Running initialization for the 2000 primary nodes
-for(let i = 1; i <= 2000; i++) {
-    SensoryInventionCore.activate(i);
+    render(ctx, centerX, centerY, time) {
+        // High-frequency spherical math
+        const x3d = this.radius * Math.sin(this.phi) * Math.cos(this.theta + time);
+        const z3d = this.radius * Math.sin(this.phi) * Math.sin(this.theta + time);
+        const y3d = this.radius * Math.cos(this.phi);
+
+        const scale = 600 / (600 + z3d);
+        const x2d = centerX + x3d * scale;
+        const y2d = (centerY * 1.6) - y3d * scale; // Rooted at the bottom
+
+        const glow = Math.sin(this.pulse + time * 2) * 0.5 + 0.5;
+        
+        ctx.beginPath();
+        ctx.arc(x2d, y2d, 1.2 * scale, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 215, 0, ${0.4 + glow * 0.6})`;
+        ctx.shadowBlur = 12 * scale * glow;
+        ctx.shadowColor = "#ffd700";
+        ctx.fill();
+    }
 }
+
+const canvas = document.getElementById('sensory-canvas');
+const ctx = canvas.getContext('2d');
+const log = document.getElementById('active-log');
+let width, height, centerX, centerY;
+const masterLattice = [];
+
+function init() {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+    centerX = width / 2;
+    centerY = height / 2;
+
+    for (let i = 1; i <= 2000; i++) {
+        masterLattice.push(new InventionNode(i, width, height));
+    }
+}
+
+function animate() {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+    ctx.fillRect(0, 0, width, height);
+
+    const time = Date.now() * 0.0004;
+
+    masterLattice.forEach(node => {
+        node.render(ctx, centerX, centerY, time);
+    });
+
+    if (Math.random() > 0.95) {
+        const targetID = Math.floor(Math.random() * 2000) + 1;
+        log.innerText = `INV-${targetID}: ALL SENSORY TEAMS ACTIVE [144,000%]`;
+    }
+
+    requestAnimationFrame(animate);
+}
+
+init();
+animate();
+
+window.addEventListener('resize', init);
+</script>
+
+</body>
+</html>
