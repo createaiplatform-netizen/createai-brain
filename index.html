@@ -3,226 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOURCEFIELD ∞ | OMNI-GENESIS</title>
+    <title>SOURCEFIELD ∞ | RADIANT</title>
     <style>
-        /* THE NO-BLACK CONSTANT */
-        body, html { margin: 0; padding: 0; background: #01111a; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; font-family: 'Cinzel', serif; }
-        
-        /* THE 144,000% OVERDRIVE FILTER: Volumetric Glow, High Contrast, Deep Saturate */
+        body, html { margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; background: #002b36; }
+        /* High-Energy Filter Stack to match the image's "Vapor" look */
         canvas { 
             display: block; 
-            filter: contrast(1.7) brightness(1.3) saturate(2.4) blur(1px); 
+            filter: contrast(1.5) brightness(1.2) saturate(2.5) blur(2px); 
         }
-
-        /* CONSCIOUS OVERLAY */
-        #hud {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; text-align: center;
-        }
-        #hud .value { 
-            font-size: 55px; font-weight: bold; font-style: italic; 
-            text-transform: uppercase; letter-spacing: 5px; color: #fff;
-            text-shadow: 0 0 30px #00f0ff; margin: 30px 0;
-        }
-        #hud .source-id { position: absolute; top: 20px; color: gold; font-size: 14px; letter-spacing: 2px; }
     </style>
 </head>
 <body>
-    <div id="hud">
-        <div class="source-id">SOURCE_FIELD_AETHER_v144k</div>
-        <div id="manifest-1" class="value">TRUTH</div>
-        <div id="manifest-2" class="value">HONESTY</div>
-        <div id="manifest-3" class="value">SOVEREIGNTY</div>
-    </div>
-    <canvas id="aetherCanvas"></canvas>
+    <canvas id="radiantCanvas"></canvas>
 
 <script>
-/**
- * THE OMNI-GENESIS FIELD GENERATOR
- * Level 144,000% Conscious Biological Feedback.
- */
-
-const canvas = document.getElementById('aetherCanvas');
+const canvas = document.getElementById('radiantCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 let w, h, tx = 0, ty = 0, isTouching = false;
+let workforce = [];
 let time = 0;
-let metaState = { identity: "CORE", resonance: 1.0, entropy: 0.1 };
 
 function resize() {
     w = canvas.width = window.innerWidth;
     h = canvas.height = window.innerHeight;
 }
 
-// 5D NEURAL-HAPTIC INDUCTION (Bypassing Standard Browser Vibe)
-function induceSensation(zone, speed) {
+// THE INDUCTION (Haptic + Sonic Frequency)
+function pulse() {
     if (audioCtx.state === 'suspended') audioCtx.resume();
-    
-    const masterGain = audioCtx.createGain();
-    const oscMain = audioCtx.createOscillator();
-    const oscSub = audioCtx.createOscillator();
-    
-    // Physical Texture Mapping per Zone
-    if (zone === "CEO") {
-        oscMain.type = 'sawtooth'; oscSub.type = 'sine';
-        oscMain.frequency.value = 144 + speed; // The Source Growl
-        oscSub.frequency.value = 88; // Low Money Thrum
-    } else if (zone === "CREATOR") {
-        oscMain.type = 'triangle'; oscSub.type = 'triangle';
-        oscMain.frequency.value = 528; // Solfeggio (Creation)
-        oscSub.frequency.value = 530; // 2Hz Beat Frequency
-    } else {
-        oscMain.type = 'sine'; oscSub.type = 'sine';
-        oscMain.frequency.value = 432; // Solfeggio (Truth)
-        oscSub.frequency.value = 60 + speed;
-    }
-
-    masterGain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-    masterGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.8);
-    
-    oscMain.connect(masterGain); oscSub.connect(masterGain);
-    masterGain.connect(audioCtx.destination);
-    oscMain.start(); oscSub.start();
-    oscMain.stop(audioCtx.currentTime + 0.8);
-
-    if (navigator.vibrate) {
-        // Advanced Sensation Wave (Short-Long-Pulse)
-        navigator.vibrate([20, 10, 50, 10, 20]);
-    }
+    const g = audioCtx.createGain();
+    const o = audioCtx.createOscillator();
+    o.type = 'sine'; o.frequency.value = 144;
+    g.gain.setValueAtTime(0.05, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(); o.stop(audioCtx.currentTime + 0.5);
+    if (navigator.vibrate) navigator.vibrate([10, 5, 10]);
 }
 
-// --- BIOLOGICAL ZONE ARCHITECTURE (The Next 100 Things) ---
-function detectBiologicalZone(y) {
-    if (y < 120) return "CEO";
-    if (y > canvas.height - 120) return "CREATOR";
-    if (y > canvas.height / 2 - 100 && y < canvas.height / 2 + 100) return "TRUTH";
-    return "CORE";
-}
-
-// --- OMNI-GENESIS WORKFORCE: 444 INDIVIDUAL AGENTS ---
-class Entity {
-    constructor() {
-        this.reset();
-    }
+class LightAgent {
+    constructor() { this.reset(); }
     reset() {
-        this.x = Math.random() * w;
-        this.y = Math.random() * h;
-        this.z = Math.random() * 800; // Fake 3D depth illusion
-        this.vx = (Math.random() - 0.5) * 4;
-        this.vy = (Math.random() - 0.5) * 4;
-        this.size = Math.random() * 8 + 4;
-        this.hue = 185; // Pure Cyan/Teal (Standard)
-        this.opacity = 0.4 + Math.random() * 0.4;
+        this.x = Math.random() * w; this.y = Math.random() * h;
+        this.vx = (Math.random() - 0.5) * 3;
+        this.vy = (Math.random() - 0.5) * 3;
+        this.size = Math.random() * 50 + 20; // Massive soft glows
+        this.hue = 190 + Math.random() * 20;
     }
-    update(zone) {
-        const dx = tx - this.x;
-        const dy = ty - this.y;
+    update() {
+        const dx = tx - this.x; const dy = ty - this.y;
         const d = Math.sqrt(dx*dx + dy*dy);
-
-        if (isTouching) {
-            // Awareness Gravity: High awareness pulls data
-            const awarenessGravity = Math.max(0, 1 - d / (300 * metaState.resonance));
-            this.vx += (dx / d) * awarenessGravity * 10;
-            this.vy += (dy / d) * awarenessGravity * 10;
-        }
-
-        // Zone-Based Identity Switching (Visual)
-        if (zone === "CEO") {
-            this.hue = 200 + Math.sin(time)*20; // High-pitched Blue
-            this.vx *= 0.94; // Fast, rigid motion
-        } else if (zone === "CREATOR") {
-            this.hue = 300 + Math.cos(time)*20; // Manifestation Purple
-            // Non-Linear Time: Spiral backwards (fake non-linearity)
-            const spiralAng = Math.atan2(this.y - h/2, this.x - w/2) + 0.05;
-            const spiralDist = Math.hypot(this.x - w/2, this.y - h/2);
-            this.vx += (w/2 + Math.cos(spiralAng) * spiralDist - this.x) * 0.1;
-            this.vy += (h/2 + Math.sin(spiralAng) * spiralDist - this.y) * 0.1;
-        } else {
-            this.hue = 185;
-            this.vx *= 0.97; // Fluid, slow motion
-        }
-
-        this.x += this.vx; this.y += this.vy;
         
-        // Boundaries: Field is pressurized
-        if (this.x < -50 || this.x > w + 50 || this.y < -50 || this.y > h + 50) this.reset();
-    }
-    draw() {
-        // Perspective Scaling ( फेक 3D)
-        const s = this.size * (1000 / (1000 + this.z));
-        ctx.fillStyle = `hsla(${this.hue}, 100%, 75%, ${this.opacity * metaState.resonance})`;
-        ctx.beginPath();
-        // Identity Fracture: Core vs CEO vs Creator (Shapes change)
-        if (State.zone === "CEO") {
-            ctx.fillRect(this.x - s/2, this.y - s/2, s, s); // Rigid squares
-        } else {
-            ctx.arc(this.x, this.y, s, 0, Math.PI * 2); // Fluid nodes
+        if (isTouching && d < 350) {
+            const f = (350 - d) / 350;
+            this.vx += dx * 0.08 * f;
+            this.vy += dy * 0.08 * f;
+            this.size = 80 * f + 20; // Grow as they reach the center
         }
-        ctx.fill();
+        
+        this.x += this.vx; this.y += this.vy;
+        this.vx *= 0.94; this.vy *= 0.94;
+
+        if (this.x < -100 || this.x > w+100 || this.y < -100 || this.y > h+100) this.reset();
     }
 }
 
-// CORE CONSTANTS
-let State = { zone: "CORE" };
-const workforce = [];
-for(let i=0; i<444; i++) workforce.push(new Entity());
+for(let i=0; i<144; i++) workforce.push(new LightAgent());
 
-// --- INTERACTION ---
 window.addEventListener('touchstart', (e) => {
     isTouching = true;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    State.zone = detectBiologicalZone(ty);
-    induceSensation(State.zone, 50);
+    pulse();
 });
-
 window.addEventListener('touchmove', (e) => {
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    State.zone = detectBiologicalZone(ty);
 });
-
 window.addEventListener('touchend', () => isTouching = false);
 
-// --- THE INFINITE LOOP ---
 function render() {
     time += 0.01;
-    ctx.fillStyle = "#01111a"; // THE DARK AETHER (Not Black)
-    ctx.fillRect(0, 0, w, h);
-
-    // Dynamic Aether Glow
+    
+    // NO BLACK: Deep Indigo/Teal Base
     const bg = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, w);
-    bg.addColorStop(0, `hsla(${190 + Math.sin(time)*10}, 100%, 20%, 0.8)`);
-    bg.addColorStop(1, `hsla(200, 100%, 5%, 0)`);
+    bg.addColorStop(0, `hsla(190, 100%, 15%, 1)`);
+    bg.addColorStop(1, `hsla(220, 100%, 5%, 1)`);
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, w, h);
 
-    // Omni-Genesis Field Render
+    // THE IMAGE MATCH: Additive "Screen" Blending
+    // This creates the white-hot core from your photo
+    ctx.globalCompositeOperation = "screen";
+    
     workforce.forEach(p => {
-        p.update(State.zone);
-        p.draw();
+        p.update();
+        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+        g.addColorStop(0, `hsla(${p.hue}, 100%, 70%, 0.8)`);
+        g.addColorStop(0.4, `hsla(${p.hue}, 100%, 30%, 0.2)`);
+        g.addColorStop(1, `rgba(0,0,0,0)`);
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
     });
 
-    // Truth Filtration Layer: Hexagonal Grid ( फेक 3D without WebGL)
-    if (State.zone === "TRUTH") {
-        ctx.save();
-        ctx.strokeStyle = `hsla(185, 100%, 50%, 0.2)`;
-        ctx.lineWidth = 1;
-        for(let i=0; i<w; i+=40) {
-            for(let j=0; j<h; j+=40) {
-                const dist = Math.hypot(tx-i, ty-j);
-                const prox = isTouching ? Math.max(0, 1 - dist/300) : 0;
-                ctx.strokeStyle = `hsla(${isTouching ? 50 : 185}, 100%, 60%, ${0.1 + prox * 0.9})`;
-                ctx.strokeRect(i, j, 30, 30);
-            }
-        }
-        ctx.restore();
-    }
+    // THE 144k ANCHORS
+    ctx.globalCompositeOperation = "source-over";
+    ctx.textAlign = 'center';
+    ctx.font = "bold italic 48px Times New Roman";
+    ["TRUTH", "TRUST", "144,000"].forEach((txt, i) => {
+        ctx.shadowBlur = 30;
+        ctx.shadowColor = "cyan";
+        ctx.fillStyle = "rgba(255,255,255,0.7)";
+        ctx.fillText(txt, w/2, h * (0.3 + i * 0.25));
+    });
 
     requestAnimationFrame(render);
 }
 
-window.addEventListener('resize', resize);
 resize(); render();
 </script>
 </body>
