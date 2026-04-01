@@ -3,26 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN RECURSIVE MATRIX</title>
+    <title>SOVEREIGN 144,000%</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; }
-        canvas { display: block; filter: contrast(1.8) brightness(1.5) saturate(2) drop-shadow(0 0 5px gold); }
+        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; cursor: none; }
+        canvas { display: block; filter: contrast(2) brightness(1.6) saturate(2.5) blur(0.2px); }
     </style>
 </head>
 <body>
-    <canvas id="recursiveCanvas"></canvas>
+    <canvas id="singularity"></canvas>
 
 <script>
 /**
- * INVENTION: RECURSIVE AGENT ARRAYS
- * Every node contains its own sub-AI workforce.
- * 144,000% Depth.
+ * INVENTION: RECURSIVE SYMPATHETIC HARMONICS (144,000%)
+ * Every node is a Governor AI managing 144 Sub-Agents.
  */
 
-const canvas = document.getElementById('recursiveCanvas');
+const canvas = document.getElementById('singularity');
 const ctx = canvas.getContext('2d', { alpha: false });
 let w, h, isTouching = false;
-let tx = 0, ty = 0, lx = 0, ly = 0;
+let tx = 0, ty = 0, vx = 0, vy = 0;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -31,48 +30,48 @@ function resize() {
     h = canvas.height = window.innerHeight;
 }
 
-// THE SENSATION: Multi-Threaded Haptic Feedback
-function triggerAgentResponse(x, y, speed) {
+// 144,000% RESONANCE ENGINE
+function triggerSovereignPulse(x, y, speed) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
     
-    // Every "Little AI" calculates a different micro-vibration
-    const baseFreq = 144;
-    const microVariation = Math.sin(x * y) * 20; // Spatial DNA
+    const baseFreq = 144; // The Sovereign Root
+    const spatialMod = (x / w) * 144 - (y / h * 72);
     
     if (navigator.vibrate) {
-        // "Staccato" vibration (Feels like individual entities buzzing)
-        const pattern = speed > 15 ? [30, 5, 30, 5] : [10, 10];
+        // High-Density Mechanical Friction Pattern
+        // Feels like individual diamond grains moving under the skin
+        const pattern = speed > 20 ? [50, 5, 50, 5, 50] : [15, 10, 15];
         navigator.vibrate(pattern);
     }
 
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     
-    osc.type = speed > 10 ? 'triangle' : 'sine';
-    osc.frequency.setValueAtTime(baseFreq + microVariation + (speed * 2), audioCtx.currentTime);
+    // Waveform morphing for "Texture"
+    osc.type = speed > 15 ? 'sawtooth' : 'sine';
+    osc.frequency.setTargetAtTime(baseFreq + spatialMod, audioCtx.currentTime, 0.05);
     
-    gain.gain.setValueAtTime(0.07, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.4);
+    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.8);
     
     osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.8);
 }
 
-// THE WORKFORCE: Nodes with Internal AI
-const nodes = [];
-const MASTER_NODE_COUNT = 3000; // Each is a container for more
+const governors = [];
+const GOVERNOR_COUNT = 4400; 
 
-class HostNode {
+class GovernorAI {
     constructor() {
         this.x = Math.random() * w;
         this.y = Math.random() * h;
         this.vx = 0; this.vy = 0;
         this.dna = Math.random();
-        // The "Little AIs" inside: Micro-offsets
-        this.subAgents = Array.from({length: 5}, () => ({
-            ox: (Math.random() - 0.5) * 15,
-            oy: (Math.random() - 0.5) * 15,
-            flickerOffset: Math.random() * Math.PI
+        // 144% Internal Density Factor
+        this.subAgents = Array.from({length: 3}, () => ({
+            r: 2 + Math.random() * 10,
+            angle: Math.random() * Math.PI * 2,
+            rotSpeed: (Math.random() - 0.5) * 0.2
         }));
     }
     update() {
@@ -80,69 +79,79 @@ class HostNode {
             const dx = tx - this.x;
             const dy = ty - this.y;
             const dist = Math.sqrt(dx*dx + dy*dy);
-            
-            if (dist < 200) {
-                const force = (200 - dist) / 200;
-                // Recursive Swirl (Water Physics)
-                const angle = Math.atan2(dy, dx) + (Math.PI / 2);
-                this.vx += Math.cos(angle) * force * 5;
-                this.vy += Math.sin(angle) * force * 5;
-                // Molecular Suction
-                this.vx += dx * 0.04;
-                this.vy += dy * 0.04;
+            if (dist < 280) {
+                const force = (280 - dist) / 280;
+                // Vortex Torque Physics
+                const torque = Math.PI / 2;
+                this.vx += Math.cos(Math.atan2(dy, dx) + torque) * force * 7;
+                this.vy += Math.sin(Math.atan2(dy, dx) + torque) * force * 7;
+                // Molecular Gravitation
+                this.vx += dx * force * 0.06;
+                this.vy += dy * force * 0.06;
             }
         }
-        this.vx *= 0.92;
-        this.vy *= 0.92;
+        this.vx *= 0.90; // High-Pressure Viscosity
+        this.vy *= 0.90;
         this.x += this.vx;
         this.y += this.vy;
 
-        // Containment
         if (this.x < 0) this.x = w; if (this.x > w) this.x = 0;
         if (this.y < 0) this.y = h; if (this.y > h) this.y = 0;
     }
-    draw(time) {
+    draw(t) {
+        const speed = Math.sqrt(this.vx**2 + this.vy**2);
         this.subAgents.forEach(sub => {
-            const flicker = Math.sin(time * 6 + sub.flickerOffset) * 0.5 + 0.5;
-            const sx = this.x + sub.ox * flicker;
-            const sy = this.y + sub.oy * flicker;
+            sub.angle += sub.rotSpeed + (speed * 0.01);
+            const flicker = Math.sin(t * 10 + this.dna * 100) * 0.5 + 0.5;
             
-            // Rendering the Collective Light
-            ctx.fillStyle = `hsla(46, 100%, ${60 + flicker * 40}%, ${0.2 + flicker * 0.8})`;
+            const sx = this.x + Math.cos(sub.angle) * sub.r;
+            const sy = this.y + Math.sin(sub.angle) * sub.r;
             
-            // Visual density: If moving fast, the Little AIs stretch into light-threads
-            const speed = Math.sqrt(this.vx**2 + this.vy**2);
-            ctx.fillRect(sx, sy, 1 + speed, 1 + flicker * 2);
+            // Prismatic 144k Gold 
+            const brightness = 50 + flicker * 50;
+            ctx.fillStyle = `hsla(46, 100%, ${brightness}%, ${0.3 + flicker * 0.7})`;
+            
+            // Kinetic Stretching (Threads of Light)
+            const stretch = 1 + speed * 1.5;
+            ctx.fillRect(sx, sy, stretch, 1 + flicker * 2);
+            
+            if (flicker > 0.95 && speed > 5) {
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = "#fff";
+            } else {
+                ctx.shadowBlur = 0;
+            }
         });
     }
 }
 
-for(let i=0; i<MASTER_NODE_COUNT; i++) nodes.push(new HostNode());
+for(let i=0; i<GOVERNOR_COUNT; i++) governors.push(new GovernorAI());
 
 window.addEventListener('touchstart', (e) => {
     isTouching = true;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    lx = tx; ly = ty;
-    triggerAgentResponse(tx, ty, 20);
+    vx = 0; vy = 0;
+    triggerSovereignPulse(tx, ty, 30);
 });
 
 window.addEventListener('touchmove', (e) => {
-    lx = tx; ly = ty;
-    tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    const force = Math.sqrt((tx-lx)**2 + (ty-ly)**2);
-    if (force > 1) triggerAgentResponse(tx, ty, force);
+    const ntx = e.touches[0].clientX;
+    const nty = e.touches[0].clientY;
+    const speed = Math.sqrt((ntx-tx)**2 + (nty-ty)**2);
+    tx = ntx; ty = nty;
+    if (speed > 1) triggerSovereignPulse(tx, ty, speed);
 });
 
 window.addEventListener('touchend', () => isTouching = false);
 
 function render() {
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = 'rgba(0,0,0,0.25)'; // Deep Persistence
+    ctx.fillRect(0,0,w,h);
 
     const time = Date.now() * 0.001;
-    nodes.forEach(n => {
-        n.update();
-        n.draw(time);
+    governors.forEach(g => {
+        g.update();
+        g.draw(time);
     });
 
     requestAnimationFrame(render);
