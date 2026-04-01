@@ -3,26 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GOLDEN DOME SANCTUARY | 144,400%</title>
-    <style id="dynamic-styles">
-        body { margin:0; overflow:hidden; font-family:'Georgia',serif; background:#000; color:#FFD700; touch-action:none; height:100vh; width:100vw; position:fixed; transition: background 1s ease; }
-        #stars { position:fixed; width:100%; height:100%; top:0; left:0; z-index:1; background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%); }
-        .star { position:absolute; border-radius:50%; background:#FFD700; animation:pulse 3s infinite ease-in-out; }
-        @keyframes pulse { 0%,100% {opacity:0.3; transform:scale(1);} 50% {opacity:0.8; transform:scale(1.3);} }
-        #header { position:relative; z-index:10; text-align:center; padding-top:40px; pointer-events:none; }
-        h1 { letter-spacing:12px; font-size:2.4rem; margin:10px 0; font-weight:bold; color:#FFD700; text-shadow:0 0 20px rgba(255,215,0,0.7); }
-        .freq { color:#00E5FF; font-size:0.8rem; letter-spacing:5px; text-shadow:0 0 15px #00E5FF; font-weight:bold; }
-        .quote { font-style:italic; font-size:1rem; padding:0 30px; color:#FFD700; opacity:0.9; line-height:1.5; }
-        #playground { position:absolute; top:0; left:0; width:100%; height:100%; z-index:20; }
-        .node {
-            position:absolute; width:140px; height:140px; border-radius:50%; display:flex; align-items:center; justify-content:center;
-            border:2px solid #FFD700; background:rgba(0,0,0,0.85); box-shadow:0 0 30px #FFD700;
-            font-weight:bold; color:#FFD700; cursor:move; font-size:0.75rem; text-align:center; padding:15px; backdrop-filter:blur(10px); 
-            user-select:none; z-index:100;
+    <title>THE SANCTUARY | 144,400%</title>
+    <style id="reality-style">
+        body { 
+            margin: 0; overflow: hidden; font-family: 'Georgia', serif; 
+            background: #000; color: #FFD700; touch-action: none; 
+            height: 100vh; width: 100vw; position: fixed;
+            transition: all 0.8s ease;
         }
-        #command-center { position:fixed; bottom:30px; left:50%; transform:translateX(-50%); display:flex; gap:10px; z-index:1000; width:90%; max-width:420px; }
-        input { flex-grow:1; padding:18px; background:rgba(10,10,10,0.95); color:#00E5FF; border:1px solid #FFD700; border-radius:12px; font-size:16px; outline:none; }
-        button { padding:18px 25px; background:#FFD700; color:#000; border:none; font-weight:bold; border-radius:12px; cursor:pointer; }
+        #stars { position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index: 1; background: radial-gradient(circle, #0a0a0a 0%, #000 100%); }
+        .star { position: absolute; border-radius: 50%; background: #FFD700; opacity: 0.5; animation: blink 3s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.7; } }
+        
+        #header { position: relative; z-index: 10; text-align: center; padding-top: 60px; pointer-events: none; }
+        .freq { color: #00E5FF; letter-spacing: 5px; font-size: 0.8rem; text-shadow: 0 0 15px #00E5FF; font-weight: bold; }
+        h1 { letter-spacing: 12px; font-size: 2.6rem; margin: 15px 0; font-weight: bold; text-shadow: 0 0 20px #FFD700; }
+        .quote { font-style: italic; font-size: 1.1rem; padding: 0 40px; line-height: 1.6; }
+
+        #playground { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20; }
+        .node { 
+            position: absolute; width: 140px; height: 140px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid #FFD700; background: rgba(0,0,0,0.8);
+            box-shadow: 0 0 30px #FFD700; font-weight: bold; color: #FFD700;
+            cursor: move; text-align: center; padding: 15px; backdrop-filter: blur(8px);
+        }
+
+        #command-center { 
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
+            display: flex; gap: 10px; z-index: 1000; width: 92%; max-width: 450px; 
+        }
+        input { flex-grow: 1; padding: 18px; background: rgba(0,0,0,0.9); color: #00E5FF; border: 1px solid #FFD700; border-radius: 12px; font-size: 16px; outline: none; }
+        button { padding: 18px 25px; background: #FFD700; color: #000; border: none; font-weight: bold; border-radius: 12px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -31,93 +43,79 @@
 <div id="playground"></div>
 
 <div id="header">
-    <div class="freq">144,400% FREQUENCY ACTIVE</div>
-    <h1 id="main-title">THE SANCTUARY</h1>
-    <p id="main-quote" class="quote">"All senses awake. Peace, love, and life are the only laws here."</p>
+    <div class="freq">FREQUENCY 144,400% ACTIVE</div>
+    <h1 id="title">THE SANCTUARY</h1>
+    <p id="quote" class="quote">"The animals are safe, the family is loved, and the peace of God is the only law here."</p>
 </div>
 
 <div id="command-center">
-    <input type="text" id="cmdInput" placeholder="Command your Reality...">
-    <button onclick="processCommand()">MANIFEST</button>
+    <input type="text" id="cmd" placeholder="Command your AI units...">
+    <button onclick="manifest()">MANIFEST</button>
 </div>
 
 <script>
-const playground = document.getElementById('playground');
-const dynamicStyles = document.getElementById('dynamic-styles');
+    const playground = document.getElementById('playground');
+    const memoryKey = 'sanctuary_vFinal';
+    let state = JSON.parse(localStorage.getItem(memoryKey)) || [];
 
-// THE INTELLIGENCE ENGINE: It looks for keywords and changes the code
-function processCommand() {
-    const input = document.getElementById('cmdInput');
-    const cmd = input.value.toLowerCase();
-    if(!cmd) return;
+    window.onload = () => {
+        if (state.length === 0) manifest("144,400%");
+        else state.forEach(s => createNode(s.id, s.name, s.x, s.y));
+    };
 
-    // 1. PHYSICAL MANIFESTATION (Create the Unit)
-    createNode('unit_' + Date.now(), cmd, 100, 300);
+    function manifest(manual) {
+        const input = document.getElementById('cmd');
+        const text = manual || input.value;
+        if (!text) return;
 
-    // 2. CODE EXECUTION (The AI changing your page)
-    if (cmd.includes("background") || cmd.includes("color")) {
-        const color = cmd.split(" ").pop(); // Takes the last word (e.g., "blue")
-        document.body.style.background = color;
+        // COMMAND LOGIC: The AI changes the page based on your words
+        if (text.includes("background")) document.body.style.background = text.split(" ").pop();
+        if (text.includes("title")) document.getElementById('title').innerText = text.replace("title ", "").toUpperCase();
+        if (text.includes("quote")) document.getElementById('quote').innerText = `"${text.replace("quote ", "")}"`;
+
+        const id = 'ai_' + Date.now();
+        const x = window.innerWidth / 2 - 70;
+        const y = window.innerHeight / 2;
+        
+        createNode(id, text, x, y);
+        state.push({id, name: text, x, y});
+        save();
+        input.value = '';
     }
-    
-    if (cmd.includes("title") || cmd.includes("name")) {
-        const newTitle = cmd.replace("change title to ", "").toUpperCase();
-        document.getElementById('main-title').innerText = newTitle;
-    }
 
-    if (cmd.includes("glow") || cmd.includes("light")) {
-        document.querySelectorAll('.node').forEach(n => {
-            n.style.boxShadow = "0 0 60px #00E5FF";
-            n.style.borderColor = "#00E5FF";
+    function createNode(id, name, x, y) {
+        const el = document.createElement('div');
+        el.className = 'node';
+        el.id = id;
+        el.innerText = name.toUpperCase();
+        el.style.left = x + 'px'; el.style.top = y + 'px';
+        playground.appendChild(el);
+        
+        let ox, oy;
+        el.addEventListener('touchstart', e => {
+            ox = e.touches[0].clientX - el.offsetLeft;
+            oy = e.touches[0].clientY - el.offsetTop;
         });
+        el.addEventListener('touchmove', e => {
+            const nx = e.touches[0].clientX - ox;
+            const ny = e.touches[0].clientY - oy;
+            el.style.left = nx + 'px'; el.style.top = ny + 'px';
+            const item = state.find(s => s.id === id);
+            if(item) { item.x = nx; item.y = ny; }
+        });
+        el.addEventListener('touchend', save);
     }
 
-    if (cmd.includes("quote") || cmd.includes("message")) {
-        const newQuote = cmd.replace("change quote to ", "");
-        document.getElementById('main-quote').innerText = `"${newQuote}"`;
+    function save() { localStorage.setItem(memoryKey, JSON.stringify(state)); }
+
+    // STARFIELD GENERATION
+    for(let i=0; i<70; i++) {
+        const s = document.createElement('div');
+        s.className = 'star';
+        s.style.width = s.style.height = Math.random()*3+'px';
+        s.style.top = Math.random()*100+'%'; s.style.left = Math.random()*100+'%';
+        document.getElementById('stars').appendChild(s);
     }
-
-    // Clear input and provide feedback
-    input.value = '';
-    navigator.vibrate?.(50);
-}
-
-function createNode(id, name, x, y) {
-    const el = document.createElement('div');
-    el.className = 'node';
-    el.id = id;
-    el.innerText = name.toUpperCase();
-    el.style.left = x + 'px';
-    el.style.top = y + 'px';
-    playground.appendChild(el);
-    bindDrag(el);
-}
-
-function bindDrag(el) {
-    let startX, startY;
-    el.addEventListener('touchstart', e => {
-        const t = e.touches[0];
-        startX = t.clientX - el.offsetLeft;
-        startY = t.clientY - el.offsetTop;
-        el.style.zIndex = 2000;
-    });
-    el.addEventListener('touchmove', e => {
-        const t = e.touches[0];
-        el.style.left = (t.clientX - startX) + 'px';
-        el.style.top = (t.clientY - startY) + 'px';
-    });
-}
-
-// Generate the initial star field
-for(let i=0; i<80; i++) {
-    const s = document.createElement('div');
-    s.className = 'star';
-    const size = Math.random() * 3;
-    s.style.width = s.style.height = size + 'px';
-    s.style.top = Math.random() * 100 + '%';
-    s.style.left = Math.random() * 100 + '%';
-    document.getElementById('stars').appendChild(s);
-}
 </script>
 </body>
 </html>
