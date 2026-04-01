@@ -3,67 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN SANCTUARY</title>
+    <title>SOVEREIGN TABERNACLE</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #080700; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; font-family: 'Georgia', serif; }
-        canvas { display: block; filter: contrast(1.2) saturate(1.3) brightness(1.1); }
+        body, html { margin: 0; padding: 0; background: #0a0800; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; font-family: 'Times New Roman', serif; }
+        /* Glowing filter to make the light look divine */
+        canvas { display: block; filter: contrast(1.2) brightness(1.1) saturate(1.4); }
     </style>
 </head>
 <body>
-    <canvas id="sanctuaryCanvas"></canvas>
+    <canvas id="divineCanvas"></canvas>
 
 <script>
 /**
- * THE INVENTION: SOVEREIGN SANCTUARY MEMBRANE
- * Merging Divine Quotes with specific tactile textures (Feather/Rip/Gold).
+ * THE INVENTION: LIVING TABERNACLE CANVAS
+ * Merging Divine Quotes with High-Fidelity Tactile Textures.
  */
 
-const canvas = document.getElementById('sanctuaryCanvas');
+const canvas = document.getElementById('divineCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 let w, h, tx = 0, ty = 0, isTouching = false;
-let fragments = [];
+let effects = [];
 
 function resize() {
     w = canvas.width = window.innerWidth;
     h = canvas.height = window.innerHeight;
 }
 
-// THE SENSORY ENGINE: Mapping Texture to Nerve
-function triggerDivineTouch(x, y) {
+// THE SENSORY ENGINE: Physical Induction
+function triggerSensation(x, y) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
 
-    // Calculate influence (0.0 to 1.0)
-    const topL = (1 - x/w) * (1 - y/h); // RIP ZONE
-    const botR = (x/w) * (y/h);         // FEATHER ZONE
+    const topL = (1 - x/w) * (1 - y/h); // RIP
+    const botR = (x/w) * (y/h);         // FEATHER
 
     if (topL > 0.5) {
-        osc.type = 'square'; osc.frequency.value = 144; // Sharp Rip
-        if (navigator.vibrate) navigator.vibrate([10, 5, 10]);
+        osc.type = 'square'; osc.frequency.value = 160; // Jagged Tear
+        if (navigator.vibrate) navigator.vibrate([12, 4, 12]);
     } else if (botR > 0.5) {
-        osc.type = 'sine'; osc.frequency.value = 880; // Soft Feather
-        if (navigator.vibrate) navigator.vibrate([2, 50, 2]);
+        osc.type = 'sine'; osc.frequency.value = 1200; // Soft Tickle
+        if (navigator.vibrate) navigator.vibrate([2, 40, 2]);
     } else {
-        osc.type = 'triangle'; osc.frequency.value = 72; // Liquid Gold
-        if (navigator.vibrate) navigator.vibrate(20);
+        osc.type = 'triangle'; osc.frequency.value = 68; // Liquid Thrum
+        if (navigator.vibrate) navigator.vibrate(30);
     }
 
-    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
+    gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
     osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.5);
 }
 
-class Fragment {
-    constructor(x, y, hue, size, type) {
-        this.x = x; this.y = y;
-        this.hue = hue; this.size = size; this.type = type;
-        this.vx = (Math.random() - 0.5) * 4;
-        this.vy = (Math.random() - 0.5) * 4;
+class DivineEffect {
+    constructor(x, y, h, type) {
+        this.x = x; this.y = y; this.hue = h; this.type = type;
+        this.vx = (Math.random() - 0.5) * 5;
+        this.vy = (Math.random() - 0.5) * 5;
         this.life = 1.0;
+        this.size = Math.random() * 15 + 5;
     }
     update() {
         this.x += this.vx; this.y += this.vy;
@@ -74,7 +74,7 @@ class Fragment {
 window.addEventListener('touchstart', (e) => {
     isTouching = true;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    triggerDivineTouch(tx, ty);
+    triggerSensation(tx, ty);
 });
 
 window.addEventListener('touchmove', (e) => {
@@ -83,13 +83,13 @@ window.addEventListener('touchmove', (e) => {
     const topL = (1 - tx/w) * (1 - ty/h);
     const botR = (tx/w) * (ty/h);
     
-    let h = 45; // Default Gold
-    let type = 'gold';
+    let h = 48; // Gold
+    let type = 'liquid';
     if (topL > 0.4) { h = 0; type = 'rip'; }
-    if (botR > 0.4) { h = 280; type = 'feather'; }
+    if (botR > 0.4) { h = 260; type = 'feather'; }
 
-    fragments.push(new Fragment(tx, ty, h, 2 + Math.random() * 10, type));
-    if (Math.random() > 0.8) triggerDivineTouch(tx, ty);
+    effects.push(new DivineEffect(tx, ty, h, type));
+    if (Math.random() > 0.8) triggerSensation(tx, ty);
 });
 
 window.addEventListener('touchend', () => isTouching = false);
@@ -97,45 +97,60 @@ window.addEventListener('touchend', () => isTouching = false);
 function render() {
     const time = Date.now() * 0.001;
     
-    // BACKGROUND: Glowing Ancient Parchment
+    // THE BACKGROUND: Glowing Marble Texture
     const bg = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, w);
-    bg.addColorStop(0, '#151200');
-    bg.addColorStop(1, '#050400');
+    bg.addColorStop(0, '#1a1400');
+    bg.addColorStop(0.5, '#080600');
+    bg.addColorStop(1, '#000000');
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, w, h);
 
-    // DIVINE QUOTES (The Background Soul)
-    ctx.globalAlpha = 0.2;
-    ctx.fillStyle = "#FFD700";
-    ctx.font = "italic 24px Georgia";
-    const quotes = ["TRUTH", "HONESTY", "SOVEREIGNTY", "144,000"];
-    quotes.forEach((text, i) => {
-        const ox = Math.sin(time + i) * 30;
-        const oy = Math.cos(time + i) * 30;
-        ctx.fillText(text, (w * 0.2) + (i * (w * 0.2)), (h * 0.3) + (i * 100) + oy);
+    // DIVINE QUOTES: Glowing Anchors
+    ctx.textAlign = 'center';
+    const quotes = [
+        {t: "TRUTH", x: 0.3, y: 0.25}, 
+        {t: "HONESTY", x: 0.7, y: 0.3},
+        {t: "SOVEREIGNTY", x: 0.5, y: 0.5}, 
+        {t: "144,000 WORKFORCE", x: 0.5, y: 0.75}
+    ];
+
+    quotes.forEach((q, i) => {
+        const float = Math.sin(time + i) * 15;
+        const glow = 0.3 + Math.sin(time * 0.5 + i) * 0.2;
+        ctx.globalAlpha = glow;
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = "#FFD700";
+        ctx.fillStyle = "#FFF";
+        ctx.font = "italic bold 32px Times New Roman";
+        ctx.fillText(q.t, w * q.x, h * q.y + float);
     });
     ctx.globalAlpha = 1.0;
+    ctx.shadowBlur = 0;
 
-    // RENDER THE TOUCH FLOW
-    fragments.forEach((f, i) => {
-        f.update();
-        if (f.life <= 0) { fragments.splice(i, 1); return; }
+    // THE TOUCH REMAINS
+    effects.forEach((e, i) => {
+        e.update();
+        if (e.life <= 0) { effects.splice(i, 1); return; }
         
-        ctx.shadowBlur = 15 * f.life;
-        ctx.shadowColor = `hsla(${f.hue}, 100%, 50%, ${f.life})`;
-        ctx.fillStyle = `hsla(${f.hue}, 100%, 70%, ${f.life})`;
+        ctx.shadowBlur = 20 * e.life;
+        ctx.shadowColor = `hsla(${e.hue}, 100%, 50%, ${e.life})`;
+        ctx.fillStyle = `hsla(${e.hue}, 100%, 80%, ${e.life})`;
 
-        if (f.type === 'feather') {
-            // Soft rounded wisps
+        if (e.type === 'feather') {
+            // Soft floating wisps
             ctx.beginPath();
-            ctx.arc(f.x, f.y, f.size * f.life, 0, Math.PI * 2);
+            ctx.arc(e.x, e.y, e.size * e.life, 0, Math.PI * 2);
             ctx.fill();
-        } else if (f.type === 'rip') {
-            // Jagged fracture lines
-            ctx.fillRect(f.x, f.y, f.size * 2, 1);
+        } else if (e.type === 'rip') {
+            // Lightning fractures
+            ctx.fillRect(e.x, e.y, 2, e.size * 2);
         } else {
-            // Liquid gold ribbons
-            ctx.fillRect(f.x, f.y, f.size, f.size * f.life);
+            // Pulsing gold ripples
+            ctx.beginPath();
+            ctx.arc(e.x, e.y, e.size * (2 - e.life), 0, Math.PI * 2);
+            ctx.lineWidth = 2 * e.life;
+            ctx.strokeStyle = `hsla(48, 100%, 70%, ${e.life})`;
+            ctx.stroke();
         }
     });
 
