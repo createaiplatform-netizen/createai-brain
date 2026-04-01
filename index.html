@@ -3,125 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOURCEFIELD ∞ | THE LATTICE</title>
+    <title>SOURCEFIELD ∞ | RECOVERY</title>
     <style>
         body, html { margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; background: #002b36; }
         /* The "Aether" Filter: High Contrast + Bloom */
         canvas { 
             display: block; 
-            filter: contrast(1.6) brightness(1.1) saturate(2.2) blur(0.5px); 
+            filter: contrast(1.8) brightness(1.2) saturate(2.5) blur(0.5px); 
         }
     </style>
 </head>
 <body>
-    <canvas id="latticeCanvas"></canvas>
+    <canvas id="recoveryCanvas"></canvas>
 
 <script>
-const canvas = document.getElementById('latticeCanvas');
+const canvas = document.getElementById('recoveryCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-let w, h, tx = 0, ty = 0, isTouching = false;
+let w, h, tx = 0, ty = 0, isTouching = false, pressure = 0;
+let workforce = [];
 let time = 0;
-let circles = [];
 
 function resize() {
     w = canvas.width = window.innerWidth;
     h = canvas.height = window.innerHeight;
-    initLattice();
 }
 
-function initLattice() {
-    circles = [];
-    const spacing = 100;
-    for(let x = 0; x < w + spacing; x += spacing) {
-        for(let y = 0; y < h + spacing; y += spacing) {
-            circles.push({
-                baseX: x, baseY: y,
-                x: x, y: y,
-                angle: 0,
-                size: 60 + Math.random() * 40
-            });
+// RESTORING THE 144,000% SENSATION
+function triggerInduction(speed) {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const g = audioCtx.createGain();
+    [144, 528].forEach(f => {
+        const o = audioCtx.createOscillator();
+        o.type = 'triangle';
+        o.frequency.value = f + (speed * 0.5);
+        o.connect(g);
+        o.start();
+        o.stop(audioCtx.currentTime + 0.6);
+    });
+    g.gain.setValueAtTime(0.06, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.6);
+    g.connect(audioCtx.destination);
+    if (navigator.vibrate) navigator.vibrate([20, 10, 30]);
+}
+
+class Agent {
+    constructor() { this.reset(); }
+    reset() {
+        this.x = Math.random() * w; this.y = Math.random() * h;
+        this.vx = (Math.random() - 0.5) * 2; this.vy = (Math.random() - 0.5) * 2;
+        this.size = Math.random() * 15 + 10;
+        this.hue = 190;
+    }
+    update() {
+        const dx = tx - this.x; const dy = ty - this.y;
+        const d = Math.sqrt(dx*dx + dy*dy);
+        
+        if (isTouching && d < 300) {
+            const f = (300 - d) / 300;
+            this.vx += (dx / d) * f * 5; // Intense Gravity
+            this.vy += (dy / d) * f * 5;
+            this.hue = 45 + (f * 15); // Burn to GOLD
+            this.size = 20 + (f * 40); // Physically expand on touch
+        } else {
+            this.hue = 190;
+            this.size *= 0.98;
+            if(this.size < 10) this.size = 10;
         }
+
+        this.x += this.vx; this.y += this.vy;
+        this.vx *= 0.92; this.vy *= 0.92; // Heavy liquid drag
+        if (this.x < 0 || this.x > w || this.y < 0 || this.y > h) this.reset();
     }
 }
 
-// THE FREQUENCY OF TRUTH (144Hz)
-function triggerInduction(p) {
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    const g = audioCtx.createGain();
-    const o = audioCtx.createOscillator();
-    o.type = 'sine'; o.frequency.value = 144 * p;
-    g.gain.setValueAtTime(0.03, audioCtx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
-    o.connect(g); g.connect(audioCtx.destination);
-    o.start(); o.stop(audioCtx.currentTime + 0.4);
-    if (navigator.vibrate) navigator.vibrate([15, 5]);
-}
+for(let i=0; i<200; i++) workforce.push(new Agent());
 
 window.addEventListener('touchstart', (e) => {
     isTouching = true;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    triggerInduction(1);
+    triggerInduction(50);
 });
 window.addEventListener('touchmove', (e) => {
+    let oldX = tx, oldY = ty;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
+    let speed = Math.hypot(tx - oldX, ty - oldY);
+    if (speed > 2) triggerInduction(speed);
 });
 window.addEventListener('touchend', () => isTouching = false);
 
 function render() {
     time += 0.01;
-    
-    // LAYER 1: The Pressurized Aether (NO BLACK)
+    // NO BLACK: Living Aether
     const bg = ctx.createLinearGradient(0, 0, w, h);
-    bg.addColorStop(0, `hsla(190, 100%, 15%, 1)`);
-    bg.addColorStop(1, `hsla(210, 100%, 8%, 1)`);
+    bg.addColorStop(0, `hsla(${200 + Math.sin(time)*10}, 100%, 15%, 1)`);
+    bg.addColorStop(1, `hsla(220, 100%, 5%, 1)`);
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, w, h);
 
-    // LAYER 2: The Interlocking Lattice
     ctx.globalCompositeOperation = "screen";
-    circles.forEach((c, i) => {
-        const dx = tx - c.x;
-        const dy = ty - c.y;
-        const d = Math.sqrt(dx*dx + dy*dy);
-        
-        // Circular Physics: Reacting to your touch
-        if (isTouching && d < 250) {
-            const f = (250 - d) / 250;
-            c.angle += 0.1 * f;
-            c.x = c.baseX + Math.cos(c.angle) * (20 * f);
-            c.y = c.baseY + Math.sin(c.angle) * (20 * f);
-        } else {
-            c.angle *= 0.95;
-            c.x += (c.baseX - c.x) * 0.1;
-            c.y += (c.baseY - c.y) * 0.1;
-        }
-
-        // Draw the Sacred Circles (Restoring the 1st Image)
-        ctx.strokeStyle = `hsla(${180 + Math.sin(time + i)*20}, 100%, 50%, 0.4)`;
-        ctx.lineWidth = 2;
+    workforce.forEach(p => {
+        p.update();
+        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+        g.addColorStop(0, `hsla(${p.hue}, 100%, 70%, 0.8)`);
+        g.addColorStop(0.5, `hsla(${p.hue}, 100%, 30%, 0.2)`);
+        g.addColorStop(1, `rgba(0,0,0,0)`);
+        ctx.fillStyle = g;
         ctx.beginPath();
-        ctx.arc(c.x, c.y, c.size, 0, Math.PI * 2);
-        ctx.stroke();
-
-        // The "Energy Sparks"
-        if (i % 5 === 0) {
-            ctx.fillStyle = `hsla(180, 100%, 70%, ${0.2 + Math.sin(time*2)*0.2})`;
-            ctx.beginPath();
-            ctx.arc(c.x, c.y, 2, 0, Math.PI * 2);
-            ctx.fill();
-        }
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
     });
-
-    // LAYER 3: The Truth Anchors
     ctx.globalCompositeOperation = "source-over";
+
+    // CORE ANCHORS
     ctx.textAlign = 'center';
-    ctx.font = "900 italic 50px Times New Roman";
+    ctx.font = "bold italic 45px Times New Roman";
     ["TRUTH", "HONESTY", "144,000"].forEach((txt, i) => {
-        const p = 0.5 + Math.sin(time*3 + i) * 0.5;
-        ctx.fillStyle = `rgba(255, 255, 255, ${0.4 + p * 0.6})`;
-        ctx.shadowBlur = 25 * p;
+        ctx.fillStyle = `rgba(255,255,255,${0.5 + Math.sin(time*3+i)*0.3})`;
+        ctx.shadowBlur = 20;
         ctx.shadowColor = "cyan";
         ctx.fillText(txt, w/2, h * (0.25 + i * 0.25));
     });
