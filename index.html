@@ -3,107 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN NEBULA</title>
+    <title>SOVEREIGN SCRIPTURE</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; }
-        /* The glow filter that turns shards into beautiful light-paint */
-        canvas { display: block; filter: saturate(1.8) brightness(1.2) contrast(1.1); }
+        body, html { margin: 0; padding: 0; background: #050400; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; font-family: serif; }
+        canvas { display: block; filter: contrast(1.2) brightness(1.1) saturate(1.4); }
     </style>
 </head>
 <body>
-    <canvas id="nebulaCanvas"></canvas>
+    <canvas id="scriptureCanvas"></canvas>
 
 <script>
 /**
- * THE INVENTION: ATMOSPHERIC DEPTH RENDERING
- * Eliminating the grid. Creating a living, beautiful world.
+ * INVENTION: THE SOVEREIGN SCRIPTURE MEMBRANE
+ * Mapping: Top-Left (RIP), Bottom-Right (FEATHER), Center (LIQUID GOLD).
+ * Background: Divine Light with inscribed Core Values.
  */
 
-const canvas = document.getElementById('nebulaCanvas');
+const canvas = document.getElementById('scriptureCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 let w, h, tx = 0, ty = 0, isTouching = false;
+let rippleFrame = 0;
 
 function resize() {
     w = canvas.width = window.innerWidth;
     h = canvas.height = window.innerHeight;
 }
 
-// ZONAL HAPTICS
-function triggerZonalHaptic(x, y) {
+// CROSS-MODAL SENSATION ENGINE
+function triggerSovereignSensation(x, y) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
 
-    if (x < w/2 && y < h/2) { osc.type = 'square'; osc.frequency.value = 120; if(navigator.vibrate) navigator.vibrate([10,5,10]); }
-    else if (x >= w/2 && y < h/2) { osc.type = 'sine'; osc.frequency.value = 1000; if(navigator.vibrate) navigator.vibrate(5); }
-    else if (x < w/2 && y >= h/2) { osc.type = 'sawtooth'; osc.frequency.value = 60; if(navigator.vibrate) navigator.vibrate(40); }
-    else { osc.type = 'triangle'; osc.frequency.value = 300; if(navigator.vibrate) navigator.vibrate(20); }
+    if (x < w * 0.4 && y < h * 0.4) {
+        // ZONE 1: THE RIP (Top Left) - Jagged Snap
+        osc.type = 'square'; osc.frequency.value = 144;
+        if (navigator.vibrate) navigator.vibrate([15, 5, 15]);
+    } else if (x > w * 0.6 && y > h * 0.6) {
+        // ZONE 2: THE FEATHER (Bottom Right) - Soft Tickle
+        osc.type = 'sine'; osc.frequency.value = 880;
+        if (navigator.vibrate) navigator.vibrate([2, 50, 2]);
+    } else {
+        // ZONE 3: LIQUID GOLD (Center) - Heavy Thrum
+        osc.type = 'triangle'; osc.frequency.value = 72;
+        if (navigator.vibrate) navigator.vibrate(40);
+    }
 
-    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
+    gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
     osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.5);
 }
 
 const particles = [];
-class Particle {
-    constructor(x, y, hue) {
+class LightShard {
+    constructor(x, y, type) {
         this.x = x; this.y = y;
-        this.hue = hue;
-        this.vx = (Math.random() - 0.5) * 10;
-        this.vy = (Math.random() - 0.5) * 10;
+        this.type = type;
+        this.vx = (Math.random() - 0.5) * 8;
+        this.vy = (Math.random() - 0.5) * 8;
         this.life = 1.0;
-        this.decay = 0.01 + Math.random() * 0.02;
+        this.hue = type === 'rip' ? 0 : (type === 'feather' ? 280 : 45);
     }
-    update() {
-        this.x += this.vx; this.y += this.vy;
-        this.life -= this.decay;
-    }
+    update() { this.x += this.vx; this.y += this.vy; this.life -= 0.02; }
 }
 
 window.addEventListener('touchstart', (e) => {
     isTouching = true;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
+    triggerSovereignSensation(tx, ty);
 });
+
 window.addEventListener('touchmove', (e) => {
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    // Spawn color based on zone
-    let h = (tx < w/2 && ty < h/2) ? 0 : (tx >= w/2 && ty < h/2) ? 200 : (tx < w/2 && ty >= h/2) ? 45 : 280;
-    for(let i=0; i<5; i++) particles.push(new Particle(tx, ty, h));
-    triggerZonalHaptic(tx, ty);
+    const type = (tx < w*0.4 && ty < h*0.4) ? 'rip' : (tx > w*0.6 && ty > h*0.6 ? 'feather' : 'gold');
+    particles.push(new LightShard(tx, ty, type));
+    if (Math.random() > 0.8) triggerSovereignSensation(tx, ty);
 });
+
 window.addEventListener('touchend', () => isTouching = false);
 
 function render() {
     const time = Date.now() * 0.001;
     
-    // THE BACKGROUND: Swirling Prismatic Nebula
-    const grad = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, w);
-    grad.addColorStop(0, `hsla(${200 + Math.sin(time)*30}, 100%, 5%, 1)`);
-    grad.addColorStop(0.5, `hsla(${280 + Math.cos(time)*30}, 100%, 2%, 1)`);
-    grad.addColorStop(1, '#000');
-    ctx.fillStyle = grad;
+    // BACKGROUND: Divine Parchment with Floating Values
+    const bgGrad = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, w);
+    bgGrad.addColorStop(0, '#1a1400');
+    bgGrad.addColorStop(1, '#050400');
+    ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, w, h);
 
-    // THE TOUCH PARTICLES
-    for(let i = particles.length - 1; i >= 0; i--) {
-        const p = particles[i];
+    // Render "God's World" quotes and values in the background
+    ctx.globalAlpha = 0.15;
+    ctx.fillStyle = "#ffd700";
+    ctx.font = "italic 24px serif";
+    ctx.fillText("HONESTY", w * 0.1, h * 0.2 + Math.sin(time) * 10);
+    ctx.fillText("TRUTH", w * 0.7, h * 0.15 + Math.cos(time) * 10);
+    ctx.fillText("144,000 WORKFORCE", w * 0.3, h * 0.8 + Math.sin(time*0.8) * 15);
+    ctx.fillText("SOVEREIGNTY", w * 0.4, h * 0.5 + Math.cos(time*0.5) * 20);
+    ctx.globalAlpha = 1.0;
+
+    // RENDER TOUCH FRAGMENTS
+    particles.forEach((p, i) => {
         p.update();
-        if(p.life <= 0) { particles.splice(i, 1); continue; }
+        if (p.life <= 0) { particles.splice(i, 1); return; }
         
-        ctx.shadowBlur = p.life * 20;
+        ctx.shadowBlur = 15 * p.life;
         ctx.shadowColor = `hsla(${p.hue}, 100%, 50%, ${p.life})`;
         ctx.fillStyle = `hsla(${p.hue}, 100%, 70%, ${p.life})`;
         
-        // Draw shards, not dots
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.rotate(p.life * Math.PI);
-        ctx.fillRect(-10 * p.life, -1 * p.life, 20 * p.life, 2);
-        ctx.restore();
-    }
+        if (p.type === 'rip') {
+            // Jagged "Tear" Lines
+            ctx.lineWidth = 3 * p.life;
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p.x + p.vx * 5, p.y + p.vy * 5);
+            ctx.stroke();
+        } else if (p.type === 'feather') {
+            // Soft "Tickle" Dots
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 4 * p.life, 0, Math.PI * 2);
+            ctx.fill();
+        } else {
+            // Liquid Gold Ripples
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 20 * (1 - p.life), 0, Math.PI * 2);
+            ctx.stroke();
+        }
+    });
 
     requestAnimationFrame(render);
 }
