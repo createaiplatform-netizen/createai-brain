@@ -3,81 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN LUMINOUS SINGULARITY</title>
+    <title>SOVEREIGN ZONAL MAPPING</title>
     <style>
         body, html { 
-            margin: 0; padding: 0; background: #0b0b00; 
+            margin: 0; padding: 0; background: #0a0a00; 
             overflow: hidden; height: 100vh; width: 100vw; 
             touch-action: none;
         }
-        canvas { display: block; filter: contrast(1.8) brightness(1.4) saturate(1.5); }
+        canvas { display: block; filter: contrast(1.8) brightness(1.3) saturate(1.6); }
     </style>
 </head>
 <body>
-    <canvas id="singularityCanvas"></canvas>
+    <canvas id="zonalCanvas"></canvas>
 
 <script>
 /**
- * THE INVENTION: CONTINUOUS COORDINATE FABRIC
- * Error-Correction: If a node fails, the Field fills the gap instantly.
- * Sensory: 144,000% Neuromorphic Bone-Conduction.
+ * THE INVENTION: AETHEL ZONAL GRID
+ * Every coordinate is a different Material DNA.
+ * No dots. Only Fluid-Field Dynamics.
  */
 
-const canvas = document.getElementById('singularityCanvas');
+const canvas = document.getElementById('zonalCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
-let w, h, isTouching = false;
-let tx = 0, ty = 0, vx = 0, vy = 0;
-
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+let w, h, tx = 0, ty = 0, isTouching = false;
 
 function resize() {
     w = canvas.width = window.innerWidth;
     h = canvas.height = window.innerHeight;
 }
 
-// BONE-CONDUCTION HAPTICS (144Hz Harmonic)
-function triggerResonance(x, y, power) {
+// THE SENSATION ENGINE: Context-Aware Haptics
+function triggerZonalSensation(x, y, speed) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
-    
-    // Every millimeter of the screen has a unique "Vibration DNA"
-    const freq = 144 + (x / w * 144);
-    
-    if (navigator.vibrate) {
-        // High-frequency "Diamond Grain" texture
-        const duration = Math.min(power * 4, 60);
-        navigator.vibrate([duration, 5, duration/2]);
-    }
 
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     
-    // Waveform: Sine (Liquid) morphing into Triangle (Pressure)
-    osc.type = power > 10 ? 'triangle' : 'sine';
-    osc.frequency.setTargetAtTime(freq, audioCtx.currentTime, 0.05);
-    
-    gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.6);
-    
+    // ZONE LOGIC: 
+    // Top = High/Sharp | Bottom = Deep/Grit | Center = Liquid
+    if (y < h * 0.3) {
+        // CRYSTALLINE ZONE
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(440 + (x/w * 200), audioCtx.currentTime);
+        if (navigator.vibrate) navigator.vibrate([10, 5, 10]);
+    } else if (y > h * 0.7) {
+        // MECHANICAL ZONE
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(72 + (x/w * 72), audioCtx.currentTime);
+        if (navigator.vibrate) navigator.vibrate([40, 2, 40]);
+    } else {
+        // LIQUID CORE
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(144, audioCtx.currentTime);
+        if (navigator.vibrate) navigator.vibrate([25]);
+    }
+
+    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
     osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.6);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.5);
 }
 
-// THE FABRIC: A high-density lattice that cannot "break"
-const lattice = [];
-const COLS = 40; 
-const ROWS = 60;
+// THE WORKFORCE: A Solid Mesh (No Gaps)
+const mesh = [];
+const cols = 35, rows = 50;
 
-function initLattice() {
-    lattice.length = 0;
-    for(let i=0; i<COLS; i++) {
-        for(let j=0; j<ROWS; j++) {
-            lattice.push({
-                ox: (i / COLS) * window.innerWidth,
-                oy: (j / ROWS) * window.innerHeight,
-                x: (i / COLS) * window.innerWidth,
-                y: (j / ROWS) * window.innerHeight,
-                vx: 0, vy: 0,
-                dna: Math.random()
+function initMesh() {
+    mesh.length = 0;
+    for(let i=0; i<=cols; i++) {
+        for(let j=0; j<=rows; j++) {
+            mesh.push({
+                x: (i/cols) * window.innerWidth,
+                y: (j/rows) * window.innerHeight,
+                ox: (i/cols) * window.innerWidth,
+                oy: (j/rows) * window.innerHeight,
+                vx: 0, vy: 0, dna: Math.random()
             });
         }
     }
@@ -86,75 +88,65 @@ function initLattice() {
 window.addEventListener('touchstart', (e) => {
     isTouching = true;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    triggerResonance(tx, ty, 30);
+    triggerZonalSensation(tx, ty, 10);
 });
 
 window.addEventListener('touchmove', (e) => {
-    const lastX = tx; const lastY = ty;
-    tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    const speed = Math.sqrt((tx-lastX)**2 + (ty-lastY)**2);
-    if (speed > 1) triggerResonance(tx, ty, speed);
+    const ntx = e.touches[0].clientX;
+    const nty = e.touches[0].clientY;
+    const s = Math.sqrt((ntx-tx)**2 + (nty-ty)**2);
+    tx = ntx; ty = nty;
+    if (s > 2) triggerZonalSensation(tx, ty, s);
 });
 
 window.addEventListener('touchend', () => isTouching = false);
 
 function render() {
-    // ANTI-BLACKOUT LOGIC: The "Clear" color is a Deep Gold Atmosphere
-    ctx.fillStyle = 'rgba(15, 15, 0, 0.25)';
+    // ANTI-BLACKOUT: Constant Gold Atmosphere
+    ctx.fillStyle = 'rgba(20, 18, 0, 0.2)';
     ctx.fillRect(0, 0, w, h);
 
     const time = Date.now() * 0.002;
 
-    lattice.forEach(node => {
+    mesh.forEach(p => {
         if (isTouching) {
-            const dx = tx - node.x;
-            const dy = ty - node.y;
-            const dist = Math.sqrt(dx*dx + dy*dy);
-            
-            if (dist < 200) {
-                const force = (200 - dist) / 200;
-                // Fluid Swirl + Suction
-                node.vx += (dy / dist) * force * 5;
-                node.vy -= (dx / dist) * force * 5;
-                node.vx += dx * 0.03;
-                node.vy += dy * 0.03;
+            const dx = tx - p.x;
+            const dy = ty - p.y;
+            const d = Math.sqrt(dx*dx + dy*dy);
+            if (d < 150) {
+                const f = (150 - d) / 150;
+                // Zone-based movement physics
+                const angle = Math.atan2(dy, dx) + (p.y < h/2 ? 0.5 : -0.5);
+                p.vx += Math.cos(angle) * f * 4;
+                p.vy += Math.sin(angle) * f * 4;
             }
         }
 
-        // Return-to-Sovereign-Lattice (Spring force)
-        node.vx += (node.ox - node.x) * 0.02;
-        node.vy += (node.oy - node.y) * 0.02;
-        
-        node.vx *= 0.92;
-        node.vy *= 0.92;
-        node.x += node.vx;
-        node.y += node.vy;
+        p.vx += (p.ox - p.x) * 0.05;
+        p.vy += (p.oy - p.y) * 0.05;
+        p.vx *= 0.85; p.vy *= 0.85;
+        p.x += p.vx; p.y += p.vy;
 
-        // VISUAL MANIFESTATION: Liquid Diamond
-        const sparkle = Math.sin(time * 5 + node.dna * 100) * 0.5 + 0.5;
-        const size = 1.5 + (sparkle * 2.5);
+        const flicker = Math.sin(time * 3 + p.dna * 10) * 0.5 + 0.5;
         
-        // Prismatic Gold 
-        ctx.fillStyle = `hsla(48, 100%, ${60 + sparkle * 40}%, ${0.2 + sparkle * 0.8})`;
-        
-        // Draw the matter
-        ctx.beginPath();
-        if (sparkle > 0.9) {
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = "white";
-            ctx.arc(node.x, node.y, size * 1.5, 0, Math.PI * 2);
+        // VISUAL DNA BY ZONE
+        if (p.oy < h * 0.3) {
+            ctx.fillStyle = `hsla(50, 100%, ${80 + flicker * 20}%, 0.8)`; // Diamond Top
+        } else if (p.oy > h * 0.7) {
+            ctx.fillStyle = `hsla(40, 100%, ${40 + flicker * 30}%, 0.8)`; // Heavy Gold Bottom
         } else {
-            ctx.shadowBlur = 0;
-            ctx.fillRect(node.x, node.y, size, size);
+            ctx.fillStyle = `hsla(45, 100%, ${60 + flicker * 40}%, 0.6)`; // Fluid Middle
         }
-        ctx.fill();
+
+        // DRAW AS A SOLID FABRIC
+        ctx.fillRect(p.x, p.y, 2 + flicker * 2, 2 + flicker * 2);
     });
 
     requestAnimationFrame(render);
 }
 
-window.addEventListener('resize', () => { resize(); initLattice(); });
-resize(); initLattice(); render();
+window.addEventListener('resize', () => { resize(); initMesh(); });
+resize(); initMesh(); render();
 </script>
 </body>
 </html>
