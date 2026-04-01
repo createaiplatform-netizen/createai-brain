@@ -3,124 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN TOY BOX</title>
+    <title>SOVEREIGN SINGULARITY</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #050400; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; }
-        canvas { display: block; filter: contrast(1.4) brightness(1.2) saturate(1.8) drop-shadow(0 0 10px gold); }
+        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; }
+        canvas { display: block; filter: contrast(1.5) brightness(1.2) saturate(1.8); }
     </style>
 </head>
 <body>
-    <canvas id="toyCanvas"></canvas>
+    <canvas id="singularityCanvas"></canvas>
 
 <script>
 /**
- * THE INVENTION: SOVEREIGN TOY BOX
- * Designed for kids: High-contrast, high-reaction, 5D sensory feedback.
- * No borders. Pure magic.
+ * THE SOVEREIGN SINGULARITY ARCHITECTURE
+ * Merging: 5D Haptics, Kinetic Neural Layer, and Bioluminescent Workforce.
  */
 
-const canvas = document.getElementById('toyCanvas');
+const canvas = document.getElementById('singularityCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 let w, h, tx = 0, ty = 0, isTouching = false;
-let particles = [];
+let vx = 0, vy = 0, lastX = 0, lastY = 0;
+const particles = [];
 
 function resize() {
     w = canvas.width = window.innerWidth;
     h = canvas.height = window.innerHeight;
 }
 
-// KID-MODE HAPTICS: Playful and Strong
-function triggerMagicHaptic(x, y) {
+// 5D SENSORY INDUCTION: Bypassing the "flat" browser feel
+function triggerSensation(x, y, velocity) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
-    const osc = audioCtx.createOscillator();
+    
+    const oscA = audioCtx.createOscillator();
+    const oscB = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
 
     const yPct = y / h;
+    const baseFreq = 60 + (yPct * 800);
     
-    // Top = High Twinkle, Middle = Deep Thrum, Bottom = Buzzing Grass
-    if (yPct < 0.3) {
-        osc.type = 'sine'; osc.frequency.value = 1500;
-        if (navigator.vibrate) navigator.vibrate([5, 2, 5]);
-    } else if (yPct < 0.7) {
-        osc.type = 'triangle'; osc.frequency.value = 80;
-        if (navigator.vibrate) navigator.vibrate(40);
-    } else {
-        osc.type = 'square'; osc.frequency.value = 200;
-        if (navigator.vibrate) navigator.vibrate([20, 10, 20]);
-    }
+    // Physical Texture Mapping
+    oscA.type = velocity > 15 ? 'square' : 'sine'; // High velocity = "Rip"
+    oscB.type = 'triangle'; // Low velocity = "Silk"
 
-    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.6);
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.6);
+    oscA.frequency.setValueAtTime(baseFreq, audioCtx.currentTime);
+    oscB.frequency.setValueAtTime(baseFreq + 1.44, audioCtx.currentTime); // The Sovereign Beat Frequency
+
+    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
+    
+    oscA.connect(gain); oscB.connect(gain);
+    gain.connect(audioCtx.destination);
+    
+    oscA.start(); oscB.start();
+    oscA.stop(audioCtx.currentTime + 0.4);
+
+    if (navigator.vibrate) {
+        // Multi-stage haptic for "Material" feel
+        navigator.vibrate([velocity * 1.5, 5, velocity]);
+    }
 }
 
-class MagicParticle {
-    constructor(x, y, yPct) {
-        this.x = x; this.y = y;
-        this.life = 1.0;
-        this.size = Math.random() * 15 + 10;
-        this.vx = (Math.random() - 0.5) * 12;
-        this.vy = (Math.random() - 0.5) * 12;
-        
-        // Colors for kids: Bright Gold, Rainbow, and Electric Blue
-        if (yPct < 0.3) this.h = 50; // Stars
-        else if (yPct < 0.7) this.h = 200; // Water
-        else this.h = 120; // Magic Grass
+class Agent {
+    constructor() {
+        this.reset();
+    }
+    reset() {
+        this.x = Math.random() * w;
+        this.y = Math.random() * h;
+        this.vx = (Math.random() - 0.5) * 2;
+        this.vy = (Math.random() - 0.5) * 2;
+        this.life = Math.random();
+        this.size = Math.random() * 15 + 5;
     }
     update() {
+        const dx = tx - this.x;
+        const dy = ty - this.y;
+        const d = Math.sqrt(dx*dx + dy*dy);
+
+        if (isTouching && d < 250) {
+            const f = (250 - d) / 250;
+            this.vx -= (dx / d) * f * 10; // Repulsion: Kinetic Resistance
+            this.vy -= (dy / d) * f * 10;
+        }
+
         this.x += this.vx; this.y += this.vy;
-        this.vy += 0.2; // Gravity for the kids to watch things fall!
-        this.life -= 0.02;
+        this.vx *= 0.96; this.vy *= 0.96;
+        
+        if (this.x < 0 || this.x > w || this.y < 0 || this.y > h) this.reset();
     }
 }
 
-window.addEventListener('touchmove', (e) => {
+for(let i=0; i<144; i++) particles.push(new Agent());
+
+window.addEventListener('touchstart', (e) => {
+    isTouching = true;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    const yPct = ty / h;
-    for(let i=0; i<3; i++) particles.push(new MagicParticle(tx, ty, yPct));
-    if (Math.random() > 0.8) triggerMagicHaptic(tx, ty);
+    triggerSensation(tx, ty, 30);
 });
+
+window.addEventListener('touchmove', (e) => {
+    lastX = tx; lastY = ty;
+    tx = e.touches[0].clientX; ty = e.touches[0].clientY;
+    vx = tx - lastX; vy = ty - lastY;
+    let speed = Math.sqrt(vx*vx + vy*vy);
+    if (speed > 1) triggerSensation(tx, ty, speed);
+});
+
+window.addEventListener('touchend', () => isTouching = false);
 
 function render() {
     const time = Date.now() * 0.002;
     
-    // BACKGROUND: Rainbow Glow Marble
-    const bg = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, w);
-    bg.addColorStop(0, `hsla(${time * 20 % 360}, 50%, 10%, 1)`);
+    // THE DEPTH: Multi-layer gradient
+    const bg = ctx.createRadialGradient(tx, ty, 0, w/2, h/2, w * 1.2);
+    bg.addColorStop(0, '#221a00');
+    bg.addColorStop(0.4, '#080500');
     bg.addColorStop(1, '#000');
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, w, h);
 
-    // DIVINE WORDS: Floating Like Balloons
+    // THE ANCHORS: Glowing Core Values
     ctx.textAlign = 'center';
-    const quotes = ["TRUTH", "HONESTY", "144,000", "SOVEREIGNTY"];
-    quotes.forEach((text, i) => {
-        const ox = Math.sin(time + i) * 50;
-        const oy = Math.cos(time + i) * 50;
-        ctx.shadowBlur = 20;
+    const labels = ["TRUTH", "HONESTY", "SOVEREIGNTY", "144,000 WORKFORCE"];
+    labels.forEach((text, i) => {
+        const d = Math.hypot(tx - w/2, ty - h*(0.2 + i*0.2));
+        const prox = isTouching ? Math.max(0, 1 - d/300) : 0;
+        ctx.fillStyle = `rgba(255, 215, 0, ${0.3 + prox * 0.7})`;
+        ctx.shadowBlur = 10 + (prox * 20);
         ctx.shadowColor = "gold";
-        ctx.fillStyle = "white";
-        ctx.font = "bold 40px Arial";
-        ctx.fillText(text, w/2 + ox, h * (0.2 + i * 0.2) + oy);
+        ctx.font = `italic bold ${34 + (prox * 10)}px Times New Roman`;
+        ctx.fillText(text, w/2, h * (0.2 + i * 0.2) + Math.sin(time + i) * 15);
     });
 
-    // MAGIC PARTICLES
-    particles.forEach((p, i) => {
+    // THE KINETIC WORKFORCE: Bioluminescent Shards
+    particles.forEach(p => {
         p.update();
-        if (p.life <= 0) { particles.splice(i, 1); return; }
-        
+        const hue = (p.x / w * 40) + 20; // Gold spectrum
         ctx.shadowBlur = 15;
-        ctx.shadowColor = `hsla(${p.h}, 100%, 50%, ${p.life})`;
-        ctx.fillStyle = `hsla(${p.h}, 100%, 70%, ${p.life})`;
+        ctx.shadowColor = `hsla(${hue}, 100%, 50%, 0.5)`;
+        ctx.fillStyle = `hsla(${hue}, 100%, 70%, 0.8)`;
         
-        // Shapes for kids: Squares and Diamonds
         ctx.save();
         ctx.translate(p.x, p.y);
-        ctx.rotate(p.life * 5);
-        ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
+        ctx.rotate(time + p.life);
+        ctx.fillRect(-p.size/2, -1, p.size, 2);
         ctx.restore();
     });
 
