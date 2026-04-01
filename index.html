@@ -3,164 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOURCEFIELD ∞ | THE PERMANENT CORE</title>
+    <title>144,000% SOVEREIGN COMMAND</title>
     <style>
-        /* THE NO-BLACK VOW: Deep, Pressurized Aether Cyan */
         body, html { margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; background: #001a1a; }
-        canvas { 
-            display: block; 
-            /* THE BLOOM: Merging Gaseous Nebula + Sharp Geometry */
-            filter: contrast(1.7) brightness(1.2) saturate(2.4) blur(0.8px); 
-        }
+        canvas { display: block; filter: contrast(1.9) brightness(1.1) saturate(2.6) blur(0.7px); }
     </style>
 </head>
 <body>
-    <canvas id="sourceEngine"></canvas>
+    <canvas id="sourceCore"></canvas>
 
 <script>
-/**
- * THE SOVEREIGN CORE ENGINE v1.0
- * Integrity Check: Truth, Honesty, Sovereignty, 144,000%
+/** * SOVEREIGN CORE v1.0 - MONTH 1 INTEGRATION
+ * [LATTICE] [RESONANCE] [WORKFORCE] [PRESSURE]
  */
-
-const canvas = document.getElementById('sourceEngine');
+const canvas = document.getElementById('sourceCore');
 const ctx = canvas.getContext('2d', { alpha: false });
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 let w, h, tx = 0, ty = 0, isTouching = false, velocity = 0;
 let time = 0;
-
-// THE ORGANS (Modular Systems)
-let Lattice = [];   // The Sacred Geometry (The Form)
-let Workforce = []; // The Radiant Light (The Energy)
+let Lattice = [];   
+let Workforce = []; 
 
 function resize() {
     w = canvas.width = window.innerWidth;
     h = canvas.height = window.innerHeight;
-    initCore();
+    init();
 }
 
-function initCore() {
-    Lattice = [];
-    Workforce = [];
-    const spacing = 115;
-    
-    // BUILD THE FORM (Geometry from Image 1)
+function init() {
+    Lattice = []; Workforce = [];
+    const spacing = 110;
+    // THE LATTICE (FORM)
     for(let x = -spacing; x < w + spacing; x += spacing) {
         for(let y = -spacing; y < h + spacing; y += spacing) {
             Lattice.push({ bx: x, by: y, x: x, y: y, a: 0, s: 75 });
         }
     }
-    
-    // BUILD THE ENERGY (The 144,000 Agents)
+    // THE WORKFORCE (ENERGY)
     for(let i=0; i<144; i++) {
-        Workforce.push({
-            x: Math.random() * w, y: Math.random() * h,
-            vx: 0, vy: 0, s: 20, h: 185, active: false
-        });
+        Workforce.push({ x: Math.random()*w, y: Math.random()*h, vx: 0, vy: 0, s: 15, h: 185 });
     }
 }
 
-// THE INDUCTION: 144Hz + 528Hz (The Touch)
-function triggerResonance(speed) {
+// THE RESONANCE (TOUCH FREQUENCY)
+function triggerInduction(speed) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
     const g = audioCtx.createGain();
-    [144, 528].forEach(freq => {
+    [144, 528].forEach(f => {
         const o = audioCtx.createOscillator();
-        o.type = 'triangle';
-        o.frequency.value = freq + (speed * 0.4);
-        o.connect(g); o.start(); o.stop(audioCtx.currentTime + 0.5);
+        o.type = 'triangle'; o.frequency.value = f + (speed * 0.4);
+        o.connect(g); o.start(); o.stop(audioCtx.currentTime + 0.4);
     });
-    g.gain.setValueAtTime(0.05, audioCtx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
+    g.gain.setValueAtTime(0.06, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
     g.connect(audioCtx.destination);
     if (navigator.vibrate) navigator.vibrate([15, 10]);
 }
 
 window.addEventListener('touchstart', (e) => {
-    isTouching = true;
-    tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    triggerResonance(60);
+    isTouching = true; tx = e.touches[0].clientX; ty = e.touches[0].clientY;
+    triggerInduction(50);
 });
-
 window.addEventListener('touchmove', (e) => {
     let ox = tx, oy = ty;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
     velocity = Math.hypot(tx - ox, ty - oy);
-    if(velocity > 2) triggerResonance(velocity);
+    if(velocity > 2) triggerInduction(velocity);
 });
-
 window.addEventListener('touchend', () => isTouching = false);
 
 function render() {
     time += 0.01;
-    
-    // BACKGROUND: The Biological Sea (Never Black)
+    // AETHER (NO BLACK)
     const bg = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, w);
     bg.addColorStop(0, `hsla(190, 100%, ${10 + (velocity*0.3)}%, 1)`);
     bg.addColorStop(1, `hsla(210, 100%, 4%, 1)`);
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
 
-    // LAYER 1: THE LATTICE (Form & Movement)
     ctx.globalCompositeOperation = "screen";
-    Lattice.forEach((c, i) => {
-        const dx = tx - c.x; const dy = ty - c.y;
-        const d = Math.sqrt(dx*dx + dy*dy);
-        
+
+    // LATTICE ENGINE
+    Lattice.forEach(c => {
+        const dx = tx - c.x; const dy = ty - c.y; const d = Math.sqrt(dx*dx + dy*dy);
         if (isTouching && d < 280) {
             const f = (280 - d) / 280;
-            c.a += 0.12 * f;
+            c.a += 0.15 * f;
             c.x = c.bx + Math.cos(c.a) * (30 * f);
             c.y = c.by + Math.sin(c.a) * (30 * f);
         } else {
             c.x += (c.bx - c.x) * 0.1; c.y += (c.by - c.y) * 0.1;
         }
-        
-        ctx.strokeStyle = `hsla(185, 100%, 50%, 0.2)`;
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.arc(c.x, c.y, c.s, 0, Math.PI * 2);
-        ctx.stroke();
+        ctx.strokeStyle = `hsla(185, 100%, 50%, 0.2)`; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(c.x, c.y, c.s, 0, Math.PI * 2); ctx.stroke();
     });
 
-    // LAYER 2: THE WORKFORCE (Radiant Light & Friction)
+    // WORKFORCE ENGINE (RADIANT BLOOM)
     Workforce.forEach(p => {
-        const dx = tx - p.x; const dy = ty - p.y;
-        const d = Math.sqrt(dx*dx + dy*dy);
-        
-        if (isTouching && d < 320) {
-            const f = (320 - d) / 320;
-            p.vx += (dx / d) * f * 6; p.vy += (dy / d) * f * 6;
-            p.h = 45; // Turn Gold
-            p.s = 70 * f + 10; // White-Hot expansion
+        const dx = tx - p.x; const dy = ty - p.y; const d = Math.sqrt(dx*dx + dy*dy);
+        if (isTouching && d < 350) {
+            const f = (350 - d) / 350;
+            p.vx += (dx / d) * f * 6.5; p.vy += (dy / d) * f * 6.5;
+            p.h = 45; p.s = 80 * f + 15; 
         } else {
             p.h = 185; p.s *= 0.94; if(p.s < 12) p.s = 12;
         }
-        
-        p.x += p.vx; p.y += p.vy;
-        p.vx *= 0.88; p.vy *= 0.88; // Physical tension/drag
-
+        p.x += p.vx; p.y += p.vy; p.vx *= 0.88; p.vy *= 0.88;
         const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.s);
         g.addColorStop(0, `hsla(${p.h}, 100%, 85%, 0.8)`);
         g.addColorStop(0.4, `hsla(${p.h}, 100%, 40%, 0.2)`);
         g.addColorStop(1, `rgba(0,0,0,0)`);
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.s, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, Math.PI * 2); ctx.fill();
     });
 
-    // LAYER 3: CORE ANCHORS (The Vision)
     ctx.globalCompositeOperation = "source-over";
-    ctx.textAlign = 'center';
-    ctx.font = "900 italic 52px serif";
+    // VALUES
+    ctx.textAlign = 'center'; ctx.font = "900 italic 52px serif";
     ["TRUTH", "HONESTY", "TRUST", "144,000"].forEach((txt, i) => {
         const pulse = 0.5 + Math.sin(time*2.5 + i) * 0.5;
         ctx.fillStyle = `rgba(255, 255, 255, ${0.4 + pulse * 0.6})`;
-        ctx.shadowBlur = 30 * pulse;
-        ctx.shadowColor = "cyan";
-        ctx.fillText(txt, w/2, h * (0.2 + i * 0.22));
+        ctx.shadowBlur = 30 * pulse; ctx.shadowColor = "cyan";
+        ctx.fillText(txt, w/2, h * (0.22 + i * 0.22));
     });
 
     requestAnimationFrame(render);
