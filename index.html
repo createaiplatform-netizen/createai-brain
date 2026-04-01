@@ -1,77 +1,151 @@
-const playground = document.getElementById('playground');
-const memoryKey = 'sanctuary_master_144k';
-let memory = JSON.parse(localStorage.getItem(memoryKey)) || [];
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>THE SANCTUARY | 144,400%</title>
+    <style id="sanctuary-styles">
+        body { 
+            margin: 0; overflow: hidden; font-family: 'Georgia', serif; 
+            background: #000; color: #FFD700; touch-action: none; 
+            height: 100vh; width: 100vw; position: fixed; transition: background 0.8s ease;
+        }
+        #stars { position: fixed; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        .star { position: absolute; border-radius: 50%; background: #FFD700; opacity: 0.5; }
+        #header { position: relative; z-index: 10; text-align: center; padding-top: 40px; pointer-events: none; }
+        .freq { color: #00E5FF; letter-spacing: 5px; font-size: 0.8rem; text-shadow: 0 0 15px #00E5FF; font-weight: bold; }
+        h1 { letter-spacing: 12px; font-size: 2.6rem; margin: 15px 0; text-shadow: 0 0 20px #FFD700; transition: 0.5s; }
+        .quote { font-style: italic; font-size: 1rem; padding: 0 30px; opacity: 0.9; line-height: 1.5; }
+        #playground { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20; }
+        .node { 
+            position: absolute; width: 140px; height: 140px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid #FFD700; background: rgba(0,0,0,0.85);
+            box-shadow: 0 0 30px #FFD700; font-weight: bold; cursor: move;
+            text-align: center; padding: 15px; backdrop-filter: blur(10px); z-index: 100;
+        }
+        #command-center { 
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
+            display: flex; gap: 10px; z-index: 1000; width: 90%; max-width: 450px; 
+        }
+        input { flex-grow: 1; padding: 18px; background: rgba(0,0,0,0.9); color: #00E5FF; border: 1px solid #FFD700; border-radius: 12px; font-size: 16px; outline: none; }
+        button { padding: 18px 25px; background: #FFD700; color: #000; border: none; font-weight: bold; border-radius: 12px; cursor: pointer; }
+    </style>
+</head>
+<body>
 
-window.onload = () => {
-    if (memory.length === 0) {
-        execute("144,400%");
-    } else {
-        memory.forEach(d => createNode(d.id, d.name, d.x, d.y));
+<div id="stars"></div>
+<div id="playground"></div>
+
+<div id="header">
+    <div class="freq">144,400% FREQUENCY ACTIVE</div>
+    <h1 id="main-title">THE SANCTUARY</h1>
+    <p id="main-quote" class="quote">"The animals are safe, the family is loved, and the peace of God is the only law here."</p>
+</div>
+
+<div id="command-center">
+    <input type="text" id="cmdInput" placeholder="Command your Reality...">
+    <button onclick="processCommand()">MANIFEST</button>
+</div>
+
+<script>
+    let db;
+    const playground = document.getElementById('playground');
+
+    // 1. DATABASE INIT (THE DOME MEMORY)
+    const request = indexedDB.open("SanctuarySovereignDB", 1);
+    request.onupgradeneeded = e => {
+        e.target.result.createObjectStore("manifestations", { keyPath: "id" });
+    };
+    request.onsuccess = e => {
+        db = e.target.result;
+        loadFromMemory();
+    };
+
+    // 2. THE COMMAND INTERPRETER
+    function processCommand() {
+        const input = document.getElementById('cmdInput');
+        const raw = input.value;
+        const cmd = raw.toLowerCase();
+        if(!raw) return;
+
+        // PHYSICAL SITE CHANGES
+        if (cmd.includes("background")) {
+            document.body.style.background = cmd.split(" ").pop();
+        } else if (cmd.includes("title")) {
+            document.getElementById('main-title').innerText = raw.replace(/title/i, "").trim().toUpperCase();
+        } else if (cmd.includes("stars")) {
+            const color = cmd.split(" ").pop();
+            document.querySelectorAll('.star').forEach(s => s.style.background = color);
+        } else {
+            // MANIFEST NEW AI UNIT
+            const data = { 
+                id: 'unit_' + Date.now(), 
+                name: raw, 
+                x: window.innerWidth / 2 - 70, 
+                y: window.innerHeight / 2 
+            };
+            saveToMemory(data);
+            createNode(data);
+        }
+
+        input.value = '';
+        navigator.vibrate?.(50);
     }
-};
 
-function execute() {
-    const input = document.getElementById('cmdInput');
-    const val = input.value;
-    if(!val) return;
-
-    // --- THE BRAIN: ACT ON THE COMMAND ---
-    const cmd = val.toLowerCase();
-    
-    // Change Background
-    if(cmd.includes("bg") || cmd.includes("background")) {
-        const color = cmd.split(" ").pop();
-        document.body.style.background = color;
-    }
-    // Change Title
-    else if(cmd.includes("title")) {
-        document.querySelector('h1').innerText = val.replace(/title/i, "").toUpperCase();
-    }
-    // Change Star Color
-    else if(cmd.includes("star")) {
-        const color = cmd.split(" ").pop();
-        document.querySelectorAll('.star').forEach(s => s.style.background = color);
-    }
-    // Manifest New Unit (If it's not a site command)
-    else {
-        const id = 'unit_' + Date.now();
-        const x = Math.random() * (window.innerWidth - 140);
-        const y = window.innerHeight / 2;
-        const data = {id, name: val, x, y};
-        memory.push(data);
-        save();
-        createNode(id, val, x, y);
+    function createNode(data) {
+        const el = document.createElement('div');
+        el.className = 'node';
+        el.id = data.id;
+        el.innerText = data.name.toUpperCase();
+        el.style.left = data.x + 'px';
+        el.style.top = data.y + 'px';
+        playground.appendChild(el);
+        
+        let ox, oy;
+        el.addEventListener('touchstart', e => {
+            ox = e.touches[0].clientX - el.offsetLeft;
+            oy = e.touches[0].clientY - el.offsetTop;
+            el.style.zIndex = 2000;
+        });
+        el.addEventListener('touchmove', e => {
+            const nx = e.touches[0].clientX - ox;
+            const ny = e.touches[0].clientY - oy;
+            el.style.left = nx + 'px';
+            el.style.top = ny + 'px';
+            updateNodePosition(data.id, nx, ny);
+        });
     }
 
-    input.value = '';
-    navigator.vibrate?.(40);
-}
+    function saveToMemory(data) {
+        db.transaction("manifestations", "readwrite").objectStore("manifestations").put(data);
+    }
 
-function createNode(id, name, x, y) {
-    const el = document.createElement('div');
-    el.className = 'node';
-    el.id = id;
-    el.innerText = name.toUpperCase();
-    el.style.left = x + 'px';
-    el.style.top = y + 'px';
-    playground.appendChild(el);
-    
-    // Dragging Logic
-    let startX, startY;
-    el.addEventListener('touchstart', e => {
-        startX = e.touches[0].clientX - el.offsetLeft;
-        startY = e.touches[0].clientY - el.offsetTop;
-        el.style.zIndex = 1000;
-    });
-    el.addEventListener('touchmove', e => {
-        el.style.left = (e.touches[0].clientX - startX) + 'px';
-        el.style.top = (e.touches[0].clientY - startY) + 'px';
-    });
-    el.addEventListener('touchend', () => {
-        const item = memory.find(i => i.id === id);
-        if(item) { item.x = el.offsetLeft; item.y = el.offsetTop; }
-        save();
-    });
-}
+    function updateNodePosition(id, x, y) {
+        const store = db.transaction("manifestations", "readwrite").objectStore("manifestations");
+        store.get(id).onsuccess = e => {
+            const data = e.target.result;
+            if(data) { data.x = x; data.y = y; store.put(data); }
+        };
+    }
 
-function save() { localStorage.setItem(memoryKey, JSON.stringify(memory)); }
+    function loadFromMemory() {
+        db.transaction("manifestations").objectStore("manifestations").openCursor().onsuccess = e => {
+            const cursor = e.target.result;
+            if(cursor) { createNode(cursor.value); cursor.continue(); }
+        };
+    }
+
+    // INITIAL STARS
+    for(let i=0; i<80; i++) {
+        const s = document.createElement('div');
+        s.className = 'star';
+        const size = Math.random() * 3;
+        s.style.width = s.style.height = size + 'px';
+        s.style.top = Math.random() * 100 + '%';
+        s.style.left = Math.random() * 100 + '%';
+        document.getElementById('stars').appendChild(s);
+    }
+</script>
+</body>
+</html>
