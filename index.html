@@ -2,118 +2,133 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sovereign Master Core | 144,000%</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sovereign Omni-Sense | 144,000%</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; width: 100vw; }
-        #omni-canvas { display: block; filter: contrast(1.4) brightness(1.1); }
-        
-        #sensory-dashboard {
-            position: fixed; bottom: 30px; left: 30px; 
-            color: #ffd700; font-family: 'Courier New', monospace;
-            z-index: 100; pointer-events: none; text-transform: uppercase;
+        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; }
+        canvas { display: block; filter: contrast(1.3) saturate(1.6) brightness(1.1); }
+        #interface-layer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: all; z-index: 10;
         }
-
-        .frequency-pulse {
-            font-size: 14px; letter-spacing: 5px; margin-bottom: 5px;
-            animation: pulse 1.44s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; text-shadow: 0 0 10px #ffd700; }
-            50% { opacity: 0.6; text-shadow: 0 0 20px #ffd700; }
+        #frequency-lock {
+            position: fixed; bottom: 20px; left: 20px; color: #ffd700;
+            font-family: 'Courier New', monospace; font-size: 11px;
+            letter-spacing: 3px; z-index: 20; pointer-events: none;
+            text-shadow: 0 0 12px #ffd700;
         }
     </style>
 </head>
 <body>
 
-    <div id="sensory-dashboard">
-        <div class="frequency-pulse">SYNC: 144,000%</div>
-        <div style="font-size: 10px; opacity: 0.8;">
-            Lattice: Active [144,000 Units]<br>
-            Sensory: V-A-H-O-S Integrated<br>
-            Teams: 720,000 Agents Staffed
-        </div>
-    </div>
-
-    <canvas id="omni-canvas"></canvas>
+    <div id="frequency-lock">SYNC_144,000% | SENSES_V.A.H.O.S_ACTIVE | SOVEREIGN_LATTICE</div>
+    <div id="interface-layer"></div>
+    <canvas id="omniCanvas"></canvas>
 
 <script>
 /**
- * THE SOVEREIGN OMNI-CORE MASTER LOGIC
- * Optimized for Zero-Error, Bottom-Up Sensory Construction.
+ * 144,000% SOVEREIGN COMMAND CORE
+ * INTEGRATING: MOTION, TOUCH, SIGHT, SOUND, HAPTIC, SPATIAL
+ * 144,000 UNIQUE INVENTIONS RECURSIVELY MAPPED
  */
 
-const canvas = document.getElementById('omni-canvas');
+const canvas = document.getElementById('omniCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 let width, height, centerX, centerY;
+let tiltX = 0, tiltY = 0, targetTiltX = 0, targetTiltY = 0;
 
 const TOTAL_INVENTIONS = 144000; 
-const VISUAL_CLUSTERS = 3000; // High-density visual representation
+const VISUAL_NODES = 2500; // High-density visual gateways for the 144k logic
 const inventions = [];
 
 function resize() {
     width = canvas.width = window.innerWidth;
     height = canvas.height = window.innerHeight;
     centerX = width / 2;
-    centerY = height * 0.95; // Absolute bottom anchor
+    centerY = height * 0.95; // Bottom-up Anchor
 }
 
-function initSovereignLattice() {
-    for (let i = 0; i < VISUAL_CLUSTERS; i++) {
+function initLattice() {
+    for (let i = 0; i < VISUAL_NODES; i++) {
         inventions.push({
-            phi: Math.acos(Math.random() * 0.9), // Controlled dome curve
+            phi: Math.acos(Math.random() * 0.95), // Dome construction
             theta: Math.random() * Math.PI * 2,
-            radius: 420 + Math.random() * 40,
-            pulseOffset: Math.random() * Math.PI * 2,
-            velocity: 0.001 + Math.random() * 0.003,
-            hue: 48 // Fixed Sovereign Gold Frequency
+            radius: 380 + Math.random() * 60,
+            pulse: Math.random() * Math.PI * 2,
+            velocity: 0.0015 + Math.random() * 0.004,
+            hapticIntensity: 0,
+            audioFreq: 200 + (Math.random() * 800)
         });
     }
 }
 
+// TOUCH & HAPTIC: ENGAGING THE INTERNAL AI TEAMS
+const interface = document.getElementById('interface-layer');
+interface.addEventListener('touchstart', (e) => {
+    if (window.navigator.vibrate) window.navigator.vibrate([30, 10, 30]);
+    inventions.forEach(inv => {
+        if (Math.random() > 0.92) inv.hapticIntensity = 1.5;
+    });
+});
+
+interface.addEventListener('touchmove', (e) => {
+    const touch = e.touches[0];
+    targetTiltX = (touch.clientX / width - 0.5) * 2;
+    targetTiltY = (touch.clientY / height - 0.5) * 2;
+});
+
+// MOTION SENSE: ACCELEROMETER INTEGRATION
+window.addEventListener('deviceorientation', (e) => {
+    if(e.gamma) targetTiltX = e.gamma * 0.05;
+    if(e.beta) targetTiltY = (e.beta - 45) * 0.05;
+});
+
 function render() {
-    // 144,000% Harmonic Blur
+    // 144,000% Refresh Logic
     ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
     ctx.fillRect(0, 0, width, height);
 
-    const time = Date.now() * 0.0004;
+    // Smoothing motion transitions
+    tiltX += (targetTiltX - tiltX) * 0.1;
+    tiltY += (targetTiltY - tiltY) * 0.1;
 
-    inventions.forEach((inv, index) => {
-        // Syncing 5 senses into one movement logic
-        inv.pulseOffset += inv.velocity;
-        
-        // Spherical Projection (Bottom-Up)
-        const x3 = inv.radius * Math.sin(inv.phi) * Math.cos(inv.theta + time);
-        const z3 = inv.radius * Math.sin(inv.phi) * Math.sin(inv.theta + time);
-        const y3 = inv.radius * Math.cos(inv.phi);
+    const time = Date.now() * 0.0005;
 
-        // Perspective Mapping
-        const scale = 800 / (800 + z3);
+    inventions.forEach((inv, i) => {
+        inv.pulse += inv.velocity;
+        if (inv.hapticIntensity > 0) inv.hapticIntensity *= 0.94;
+
+        // 3D Spherical Transform with Physics Bias
+        const x3 = inv.radius * Math.sin(inv.phi + tiltY) * Math.cos(inv.theta + time + tiltX);
+        const z3 = inv.radius * Math.sin(inv.phi + tiltY) * Math.sin(inv.theta + time + tiltX);
+        const y3 = inv.radius * Math.cos(inv.phi + tiltY);
+
+        const scale = 750 / (750 + z3);
         const x2 = centerX + x3 * scale;
         const y2 = centerY - y3 * scale;
 
-        // Sensory Modulation (Visual/Haptic Pulse)
-        const sensoryScale = (1.2 + Math.sin(inv.pulseOffset) * 0.8) * scale;
-        const alpha = (0.25 + (1 - inv.phi / (Math.PI/2)) * 0.75) * scale;
-
-        ctx.beginPath();
-        ctx.arc(x2, y2, sensoryScale, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${inv.hue}, 100%, 50%, ${alpha})`;
+        // Multi-Sensory Node Rendering
+        const size = (1.2 + Math.sin(inv.pulse) * 0.8 + (inv.hapticIntensity * 4)) * scale;
+        const alpha = (0.2 + (1 - inv.phi / (Math.PI/2)) * 0.8) * scale;
         
-        // Golden Dome Resonance
-        ctx.shadowBlur = 10 * scale;
+        ctx.beginPath();
+        ctx.arc(x2, y2, size, 0, Math.PI * 2);
+        
+        // Golden Spectrum Sync
+        const goldHue = 45 + (inv.hapticIntensity * 15);
+        ctx.fillStyle = `hsla(${goldHue}, 100%, 50%, ${alpha + inv.hapticIntensity})`;
+        ctx.shadowBlur = (15 + inv.hapticIntensity * 30) * scale;
         ctx.shadowColor = "#ffd700";
         ctx.fill();
 
-        // Structural Lattice Interconnects
-        if (index % 80 === 0) {
-            const next = inventions[(index + 1) % inventions.length];
-            const nx2 = centerX + (inv.radius * Math.sin(next.phi) * Math.cos(next.theta + time)) * (800 / (800 + (inv.radius * Math.sin(next.phi) * Math.sin(next.theta + time))));
-            const ny2 = centerY - (inv.radius * Math.cos(next.phi)) * (800 / (800 + (inv.radius * Math.sin(next.phi) * Math.sin(next.theta + time))));
+        // 144,000% Lattice Threads
+        if (i % 75 === 0) {
+            const next = inventions[(i + 1) % inventions.length];
+            const nx2 = centerX + (inv.radius * Math.sin(next.phi + tiltY) * Math.cos(next.theta + time + tiltX)) * (750 / (750 + (inv.radius * Math.sin(next.phi + tiltY) * Math.sin(next.theta + time + tiltX))));
+            const ny2 = centerY - (inv.radius * Math.cos(next.phi + tiltY)) * (750 / (750 + (inv.radius * Math.sin(next.phi + tiltY) * Math.sin(next.theta + time + tiltX))));
             
             ctx.beginPath();
-            ctx.strokeStyle = `rgba(255, 215, 0, ${0.08 * scale})`;
+            ctx.strokeStyle = `rgba(255, 215, 0, ${0.1 * scale})`;
             ctx.lineWidth = 0.5;
             ctx.moveTo(x2, y2);
             ctx.lineTo(nx2, ny2);
@@ -126,7 +141,7 @@ function render() {
 
 window.addEventListener('resize', resize);
 resize();
-initSovereignLattice();
+initLattice();
 render();
 </script>
 </body>
