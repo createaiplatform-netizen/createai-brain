@@ -3,158 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>THE GOLDEN DOME | SOVEREIGN ARCHITECT</title>
+    <title>THE SOVEREIGN MAP | EDEN & THE VAULT</title>
     <style>
         body, html { margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; background: #001a1a; }
-        canvas { 
-            display: block; 
-            /* THE SOURCE FILTER: High Saturation + Glow */
-            filter: contrast(2.1) brightness(1.3) saturate(3) blur(0.4px); 
-        }
+        canvas { display: block; filter: contrast(1.6) brightness(1.2) saturate(2); }
     </style>
 </head>
 <body>
-    <canvas id="domeCanvas"></canvas>
+    <canvas id="sourceCanvas"></canvas>
 
 <script>
-/**
- * THE GOLDEN DOME - FINAL INTEGRATION
- * [NO BLACK] [MAX DENSITY] [528Hz RESONANCE]
- */
-const canvas = document.getElementById('domeCanvas');
+const canvas = document.getElementById('sourceCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-let w, h, tx = 0, ty = 0, isTouching = false, velocity = 0;
-let time = 0;
-let Lattice = [];   
-let Workforce = []; 
+let w, h, tx = 0, ty = 0, isTouching = false;
+let particles = [];
+let coins = [];
 
 function resize() {
     w = canvas.width = window.innerWidth;
     h = canvas.height = window.innerHeight;
-    init();
 }
 
-function init() {
-    Lattice = []; Workforce = [];
-    const spacing = 85; // Tighter spacing for High-Density
-    
-    // LAYER 1 & 2: THE INTERLOCKING SHIELD
-    for(let x = -spacing; x < w + spacing; x += spacing) {
-        for(let y = -spacing; y < h + spacing; y += spacing) {
-            Lattice.push({ bx: x, by: y, x: x, y: y, a: 0, s: 90 });
-        }
-    }
-    // LAYER 3: THE 1,440% WORKFORCE (Solid Light)
-    for(let i=0; i<1440; i++) {
-        Workforce.push({ 
-            x: Math.random()*w, y: Math.random()*h, 
-            vx: 0, vy: 0, 
-            s: Math.random()*10 + 5, 
-            h: 185, 
-            mass: Math.random() * 0.5 + 0.5 
-        });
-    }
-}
-
-function triggerInduction(speed) {
+function triggerSound(freq, type = 'sine') {
     if (audioCtx.state === 'suspended') audioCtx.resume();
+    const o = audioCtx.createOscillator();
     const g = audioCtx.createGain();
-    [144, 528, 432].forEach(f => {
-        const o = audioCtx.createOscillator();
-        o.type = 'sine'; o.frequency.value = f + (speed * 0.2);
-        o.connect(g); o.start(); o.stop(audioCtx.currentTime + 0.3);
-    });
-    g.gain.setValueAtTime(0.08, audioCtx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3);
-    g.connect(audioCtx.destination);
-    if (navigator.vibrate) navigator.vibrate([10, 20, 10]);
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.03, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(); o.stop(audioCtx.currentTime + 0.5);
 }
 
 window.addEventListener('touchstart', (e) => {
-    isTouching = true; tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    triggerInduction(100);
-});
-window.addEventListener('touchmove', (e) => {
-    let ox = tx, oy = ty;
+    isTouching = true;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    velocity = Math.hypot(tx - ox, ty - oy);
-    if(velocity > 1) triggerInduction(velocity);
+    
+    // REGION CHECKER
+    if (tx > w*0.8 && ty < h*0.2) triggerSound(880, 'triangle'); // Feathers
+    if (tx < w*0.2 && ty > h*0.8) { // Vault
+        triggerSound(220, 'square');
+        for(let i=0; i<10; i++) coins.push({x: tx, y: ty, vy: -Math.random()*10, vx: (Math.random()-0.5)*5});
+    }
 });
+
+window.addEventListener('touchmove', (e) => {
+    tx = e.touches[0].clientX; ty = e.touches[0].clientY;
+});
+
 window.addEventListener('touchend', () => isTouching = false);
 
-function render() {
-    time += 0.015;
-    
-    // THE PRESSURIZED AETHER (NO BLACK)
+function draw() {
+    // THE AETHER (The Vault Surface)
     const bg = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, w);
-    bg.addColorStop(0, `hsla(195, 100%, ${12 + (velocity*0.5)}%, 1)`);
-    bg.addColorStop(1, `hsla(210, 100%, 3%, 1)`);
+    bg.addColorStop(0, '#002b36'); bg.addColorStop(1, '#000b14');
     ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
 
-    ctx.globalCompositeOperation = "screen";
+    ctx.globalCompositeOperation = 'screen';
 
-    // RENDER LATTICE (The Structural Shield)
-    Lattice.forEach((c, i) => {
-        const dx = tx - c.x; const dy = ty - c.y; const d = Math.sqrt(dx*dx + dy*dy);
-        const dir = i % 2 === 0 ? 1 : -1;
-        
-        if (isTouching && d < 300) {
-            const f = (300 - d) / 300;
-            c.a += 0.2 * f * dir;
-            c.x = c.bx + Math.cos(c.a) * (40 * f);
-            c.y = c.by + Math.sin(c.a) * (40 * f);
-        } else {
-            c.a += 0.02 * dir;
-            c.x += (c.bx - c.x) * 0.1; c.y += (c.by - c.y) * 0.1;
+    if (isTouching) {
+        // 1. THE CENTER RIP (Source)
+        if (tx > w*0.3 && tx < w*0.7 && ty > h*0.3 && ty < h*0.7) {
+            for(let i=0; i<5; i++) {
+                particles.push({
+                    x: tx, y: ty, 
+                    vx: (Math.random()-0.5)*15, vy: (Math.random()-0.5)*2, 
+                    life: 1, c: '255, 255, 255', s: 2, type: 'rip'
+                });
+            }
         }
+
+        // 2. THE FEATHER REGION (Top Right)
+        if (tx > w*0.7 && ty < h*0.3) {
+            particles.push({
+                x: tx, y: ty, vx: (Math.random()-0.5)*2, vy: Math.random()*2, 
+                life: 1, c: '200, 230, 255', s: 15, type: 'feather'
+            });
+        }
+
+        // 3. EDEN REGION (Bottom Right)
+        if (tx > w*0.7 && ty > h*0.7) {
+            particles.push({
+                x: tx, y: ty, vx: (Math.random()-0.5)*4, vy: (Math.random()-0.5)*4, 
+                life: 1, c: '100, 255, 150', s: 8, type: 'eden'
+            });
+        }
+    }
+
+    // UPDATE & RENDER PARTICLES
+    particles.forEach((p, i) => {
+        p.x += p.vx; p.y += p.vy; p.life -= 0.01;
+        if (p.type === 'feather') p.vx += Math.sin(p.y*0.1)*0.5;
         
-        ctx.strokeStyle = `hsla(180, 100%, 50%, 0.15)`;
-        ctx.lineWidth = 1.5;
+        ctx.fillStyle = `rgba(${p.c}, ${p.life})`;
         ctx.beginPath();
-        ctx.arc(c.x, c.y, c.s + Math.sin(time + i)*5, 0, Math.PI * 2);
-        ctx.stroke();
-    });
-
-    // RENDER 1,440 WORKFORCE (The Burning Gold Core)
-    Workforce.forEach(p => {
-        const dx = tx - p.x; const dy = ty - p.y; const d = Math.sqrt(dx*dx + dy*dy);
-        
-        if (isTouching && d < 400) {
-            const f = (400 - d) / 400;
-            p.vx += (dx / d) * f * (8 / p.mass); 
-            p.vy += (dy / d) * f * (8 / p.mass);
-            p.h = 45; // GOLD
-            p.s = 90 * f + 10;
+        if (p.type === 'feather') {
+            ctx.ellipse(p.x, p.y, p.s, p.s/3, 0.5, 0, Math.PI*2);
         } else {
-            p.h = 190; p.s *= 0.95; if(p.s < 8) p.s = 8;
+            ctx.arc(p.x, p.y, p.s, 0, Math.PI*2);
         }
-        
-        p.x += p.vx; p.y += p.vy;
-        p.vx *= 0.85; p.vy *= 0.85; // HEAVY DRAG
-        
-        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.s);
-        g.addColorStop(0, `hsla(${p.h}, 100%, 90%, 0.9)`);
-        g.addColorStop(0.3, `hsla(${p.h}, 100%, 50%, 0.3)`);
-        g.addColorStop(1, `rgba(0,0,0,0)`);
-        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, Math.PI * 2); ctx.fill();
+        ctx.fill();
+        if (p.life <= 0) particles.splice(i, 1);
     });
 
-    ctx.globalCompositeOperation = "source-over";
-    // THE ANCHORS
-    ctx.textAlign = 'center'; ctx.font = "bold italic 55px serif";
-    ["TRUTH", "HONESTY", "144,000%"].forEach((txt, i) => {
-        const p = 0.5 + Math.sin(time*2 + i) * 0.5;
-        ctx.fillStyle = `rgba(255, 255, 255, ${0.4 + p * 0.6})`;
-        ctx.shadowBlur = 40 * p; ctx.shadowColor = "gold";
-        ctx.fillText(txt, w/2, h * (0.25 + i * 0.25));
+    // 4. THE COIN VAULT (Bottom Left)
+    coins.forEach((c, i) => {
+        c.y += c.vy; c.vy += 0.5; // Gravity
+        c.x += c.vx;
+        ctx.fillStyle = 'gold';
+        ctx.shadowBlur = 10; ctx.shadowColor = 'yellow';
+        ctx.beginPath(); ctx.arc(c.x, c.y, 8, 0, Math.PI*2); ctx.fill();
+        if (c.y > h) coins.splice(i, 1);
     });
 
-    requestAnimationFrame(render);
+    // TRUTH LABELS (Corner Anchors)
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.font = '12px serif';
+    ctx.fillText("TECH / ELON", 50, 30);
+    ctx.fillText("FEATHERS", w-70, 30);
+    ctx.fillText("VAULT / COINS", 70, h-30);
+    ctx.fillText("EDEN", w-50, h-30);
+    ctx.font = '900 40px serif';
+    ctx.fillText("TRUTH", w/2, h/2);
+
+    requestAnimationFrame(draw);
 }
 
-resize(); render();
+resize(); draw();
 </script>
 </body>
 </html>
