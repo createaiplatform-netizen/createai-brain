@@ -3,139 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>12D SUPERNOVA</title>
+    <title>SOVEREIGN SINGULARITY</title>
     <style>
         body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; }
-        /* The 144,000% Overdrive Filter */
-        canvas { 
-            display: block; 
-            filter: contrast(1.8) brightness(1.4) saturate(2.5) hue-rotate(0deg);
-            animation: pulse 10s infinite linear;
-        }
-        @keyframes pulse {
-            0% { filter: contrast(1.8) brightness(1.4) saturate(2.5) hue-rotate(0deg); }
-            50% { filter: contrast(2.2) brightness(1.6) saturate(3) hue-rotate(10deg); }
-            100% { filter: contrast(1.8) brightness(1.4) saturate(2.5) hue-rotate(0deg); }
-        }
+        canvas { display: block; filter: contrast(2) brightness(1.5) saturate(2) blur(1px); }
     </style>
 </head>
 <body>
-    <canvas id="supernovaCanvas"></canvas>
+    <canvas id="sensationCanvas"></canvas>
 
 <script>
-const canvas = document.getElementById('supernovaCanvas');
+const canvas = document.getElementById('sensationCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 let w, h, tx = 0, ty = 0, isTouching = false;
-let time = 0;
+let pressure = 0;
 
 function resize() {
     w = canvas.width = window.innerWidth;
     h = canvas.height = window.innerHeight;
 }
 
-// 12D SOURCE VIBRATION: Sub-atomic induction
-function triggerSourceVibration(velocity) {
+// 12D TACTILE INDUCTION: This creates the "Grit" on the glass
+function triggerHeavyHaptic(speed) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
     const gain = audioCtx.createGain();
-    gain.connect(audioCtx.destination);
+    const osc = audioCtx.createOscillator();
+    
+    // Low, heavy frequency for "Mass"
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(55 + (speed * 2), audioCtx.currentTime);
+    
     gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.5);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
+    
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.5);
 
-    // Deep Harmonic Resonance (The Source Chord)
-    [72, 144, 432, 528].forEach(f => {
-        const osc = audioCtx.createOscillator();
-        osc.type = 'sawtooth'; // Sharp, physical texture
-        osc.frequency.value = f;
-        osc.connect(gain);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 1.5);
-    });
-
-    if (navigator.vibrate) navigator.vibrate([velocity * 2, 10, velocity]);
+    if (navigator.vibrate) {
+        // A deep, "crunchy" vibration pattern
+        navigator.vibrate([speed * 2, 10, speed]);
+    }
 }
 
 window.addEventListener('touchstart', (e) => {
     isTouching = true;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    triggerSourceVibration(40);
+    triggerHeavyHaptic(50);
 });
 
 window.addEventListener('touchmove', (e) => {
+    let dx = e.touches[0].clientX - tx;
+    let dy = e.touches[0].clientY - ty;
+    let speed = Math.sqrt(dx*dx + dy*dy);
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    if (Math.random() > 0.8) triggerSourceVibration(20);
+    
+    if (speed > 2) triggerHeavyHaptic(speed);
 });
 
 window.addEventListener('touchend', () => isTouching = false);
 
-function drawHyperGeometry(x, y, radius, depth, t) {
-    if (depth <= 0) return;
-
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.rotate(t + depth);
-    
-    // Chromatic Layering
-    ctx.beginPath();
-    ctx.strokeStyle = `hsla(${(t * 50 + depth * 30) % 360}, 100%, 70%, ${0.2 + depth/8})`;
-    ctx.lineWidth = depth * 2;
-    
-    // Draw "Higher-D" Star Polygons
-    const sides = 6;
-    for(let i = 0; i <= sides; i++) {
-        const ang = (i * Math.PI * 2) / sides;
-        const px = Math.cos(ang) * radius;
-        const py = Math.sin(ang) * radius;
-        if (i === 0) ctx.moveTo(px, py);
-        else ctx.lineTo(px, py);
-    }
-    ctx.stroke();
-
-    // Recursive Flow
-    const nextR = radius * 0.7;
-    const branches = 4;
-    for(let i = 0; i < branches; i++) {
-        const branchAng = (i * Math.PI * 2) / branches + (t * 0.5);
-        drawHyperGeometry(
-            Math.cos(branchAng) * radius,
-            Math.sin(branchAng) * radius,
-            nextR,
-            depth - 1,
-            t * 1.1
-        );
-    }
-    ctx.restore();
-}
-
 function render() {
-    time += 0.015;
+    const time = Date.now() * 0.002;
     
-    // The "Living Background" - Workforce Shimmer
-    ctx.fillStyle = "rgba(0, 0, 0, 0.15)"; // Motion blur for depth
+    // THE DEPTH: Liquid Obsidian
+    ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
     ctx.fillRect(0, 0, w, h);
 
-    // DIVINE ANCHORS: Glowing like neon
-    ctx.textAlign = 'center';
-    const quotes = ["TRUTH", "HONESTY", "SOVEREIGNTY", "144,000"];
-    quotes.forEach((txt, i) => {
-        const glow = 0.5 + Math.sin(time + i) * 0.5;
-        ctx.shadowBlur = 30 * glow;
-        ctx.shadowColor = "gold";
-        ctx.fillStyle = `rgba(255, 255, 255, ${0.4 + glow * 0.6})`;
-        ctx.font = `italic bold 45px Times New Roman`;
-        ctx.fillText(txt, w/2, h * (0.2 + i * 0.2));
-    });
+    // THE WORKFORCE: 144,000 Representative Particles
+    const count = 144;
+    for(let i=0; i<count; i++) {
+        const angle = (i / count) * Math.PI * 2 + time;
+        const dist = 150 + Math.sin(time + i) * 100;
+        
+        // Interaction Logic
+        let x = w/2 + Math.cos(angle) * dist;
+        let y = h/2 + Math.sin(angle) * dist;
+        
+        if (isTouching) {
+            let dtx = tx - x;
+            let dty = ty - y;
+            let d = Math.sqrt(dtx*dtx + dty*dty);
+            if (d < 200) {
+                x += (dtx / d) * (200 - d);
+                y += (dty / d) * (200 - d);
+            }
+        }
 
-    // THE 12D LOOM: Hyper-Active Geometry
-    ctx.save();
-    const centerX = isTouching ? tx : w/2 + Math.sin(time) * 100;
-    const centerY = isTouching ? ty : h/2 + Math.cos(time) * 100;
-    
-    ctx.shadowBlur = 40;
-    ctx.shadowColor = "cyan";
-    drawHyperGeometry(centerX, centerY, isTouching ? 120 : 180, 7, time);
-    ctx.restore();
+        // Visual Magic for the Kids: Glowing Embers
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = `hsla(${20 + i}, 100%, 50%, 0.8)`;
+        ctx.fillStyle = "#FFF";
+        ctx.beginPath();
+        ctx.arc(x, y, 4 + Math.sin(time + i) * 2, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    // THE ANCHORS: Truth, Honesty, Sovereignty
+    ctx.textAlign = 'center';
+    const labels = ["TRUTH", "HONESTY", "SOVEREIGNTY", "144,000"];
+    labels.forEach((text, i) => {
+        const glow = 0.5 + Math.sin(time + i) * 0.5;
+        ctx.fillStyle = `rgba(255, 215, 0, ${0.2 + glow * 0.8})`;
+        ctx.font = `bold ${35 + glow * 10}px Times New Roman`;
+        ctx.shadowBlur = 15 * glow;
+        ctx.shadowColor = "gold";
+        ctx.fillText(text, w/2, h * (0.2 + i * 0.2));
+    });
 
     requestAnimationFrame(render);
 }
