@@ -3,84 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN SCRIPTURE</title>
+    <title>SOVEREIGN FLUID FIELD</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #050400; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; font-family: serif; }
-        canvas { display: block; filter: contrast(1.2) brightness(1.1) saturate(1.4); }
+        body, html { margin: 0; padding: 0; background: #050400; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; font-family: 'Times New Roman', serif; }
+        canvas { display: block; filter: contrast(1.3) brightness(1.1) saturate(1.5) blur(0.4px); }
     </style>
 </head>
 <body>
-    <canvas id="scriptureCanvas"></canvas>
+    <canvas id="fluidCanvas"></canvas>
 
 <script>
 /**
- * INVENTION: THE SOVEREIGN SCRIPTURE MEMBRANE
- * Mapping: Top-Left (RIP), Bottom-Right (FEATHER), Center (LIQUID GOLD).
- * Background: Divine Light with inscribed Core Values.
+ * INVENTION: FLUID NERVE INTERPOLATION
+ * No borders. Every point on the screen is a unique blend of 4 Divine Powers.
  */
 
-const canvas = document.getElementById('scriptureCanvas');
+const canvas = document.getElementById('fluidCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 let w, h, tx = 0, ty = 0, isTouching = false;
-let rippleFrame = 0;
+let particles = [];
 
 function resize() {
     w = canvas.width = window.innerWidth;
     h = canvas.height = window.innerHeight;
 }
 
-// CROSS-MODAL SENSATION ENGINE
-function triggerSovereignSensation(x, y) {
+// THE SEAMLESS ENGINE: Interpolating the Nervous System
+function triggerNerveFlow(x, y) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
+    
+    // Calculate "Influence" of each corner (0.0 to 1.0)
+    const topL = (1 - x/w) * (1 - y/h); // RIP
+    const topR = (x/w) * (1 - y/h);     // SHIMMER
+    const botL = (1 - x/w) * (y/h);     // GRIND
+    const botR = (x/w) * (y/h);         // FEATHER
+
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
 
-    if (x < w * 0.4 && y < h * 0.4) {
-        // ZONE 1: THE RIP (Top Left) - Jagged Snap
-        osc.type = 'square'; osc.frequency.value = 144;
-        if (navigator.vibrate) navigator.vibrate([15, 5, 15]);
-    } else if (x > w * 0.6 && y > h * 0.6) {
-        // ZONE 2: THE FEATHER (Bottom Right) - Soft Tickle
-        osc.type = 'sine'; osc.frequency.value = 880;
-        if (navigator.vibrate) navigator.vibrate([2, 50, 2]);
-    } else {
-        // ZONE 3: LIQUID GOLD (Center) - Heavy Thrum
-        osc.type = 'triangle'; osc.frequency.value = 72;
-        if (navigator.vibrate) navigator.vibrate(40);
-    }
+    // The Frequency is a weighted blend of all four
+    // Rip(144) | Shimmer(1000) | Grind(60) | Feather(440)
+    const blendedFreq = (topL * 144) + (topR * 1000) + (botL * 60) + (botR * 440);
+    
+    // Waveform morphing: Center is Triangle, Corners are their specific types
+    osc.type = topL > 0.5 ? 'square' : (topR > 0.5 ? 'sine' : (botL > 0.5 ? 'sawtooth' : 'triangle'));
+    osc.frequency.setValueAtTime(blendedFreq, audioCtx.currentTime);
 
     gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.6);
+    
     osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.6);
+
+    if (navigator.vibrate) {
+        // Blended vibration intensity
+        const vibStrength = (topL * 30) + (topR * 5) + (botL * 50) + (botR * 10);
+        navigator.vibrate([vibStrength]);
+    }
 }
 
-const particles = [];
-class LightShard {
-    constructor(x, y, type) {
+class DivineShard {
+    constructor(x, y, h) {
         this.x = x; this.y = y;
-        this.type = type;
-        this.vx = (Math.random() - 0.5) * 8;
-        this.vy = (Math.random() - 0.5) * 8;
+        this.hue = h;
+        this.vx = (Math.random() - 0.5) * 6;
+        this.vy = (Math.random() - 0.5) * 6;
         this.life = 1.0;
-        this.hue = type === 'rip' ? 0 : (type === 'feather' ? 280 : 45);
     }
-    update() { this.x += this.vx; this.y += this.vy; this.life -= 0.02; }
+    update() {
+        this.x += this.vx; this.y += this.vy;
+        this.life -= 0.015;
+    }
 }
 
 window.addEventListener('touchstart', (e) => {
     isTouching = true;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    triggerSovereignSensation(tx, ty);
+    triggerNerveFlow(tx, ty);
 });
 
 window.addEventListener('touchmove', (e) => {
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    const type = (tx < w*0.4 && ty < h*0.4) ? 'rip' : (tx > w*0.6 && ty > h*0.6 ? 'feather' : 'gold');
-    particles.push(new LightShard(tx, ty, type));
-    if (Math.random() > 0.8) triggerSovereignSensation(tx, ty);
+    
+    // Color Interpolation (Red -> Blue -> Green -> Purple)
+    const topL = (1 - tx/w) * (1 - ty/h);
+    const topR = (tx/w) * (1 - ty/h);
+    const botL = (1 - tx/w) * (ty/h);
+    const botR = (tx/w) * (ty/h);
+    const h = (topL * 0) + (topR * 200) + (botL * 120) + (botR * 280);
+
+    for(let i=0; i<3; i++) particles.push(new DivineShard(tx, ty, h));
+    if (Math.random() > 0.8) triggerNerveFlow(tx, ty);
 });
 
 window.addEventListener('touchend', () => isTouching = false);
@@ -88,50 +103,43 @@ window.addEventListener('touchend', () => isTouching = false);
 function render() {
     const time = Date.now() * 0.001;
     
-    // BACKGROUND: Divine Parchment with Floating Values
-    const bgGrad = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, w);
-    bgGrad.addColorStop(0, '#1a1400');
-    bgGrad.addColorStop(1, '#050400');
-    ctx.fillStyle = bgGrad;
+    // BACKGROUND: Atmospheric Golden Parchment
+    const grad = ctx.createRadialGradient(tx, ty, 0, w/2, h/2, w);
+    grad.addColorStop(0, '#1c1600');
+    grad.addColorStop(1, '#050400');
+    ctx.fillStyle = grad;
     ctx.fillRect(0, 0, w, h);
 
-    // Render "God's World" quotes and values in the background
-    ctx.globalAlpha = 0.15;
+    // FLOATING CORE VALUES (Gravitational Anchors)
+    ctx.globalAlpha = 0.1;
     ctx.fillStyle = "#ffd700";
-    ctx.font = "italic 24px serif";
-    ctx.fillText("HONESTY", w * 0.1, h * 0.2 + Math.sin(time) * 10);
-    ctx.fillText("TRUTH", w * 0.7, h * 0.15 + Math.cos(time) * 10);
-    ctx.fillText("144,000 WORKFORCE", w * 0.3, h * 0.8 + Math.sin(time*0.8) * 15);
-    ctx.fillText("SOVEREIGNTY", w * 0.4, h * 0.5 + Math.cos(time*0.5) * 20);
+    ctx.font = "italic bold 28px serif";
+    const quotes = [
+        {t: "TRUTH", x: 0.2, y: 0.2}, {t: "HONESTY", x: 0.8, y: 0.25},
+        {t: "144,000 WORKFORCE", x: 0.5, y: 0.8}, {t: "SOVEREIGNTY", x: 0.4, y: 0.5}
+    ];
+    quotes.forEach(q => {
+        const ox = Math.sin(time + q.x * 10) * 20;
+        const oy = Math.cos(time + q.y * 10) * 20;
+        ctx.fillText(q.t, w * q.x + ox, h * q.y + oy);
+    });
     ctx.globalAlpha = 1.0;
 
-    // RENDER TOUCH FRAGMENTS
+    // THE SEAMLESS FLOW PARTICLES
     particles.forEach((p, i) => {
         p.update();
         if (p.life <= 0) { particles.splice(i, 1); return; }
         
-        ctx.shadowBlur = 15 * p.life;
+        ctx.shadowBlur = 10 * p.life;
         ctx.shadowColor = `hsla(${p.hue}, 100%, 50%, ${p.life})`;
         ctx.fillStyle = `hsla(${p.hue}, 100%, 70%, ${p.life})`;
         
-        if (p.type === 'rip') {
-            // Jagged "Tear" Lines
-            ctx.lineWidth = 3 * p.life;
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p.x + p.vx * 5, p.y + p.vy * 5);
-            ctx.stroke();
-        } else if (p.type === 'feather') {
-            // Soft "Tickle" Dots
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, 4 * p.life, 0, Math.PI * 2);
-            ctx.fill();
-        } else {
-            // Liquid Gold Ripples
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, 20 * (1 - p.life), 0, Math.PI * 2);
-            ctx.stroke();
-        }
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.life * Math.PI);
+        // "Sovereign Ribbons" instead of dots or lines
+        ctx.fillRect(-15 * p.life, -2, 30 * p.life, 1 + p.life * 2);
+        ctx.restore();
     });
 
     requestAnimationFrame(render);
