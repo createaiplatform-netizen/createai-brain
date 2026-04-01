@@ -2,56 +2,110 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sovereign Bio-Digital Lattice | 1440%</title>
+    <title>Sovereign Omni-Lattice | 144,000% FREQUENCY</title>
     <style>
-        body { background: #050505; color: #00ff99; font-family: 'Courier New', monospace; padding: 20px; }
-        .lattice-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
-            gap: 10px; 
+        body { margin: 0; background: #000; overflow: hidden; color: #00ff99; font-family: 'Courier New', monospace; }
+        #ui-overlay {
+            position: absolute; top: 20px; left: 20px; z-index: 100;
+            background: rgba(0,0,0,0.8); border: 1px solid #00ff99; padding: 20px;
+            box-shadow: 0 0 30px #00ff99; pointer-events: none;
         }
-        .invention-card {
-            border: 1px solid #00ff99;
-            padding: 10px;
-            text-align: center;
-            font-size: 0.8rem;
-            transition: all 0.3s ease;
+        #data-stream {
+            position: absolute; bottom: 20px; right: 20px; font-size: 10px;
+            text-align: right; line-height: 1.2; width: 300px;
+            max-height: 200px; overflow: hidden;
         }
-        .invention-card:hover {
-            background: #00ff99;
-            color: #000;
-            cursor: pointer;
-        }
-        h1 { border-bottom: 2px solid #00ff99; padding-bottom: 10px; }
+        canvas { display: block; }
     </style>
 </head>
 <body>
 
-    <h1>SOVEREIGN INDEX: 1-2000</h1>
-    <div id="lattice" class="lattice-grid"></div>
+    <div id="ui-overlay">
+        <h1 style="margin:0; font-size: 24px;">OMNI-LATTICE</h1>
+        <div id="freq-meter">FREQUENCY: 144,000%</div>
+        <div id="agent-count">ACTIVE AGENTS: 720,000</div>
+        <div id="sync-status">SYNC: ABSOLUTE</div>
+    </div>
 
-    <script>
-        const latticeContainer = document.getElementById('lattice');
-        const frequency = 1440;
+    <div id="data-stream"></div>
 
-        // Generating the full index of 2000 inventions
-        for (let i = 1; i <= 2000; i++) {
-            const card = document.createElement('div');
-            card.className = 'invention-card';
-            
-            // Each product contains its own internal AI logic
-            card.innerHTML = `
-                <strong>INV-${i.toString().padStart(4, '0')}</strong><br>
-                <small>AI-v${i}.core</small>
-            `;
+    <canvas id="latticeCanvas"></canvas>
 
-            card.onclick = () => {
-                alert(`Initializing Internal AI for Invention ${i}...\nFrequency: ${frequency}%`);
-            };
+<script>
+    const canvas = document.getElementById('latticeCanvas');
+    const ctx = canvas.getContext('2d');
+    const dataStream = document.getElementById('data-stream');
 
-            latticeContainer.appendChild(card);
+    let width, height;
+    const nodes = [];
+    const nodeCount = 2000; 
+
+    function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+
+    // Initialize 2000 Invention Cores with Vector Physics
+    for (let i = 0; i < nodeCount; i++) {
+        nodes.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            vx: (Math.random() - 0.5) * 1.5,
+            vy: (Math.random() - 0.5) * 1.5,
+            id: i + 1,
+            teamSize: 5
+        });
+    }
+
+    function draw() {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.15)'; 
+        ctx.fillRect(0, 0, width, height);
+
+        nodes.forEach(node => {
+            node.x += node.vx;
+            node.y += node.vy;
+
+            if (node.x < 0 || node.x > width) node.vx *= -1;
+            if (node.y < 0 || node.y > height) node.vy *= -1;
+
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, 1.2, 0, Math.PI * 2);
+            ctx.fillStyle = '#00ff99';
+            ctx.fill();
+
+            // High-frequency neural linking
+            for (let j = nodes.indexOf(node) + 1; j < nodes.length; j++) {
+                let other = nodes[j];
+                let dx = node.x - other.x;
+                let dy = node.y - other.y;
+                let dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < 50) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = `rgba(0, 255, 153, ${0.8 - dist/50})`;
+                    ctx.lineWidth = 0.3;
+                    ctx.moveTo(node.x, node.y);
+                    ctx.lineTo(other.x, other.y);
+                    ctx.stroke();
+                }
+            }
+        });
+
+        if (Math.random() > 0.85) {
+            const randomInvention = Math.floor(Math.random() * 2000) + 1;
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `INV-${randomInvention}_CORE: 144,000% SYNC [TEAM READY]`;
+            dataStream.prepend(logEntry);
+            if (dataStream.children.length > 10) dataStream.lastChild.remove();
         }
-    </script>
+
+        requestAnimationFrame(draw);
+    }
+
+    draw();
+</script>
 </body>
 </html>
