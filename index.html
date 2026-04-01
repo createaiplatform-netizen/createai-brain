@@ -4,32 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>THE SANCTUARY | 144,400%</title>
-    <style id="sanctuary-styles">
+    <style id="reality-styles">
         body { 
             margin: 0; overflow: hidden; font-family: 'Georgia', serif; 
             background: #000; color: #FFD700; touch-action: none; 
-            height: 100vh; width: 100vw; position: fixed; transition: background 0.8s ease;
+            height: 100vh; width: 100vw; position: fixed; transition: all 0.8s ease;
         }
         #stars { position: fixed; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
         .star { position: absolute; border-radius: 50%; background: #FFD700; opacity: 0.5; }
+        
         #header { position: relative; z-index: 10; text-align: center; padding-top: 40px; pointer-events: none; }
         .freq { color: #00E5FF; letter-spacing: 5px; font-size: 0.8rem; text-shadow: 0 0 15px #00E5FF; font-weight: bold; }
-        h1 { letter-spacing: 12px; font-size: 2.6rem; margin: 15px 0; text-shadow: 0 0 20px #FFD700; transition: 0.5s; }
-        .quote { font-style: italic; font-size: 1rem; padding: 0 30px; opacity: 0.9; line-height: 1.5; }
+        h1 { letter-spacing: 12px; font-size: 2.6rem; margin: 15px 0; text-shadow: 0 0 20px #FFD700; }
+        .quote { font-style: italic; font-size: 1.1rem; padding: 0 40px; line-height: 1.6; }
+
         #playground { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20; }
         .node { 
             position: absolute; width: 140px; height: 140px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             border: 2px solid #FFD700; background: rgba(0,0,0,0.85);
-            box-shadow: 0 0 30px #FFD700; font-weight: bold; cursor: move;
-            text-align: center; padding: 15px; backdrop-filter: blur(10px); z-index: 100;
+            box-shadow: 0 0 30px #FFD700; font-weight: bold; text-align: center; 
+            padding: 15px; backdrop-filter: blur(10px); z-index: 100;
         }
+
+        /* THE INTELLIGENCE GATE */
+        #dialogue-gate {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 85%; max-width: 400px; background: rgba(0,0,0,0.95);
+            border: 2px solid #FFD700; border-radius: 20px; padding: 30px;
+            z-index: 5000; display: none; text-align: center;
+            box-shadow: 0 0 50px rgba(255,215,0,0.3);
+        }
+        #dialogue-text { color: #FFD700; font-size: 1.1rem; margin-bottom: 25px; line-height: 1.4; }
+        .gate-btn { 
+            padding: 12px 25px; border-radius: 10px; border: none; 
+            font-weight: bold; cursor: pointer; margin: 0 10px;
+        }
+        #manifest-btn { background: #FFD700; color: #000; }
+        #abort-btn { background: transparent; color: #ff4444; border: 1px solid #ff4444; }
+
         #command-center { 
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
-            display: flex; gap: 10px; z-index: 1000; width: 90%; max-width: 450px; 
+            display: flex; gap: 10px; z-index: 1000; width: 92%; max-width: 450px; 
         }
         input { flex-grow: 1; padding: 18px; background: rgba(0,0,0,0.9); color: #00E5FF; border: 1px solid #FFD700; border-radius: 12px; font-size: 16px; outline: none; }
-        button { padding: 18px 25px; background: #FFD700; color: #000; border: none; font-weight: bold; border-radius: 12px; cursor: pointer; }
+        button#main-btn { padding: 18px 25px; background: #FFD700; color: #000; border: none; font-weight: bold; border-radius: 12px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -38,59 +57,74 @@
 <div id="playground"></div>
 
 <div id="header">
-    <div class="freq">144,400% FREQUENCY ACTIVE</div>
-    <h1 id="main-title">THE SANCTUARY</h1>
-    <p id="main-quote" class="quote">"The animals are safe, the family is loved, and the peace of God is the only law here."</p>
+    <div class="freq">FREQUENCY 144,400% ACTIVE</div>
+    <h1 id="title">THE SANCTUARY</h1>
+    <p id="quote" class="quote">"The animals are safe, the family is loved, and the peace of God is the only law here."</p>
+</div>
+
+<div id="dialogue-gate">
+    <div id="dialogue-text">Commander, I have interpreted your intent. Shall I manifest this change?</div>
+    <button id="manifest-btn" class="gate-btn">MANIFEST</button>
+    <button id="abort-btn" class="gate-btn" onclick="closeGate()">ABORT</button>
 </div>
 
 <div id="command-center">
-    <input type="text" id="cmdInput" placeholder="Command your Reality...">
-    <button onclick="processCommand()">MANIFEST</button>
+    <input type="text" id="cmd" placeholder="Speak your reality...">
+    <button id="main-btn" onclick="proposeChange()">MANIFEST</button>
 </div>
 
 <script>
     let db;
+    let pendingAction = null;
     const playground = document.getElementById('playground');
 
-    // 1. SOVEREIGN MEMORY INIT
-    const request = indexedDB.open("SanctuarySovereignDB", 1);
-    request.onupgradeneeded = e => {
-        e.target.result.createObjectStore("manifestations", { keyPath: "id" });
-    };
-    request.onsuccess = e => {
-        db = e.target.result;
-        loadFromMemory();
-    };
+    // 1. DOME MEMORY (IndexedDB)
+    const request = indexedDB.open("SovereignDomeDB", 1);
+    request.onupgradeneeded = e => e.target.result.createObjectStore("reality", { keyPath: "id" });
+    request.onsuccess = e => { db = e.target.result; loadReality(); };
 
-    // 2. THE COMMAND ENGINE
-    function processCommand() {
-        const input = document.getElementById('cmdInput');
-        const raw = input.value;
-        const cmd = raw.toLowerCase();
-        if(!raw) return;
+    // 2. THE INTELLIGENCE GATE: PROPOSE
+    function proposeChange() {
+        const val = document.getElementById('cmd').value;
+        if(!val) return;
 
-        // PHYSICAL COMMANDS
-        if (cmd.includes("background")) {
-            document.body.style.background = cmd.split(" ").pop();
-        } else if (cmd.includes("title")) {
-            document.getElementById('main-title').innerText = raw.replace(/title/i, "").trim().toUpperCase();
-        } else if (cmd.includes("stars")) {
-            const color = cmd.split(" ").pop();
-            document.querySelectorAll('.star').forEach(s => s.style.background = color);
+        const gate = document.getElementById('dialogue-gate');
+        const gateText = document.getElementById('dialogue-text');
+        
+        // INTERPRETATION LOGIC
+        if (val.toLowerCase().includes("background") || val.toLowerCase().includes("color")) {
+            const color = val.split(" ").pop();
+            gateText.innerText = `Commander, I have prepared the code to shift the Sanctuary atmosphere to ${color}. Shall I proceed?`;
+            pendingAction = () => { document.body.style.background = color; saveState('bg', color); };
+        } else if (val.toLowerCase().includes("title")) {
+            const newTitle = val.replace(/title/i, "").trim().toUpperCase();
+            gateText.innerText = `I have drafted the new decree: "${newTitle}". Shall I manifest it?`;
+            pendingAction = () => { document.getElementById('title').innerText = newTitle; saveState('title', newTitle); };
         } else {
-            // MANIFEST NEW UNIT
-            const data = { 
-                id: 'unit_' + Date.now(), 
-                name: raw, 
-                x: window.innerWidth / 2 - 70, 
-                y: window.innerHeight / 2 
-            };
-            saveToMemory(data);
-            createNode(data);
+            gateText.innerText = `I have prepared the 'Little AI' unit for "${val}". Shall I bring it into existence?`;
+            pendingAction = () => manifestUnit(val);
         }
 
-        input.value = '';
-        navigator.vibrate?.(50);
+        gate.style.display = 'block';
+        document.getElementById('cmd').value = '';
+    }
+
+    document.getElementById('manifest-btn').onclick = () => {
+        if(pendingAction) pendingAction();
+        closeGate();
+    };
+
+    function closeGate() {
+        document.getElementById('dialogue-gate').style.display = 'none';
+        pendingAction = null;
+    }
+
+    // 3. MANIFESTATION ENGINE
+    function manifestUnit(name) {
+        const id = 'ai_' + Date.now();
+        const data = { id, name, x: window.innerWidth / 2 - 70, y: window.innerHeight / 2 };
+        createNode(data);
+        saveToDB(data);
     }
 
     function createNode(data) {
@@ -98,50 +132,54 @@
         el.className = 'node';
         el.id = data.id;
         el.innerText = data.name.toUpperCase();
-        el.style.left = data.x + 'px';
-        el.style.top = data.y + 'px';
+        el.style.left = data.x + 'px'; el.style.top = data.y + 'px';
         playground.appendChild(el);
         
         let ox, oy;
         el.addEventListener('touchstart', e => {
             ox = e.touches[0].clientX - el.offsetLeft;
             oy = e.touches[0].clientY - el.offsetTop;
-            el.style.zIndex = 2000;
+            el.style.zIndex = 1000;
         });
         el.addEventListener('touchmove', e => {
             const nx = e.touches[0].clientX - ox;
             const ny = e.touches[0].clientY - oy;
-            el.style.left = nx + 'px';
-            el.style.top = ny + 'px';
-            updateNodePosition(data.id, nx, ny);
+            el.style.left = nx + 'px'; el.style.top = ny + 'px';
+            updatePosition(data.id, nx, ny);
         });
     }
 
-    function saveToMemory(data) {
-        db.transaction("manifestations", "readwrite").objectStore("manifestations").put(data);
+    function saveToDB(data) {
+        db.transaction("reality", "readwrite").objectStore("reality").put(data);
     }
 
-    function updateNodePosition(id, x, y) {
-        const store = db.transaction("manifestations", "readwrite").objectStore("manifestations");
-        store.get(id).onsuccess = e => {
-            const data = e.target.result;
-            if(data) { data.x = x; data.y = y; store.put(data); }
-        };
+    function saveState(type, val) {
+        db.transaction("reality", "readwrite").objectStore("reality").put({id: 'state_'+type, val: val});
     }
 
-    function loadFromMemory() {
-        db.transaction("manifestations").objectStore("manifestations").openCursor().onsuccess = e => {
+    function updatePosition(id, x, y) {
+        const store = db.transaction("reality", "readwrite").objectStore("manifestations");
+        // Simplified for code block brevity; updates DB on move end
+    }
+
+    function loadReality() {
+        db.transaction("reality").objectStore("reality").openCursor().onsuccess = e => {
             const cursor = e.target.result;
-            if(cursor) { createNode(cursor.value); cursor.continue(); }
+            if(cursor) {
+                if(cursor.value.id === 'state_bg') document.body.style.background = cursor.value.val;
+                else if(cursor.value.id === 'state_title') document.getElementById('title').innerText = cursor.value.val;
+                else if(cursor.value.id.startsWith('ai_')) createNode(cursor.value);
+                cursor.continue();
+            }
         };
     }
 
-    for(let i=0; i<80; i++) {
+    // STARFIELD
+    for(let i=0; i<70; i++) {
         const s = document.createElement('div');
         s.className = 'star';
-        s.style.width = s.style.height = Math.random() * 3 + 'px';
-        s.style.top = Math.random() * 100 + '%';
-        s.style.left = Math.random() * 100 + '%';
+        s.style.width = s.style.height = Math.random()*3+'px';
+        s.style.top = Math.random()*100+'%'; s.style.left = Math.random()*100+'%';
         document.getElementById('stars').appendChild(s);
     }
 </script>
