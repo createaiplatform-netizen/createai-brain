@@ -3,150 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN GHOST-MATTER</title>
+    <title>SOVEREIGN NEBULA</title>
     <style>
         body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; }
-        /* This filter creates the "Ghost-Matter" look—liquid yet sharp */
-        canvas { display: block; filter: contrast(1.5) brightness(1.2) saturate(1.8) drop-shadow(0 0 10px rgba(255,215,0,0.3)); }
+        /* The glow filter that turns shards into beautiful light-paint */
+        canvas { display: block; filter: saturate(1.8) brightness(1.2) contrast(1.1); }
     </style>
 </head>
 <body>
-    <canvas id="ghostCanvas"></canvas>
+    <canvas id="nebulaCanvas"></canvas>
 
 <script>
 /**
- * THE INVENTION: CROSS-MODAL NERVE INDUCTION
- * 1. Ghost-Matter: Sub-sonic vibration beats to simulate 3D texture.
- * 2. Fractal Light: Shards that never turn into blobs.
- * 3. Spectral DNA: Every quadrant is a different world.
+ * THE INVENTION: ATMOSPHERIC DEPTH RENDERING
+ * Eliminating the grid. Creating a living, beautiful world.
  */
 
-const canvas = document.getElementById('ghostCanvas');
+const canvas = document.getElementById('nebulaCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 let w, h, tx = 0, ty = 0, isTouching = false;
-let pressure = 0, lastX = 0, lastY = 0;
 
 function resize() {
     w = canvas.width = window.innerWidth;
     h = canvas.height = window.innerHeight;
 }
 
-// THE GHOST-MATTER ENGINE
-function triggerGhostMatter(x, y, force) {
+// ZONAL HAPTICS
+function triggerZonalHaptic(x, y) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
-    
-    // Create two oscillators to create a "Beat Frequency" (Physical Texture)
-    const osc1 = audioCtx.createOscillator();
-    const osc2 = audioCtx.createOscillator();
+    const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
 
-    // Frequency logic based on Quadrants
-    let base = 144;
-    if (x < w/2 && y < h/2) { base = 90; osc1.type = 'square'; } // THE RIP
-    else if (x > w/2 && y < h/2) { base = 880; osc1.type = 'sine'; } // THE SHIMMER
-    else { base = 72; osc1.type = 'sawtooth'; } // THE WEIGHT
+    if (x < w/2 && y < h/2) { osc.type = 'square'; osc.frequency.value = 120; if(navigator.vibrate) navigator.vibrate([10,5,10]); }
+    else if (x >= w/2 && y < h/2) { osc.type = 'sine'; osc.frequency.value = 1000; if(navigator.vibrate) navigator.vibrate(5); }
+    else if (x < w/2 && y >= h/2) { osc.type = 'sawtooth'; osc.frequency.value = 60; if(navigator.vibrate) navigator.vibrate(40); }
+    else { osc.type = 'triangle'; osc.frequency.value = 300; if(navigator.vibrate) navigator.vibrate(20); }
 
-    osc1.frequency.setValueAtTime(base, audioCtx.currentTime);
-    osc2.frequency.setValueAtTime(base + 3, audioCtx.currentTime); // The 3Hz "Beat" feels like a physical bump
-    
-    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
-    
-    osc1.connect(gain); osc2.connect(gain);
-    gain.connect(audioCtx.destination);
-    
-    osc1.start(); osc2.start();
-    osc1.stop(audioCtx.currentTime + 0.5); osc2.stop(audioCtx.currentTime + 0.5);
-
-    if (navigator.vibrate) {
-        // Rhythmic pulsing to match the beat frequency
-        navigator.vibrate([force * 2, 5, force]);
-    }
+    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.4);
 }
 
-// The Fractal Workforce (No Dots, Only Shards)
-const shards = [];
-for(let i=0; i<1200; i++) {
-    shards.push({
-        x: Math.random() * window.innerWidth,
-        y: Math.random() * window.innerHeight,
-        ox: 0, oy: 0, vx: 0, vy: 0,
-        size: 2 + Math.random() * 8,
-        dna: Math.random(),
-        hue: 0
-    });
+const particles = [];
+class Particle {
+    constructor(x, y, hue) {
+        this.x = x; this.y = y;
+        this.hue = hue;
+        this.vx = (Math.random() - 0.5) * 10;
+        this.vy = (Math.random() - 0.5) * 10;
+        this.life = 1.0;
+        this.decay = 0.01 + Math.random() * 0.02;
+    }
+    update() {
+        this.x += this.vx; this.y += this.vy;
+        this.life -= this.decay;
+    }
 }
 
 window.addEventListener('touchstart', (e) => {
     isTouching = true;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    triggerGhostMatter(tx, ty, 20);
 });
-
 window.addEventListener('touchmove', (e) => {
-    lastX = tx; lastY = ty;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    pressure = Math.sqrt((tx-lastX)**2 + (ty-lastY)**2);
-    if (pressure > 1) triggerGhostMatter(tx, ty, pressure);
+    // Spawn color based on zone
+    let h = (tx < w/2 && ty < h/2) ? 0 : (tx >= w/2 && ty < h/2) ? 200 : (tx < w/2 && ty >= h/2) ? 45 : 280;
+    for(let i=0; i<5; i++) particles.push(new Particle(tx, ty, h));
+    triggerZonalHaptic(tx, ty);
 });
-
 window.addEventListener('touchend', () => isTouching = false);
 
 function render() {
-    // The "God's World" Background - Deep Cosmic Indigo
-    ctx.fillStyle = 'rgba(5, 5, 15, 0.3)';
+    const time = Date.now() * 0.001;
+    
+    // THE BACKGROUND: Swirling Prismatic Nebula
+    const grad = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, w);
+    grad.addColorStop(0, `hsla(${200 + Math.sin(time)*30}, 100%, 5%, 1)`);
+    grad.addColorStop(0.5, `hsla(${280 + Math.cos(time)*30}, 100%, 2%, 1)`);
+    grad.addColorStop(1, '#000');
+    ctx.fillStyle = grad;
     ctx.fillRect(0, 0, w, h);
 
-    const time = Date.now() * 0.002;
-
-    shards.forEach(s => {
-        // Spectral DNA Assignment
-        const px = s.x / w; const py = s.y / h;
-        s.hue = (px < 0.5 && py < 0.5) ? 0 :   // Crimson
-                (px >= 0.5 && py < 0.5) ? 210 : // Sapphire
-                (px < 0.5 && py >= 0.5) ? 140 : // Emerald
-                280;                            // Amethyst
-
-        if (isTouching) {
-            const dx = tx - s.x; const dy = ty - s.y;
-            const d = Math.sqrt(dx*dx + dy*dy);
-            if (d < 250) {
-                const f = (250 - d) / 250;
-                // Ghost-Matter Displacement Physics
-                if (tx < w/2 && ty < h/2) {
-                    s.vx -= dx * 0.12; s.vy -= dy * 0.12; // Tearing away
-                } else {
-                    s.vx += dx * 0.04; s.vy += dy * 0.04; // Heavy suction
-                }
-            }
-        }
-
-        s.vx *= 0.91; s.vy *= 0.91;
-        s.x += s.vx; s.y += s.vy;
-
-        // Keep them in the world
-        if (s.x < 0) s.x = w; if (s.x > w) s.x = 0;
-        if (s.y < 0) s.y = h; if (s.y > h) s.y = 0;
-
-        const flicker = Math.sin(time * 5 + s.dna * 100) * 0.5 + 0.5;
+    // THE TOUCH PARTICLES
+    for(let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.update();
+        if(p.life <= 0) { particles.splice(i, 1); continue; }
         
-        // Draw the shard (Never a circle/blob)
-        ctx.fillStyle = `hsla(${s.hue}, 100%, ${50 + flicker * 50}%, ${0.4 + flicker * 0.6})`;
+        ctx.shadowBlur = p.life * 20;
+        ctx.shadowColor = `hsla(${p.hue}, 100%, 50%, ${p.life})`;
+        ctx.fillStyle = `hsla(${p.hue}, 100%, 70%, ${p.life})`;
         
-        // Geometric Shard Logic
+        // Draw shards, not dots
         ctx.save();
-        ctx.translate(s.x, s.y);
-        ctx.rotate(s.dna * Math.PI + time);
-        ctx.fillRect(-s.size/2, -s.size/2, s.size + (pressure * 0.2), 1);
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.life * Math.PI);
+        ctx.fillRect(-10 * p.life, -1 * p.life, 20 * p.life, 2);
         ctx.restore();
-
-        if (flicker > 0.98) {
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = "white";
-        } else { ctx.shadowBlur = 0; }
-    });
+    }
 
     requestAnimationFrame(render);
 }
