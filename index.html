@@ -3,141 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN NEURAL FIELD</title>
+    <title>SOVEREIGN FRAGMENT FIELD</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #110e00; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; }
-        /* This filter creates the "Ripping Silk" look - NO DOTS */
-        canvas { display: block; filter: contrast(30) blur(1.5px) brightness(1.1); }
+        body, html { margin: 0; padding: 0; background: #080700; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; }
+        /* Prismatic filter to turn lines into glowing shards */
+        canvas { display: block; filter: contrast(1.5) brightness(1.2) saturate(1.8); }
     </style>
 </head>
 <body>
-    <canvas id="neuralCanvas"></canvas>
+    <canvas id="fragmentCanvas"></canvas>
 
 <script>
 /**
- * INVENTION: THE SOVEREIGN NEURAL TEXTURE FIELD
- * Analyzed from user history: Solving the 'Dot' and 'Blob' failure states.
+ * THE INVENTION: FRAGMENT FIELD DYNAMICS
+ * Analyzed from user screenshots to eliminate 'Blob' failure states.
  */
 
-const canvas = document.getElementById('neuralCanvas');
+const canvas = document.getElementById('fragmentCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 let w, h, tx = 0, ty = 0, isTouching = false;
-let pressure = 0;
 
 function resize() {
     w = canvas.width = window.innerWidth;
     h = canvas.height = window.innerHeight;
 }
 
-// MULTI-MODAL SENSATION ENGINE
-function triggerNeuralSensation(x, y, force) {
+// THE SENSORY MAP
+function triggerFragmentSense(x, y) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
 
-    if (x < w * 0.4 && y < h * 0.4) {
-        // THE RIP: Harsh Square Wave + Jagged Vibration
-        osc.type = 'square'; osc.frequency.setValueAtTime(80 + (force * 2), audioCtx.currentTime);
-        if (navigator.vibrate) navigator.vibrate([5, 15, 5]);
-    } else if (x > w * 0.6 && y < h * 0.4) {
-        // THE SPARKLE: High Sine Wave + Rapid Taps
-        osc.type = 'sine'; osc.frequency.setValueAtTime(1400, audioCtx.currentTime);
-        if (navigator.vibrate) navigator.vibrate([2, 5]);
+    if (x < w * 0.5 && y < h * 0.5) {
+        // TOP LEFT: THE RIP
+        osc.type = 'square'; osc.frequency.setValueAtTime(90, audioCtx.currentTime);
+        if (navigator.vibrate) navigator.vibrate([10, 5, 10]);
+    } else if (x > w * 0.5 && y < h * 0.5) {
+        // TOP RIGHT: THE SHIMMER
+        osc.type = 'sine'; osc.frequency.setValueAtTime(1100, audioCtx.currentTime);
+        if (navigator.vibrate) navigator.vibrate(5);
     } else {
-        // THE CORE: Deep Triangle Wave + Heavy Thrum
-        osc.type = 'triangle'; osc.frequency.setValueAtTime(144, audioCtx.currentTime);
-        if (navigator.vibrate) navigator.vibrate(30);
+        // BOTTOM: THE WEIGHT
+        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(60, audioCtx.currentTime);
+        if (navigator.vibrate) navigator.vibrate(35);
     }
 
-    gain.gain.setValueAtTime(0.07, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3);
     osc.connect(gain); gain.connect(audioCtx.destination);
     osc.start(); osc.stop(audioCtx.currentTime + 0.3);
 }
 
-// The Workforce: High-Density Texture Mesh (Interconnected)
-const mesh = [];
-const cols = 25, rows = 40;
-
-function initMesh() {
-    mesh.length = 0;
-    for(let i=0; i<=cols; i++) {
-        for(let j=0; j<=rows; j++) {
-            mesh.push({
-                x: (i/cols) * window.innerWidth,
-                y: (j/rows) * window.innerHeight,
-                ox: (i/cols) * window.innerWidth,
-                oy: (j/rows) * window.innerHeight,
-                vx: 0, vy: 0, 
-                hue: (j/rows) > 0.7 ? 40 : 50 // Color DNA by depth
-            });
-        }
-    }
+// The Workforce (Fragmented Light)
+const shards = [];
+for(let i=0; i<800; i++) {
+    shards.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        vx: 0, vy: 0,
+        len: 5 + Math.random() * 15,
+        angle: Math.random() * Math.PI * 2,
+        dna: Math.random()
+    });
 }
 
 window.addEventListener('touchstart', (e) => {
     isTouching = true;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    triggerNeuralSensation(tx, ty, 10);
+    triggerFragmentSense(tx, ty);
 });
 
 window.addEventListener('touchmove', (e) => {
-    const lastX = tx; const lastY = ty;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    pressure = Math.sqrt((tx-lastX)**2 + (ty-lastY)**2);
-    if (pressure > 2) triggerNeuralSensation(tx, ty, pressure);
+    if (Math.random() > 0.7) triggerFragmentSense(tx, ty);
 });
 
 window.addEventListener('touchend', () => isTouching = false);
 
 function render() {
-    // ANTI-BLACKOUT: Constant Golden Static Layer
-    ctx.fillStyle = 'rgba(20, 16, 0, 0.4)';
+    // ANTI-BLACKOUT: Deep Gold Persistence
+    ctx.fillStyle = 'rgba(15, 12, 0, 0.2)';
     ctx.fillRect(0, 0, w, h);
 
     const time = Date.now() * 0.002;
 
-    ctx.beginPath();
-    mesh.forEach(p => {
+    shards.forEach(s => {
         if (isTouching) {
-            const dx = tx - p.x;
-            const dy = ty - p.y;
+            const dx = tx - s.x;
+            const dy = ty - s.y;
             const dist = Math.sqrt(dx*dx + dy*dy);
             
             if (dist < 200) {
-                const force = (200 - dist) / 200;
-                // ZONE PHYSICS
-                if (tx < w * 0.4 && ty < h * 0.4) {
-                    // RIP: Stretching Physics
-                    p.vx -= dx * 0.1; p.vy -= dy * 0.1;
+                const f = (200 - dist) / 200;
+                // ZONAL PHYSICS
+                if (tx < w * 0.5 && ty < h * 0.5) {
+                    // RIP PHYSICS: Stretch and Snap
+                    s.vx -= dx * 0.08; s.vy -= dy * 0.08;
+                } else if (tx > w * 0.5 && ty < h * 0.5) {
+                    // SHIMMER PHYSICS: Vortex
+                    s.vx += dy * 0.1; s.vy -= dx * 0.1;
                 } else {
-                    // LIQUID: Suction Physics
-                    p.vx += dx * 0.04; p.vy += dy * 0.04;
+                    // WEIGHT PHYSICS: Slow Suction
+                    s.vx += dx * 0.02; s.vy += dy * 0.02;
                 }
             }
         }
 
-        // Return-to-Lattice Force
-        p.vx += (p.ox - p.x) * 0.06;
-        p.vy += (p.oy - p.y) * 0.06;
-        p.vx *= 0.88; p.vy *= 0.88;
-        p.x += p.vx; p.y += p.vy;
+        s.vx *= 0.92; s.vy *= 0.92;
+        s.x += s.vx; s.y += s.vy;
 
-        // Draw as a woven texture, not dots
-        const flicker = Math.sin(time + p.x * 0.01) * 10;
-        ctx.fillStyle = `hsla(${p.hue}, 100%, ${50 + flicker}%, 0.9)`;
+        // Screen Wrap
+        if (s.x < 0) s.x = w; if (s.x > w) s.x = 0;
+        if (s.y < 0) s.y = h; if (s.y > h) s.y = 0;
+
+        // Visual Fragment Render
+        const flicker = Math.sin(time * 5 + s.dna * 100) * 0.5 + 0.5;
+        const hue = s.y < h * 0.5 ? 50 : 42; // Top is brighter gold
         
-        // This 'fillRect' merges with others due to the canvas filter
-        ctx.fillRect(p.x - 10, p.y - 10, 20 + pressure, 20 + pressure);
+        ctx.strokeStyle = `hsla(${hue}, 100%, ${60 + flicker * 40}%, ${0.3 + flicker * 0.7})`;
+        ctx.lineWidth = 1 + flicker * 2;
+        
+        ctx.beginPath();
+        ctx.moveTo(s.x, s.y);
+        // Drawing lines instead of circles prevents the "Blob" failure
+        ctx.lineTo(s.x + Math.cos(s.angle + time) * s.len, s.y + Math.sin(s.angle + time) * s.len);
+        ctx.stroke();
     });
 
     requestAnimationFrame(render);
 }
 
-window.addEventListener('resize', () => { resize(); initMesh(); });
-resize(); initMesh(); render();
+window.addEventListener('resize', resize);
+resize(); render();
 </script>
 </body>
 </html>
