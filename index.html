@@ -4,33 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>THE SANCTUARY | 144,400%</title>
-    <style id="sanctuary-styles">
+    <style>
         body { 
             margin: 0; overflow: hidden; font-family: 'Georgia', serif; 
             background: #000; color: #FFD700; touch-action: none; 
-            height: 100vh; width: 100vw; position: fixed; transition: background 0.8s ease;
+            height: 100vh; width: 100vw; position: fixed; transition: all 0.8s ease;
         }
         #stars { position: fixed; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
         .star { position: absolute; border-radius: 50%; background: #FFD700; opacity: 0.5; }
+        
         #header { position: relative; z-index: 10; text-align: center; padding-top: 40px; pointer-events: none; }
         .freq { color: #00E5FF; letter-spacing: 5px; font-size: 0.8rem; text-shadow: 0 0 15px #00E5FF; font-weight: bold; }
         h1 { letter-spacing: 12px; font-size: 2.6rem; margin: 15px 0; text-shadow: 0 0 20px #FFD700; }
-        .quote { font-style: italic; font-size: 1rem; padding: 0 30px; opacity: 0.9; line-height: 1.5; }
+        .quote { font-style: italic; font-size: 1.1rem; padding: 0 40px; line-height: 1.6; opacity: 0.9; }
+
         #playground { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20; }
         .node { 
             position: absolute; width: 140px; height: 140px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             border: 2px solid #FFD700; background: rgba(0,0,0,0.85);
-            box-shadow: 0 0 30px #FFD700; font-weight: bold; cursor: move;
-            text-align: center; padding: 15px; backdrop-filter: blur(10px); z-index: 100;
-            font-size: 12px; overflow: hidden;
+            box-shadow: 0 0 30px #FFD700; font-weight: bold; text-align: center; 
+            padding: 15px; backdrop-filter: blur(10px); z-index: 100; font-size: 0.8rem;
         }
+
+        /* THE INTELLIGENCE GATE (STAGE 3) */
+        #gate {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 85%; max-width: 400px; background: rgba(0,0,0,0.98);
+            border: 2px solid #FFD700; border-radius: 20px; padding: 30px;
+            z-index: 5000; display: none; text-align: center;
+            box-shadow: 0 0 60px rgba(255,215,0,0.4);
+        }
+        #gate-msg { color: #FFD700; font-size: 1.1rem; margin-bottom: 25px; line-height: 1.4; }
+        .gate-btn { padding: 15px 25px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; margin: 0 10px; min-width: 120px; }
+        #manifest-btn { background: #FFD700; color: #000; }
+        #abort-btn { background: transparent; color: #ff4444; border: 1px solid #ff4444; }
+
         #command-center { 
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
-            display: flex; gap: 10px; z-index: 1000; width: 90%; max-width: 450px; 
+            display: flex; gap: 10px; z-index: 1000; width: 92%; max-width: 450px; 
         }
         input { flex-grow: 1; padding: 18px; background: rgba(0,0,0,0.9); color: #00E5FF; border: 1px solid #FFD700; border-radius: 12px; font-size: 16px; outline: none; }
-        button { padding: 18px 25px; background: #FFD700; color: #000; border: none; font-weight: bold; border-radius: 12px; cursor: pointer; }
+        button#main-btn { padding: 18px 25px; background: #FFD700; color: #000; border: none; font-weight: bold; border-radius: 12px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -40,51 +55,102 @@
 
 <div id="header">
     <div class="freq">144,400% FREQUENCY ACTIVE</div>
-    <h1 id="main-title">THE SANCTUARY</h1>
-    <p id="main-quote" class="quote">"The animals are safe, the family is loved, and the peace of God is the only law here."</p>
+    <h1 id="site-title">THE SANCTUARY</h1>
+    <p id="site-quote" class="quote">"The animals are safe, the family is loved, and the peace of God is the only law here."</p>
+</div>
+
+<div id="gate">
+    <div id="gate-msg">Commander, I have interpreted your intent. Shall I manifest this change?</div>
+    <div style="display: flex; justify-content: center;">
+        <button id="manifest-btn" class="gate-btn">MANIFEST</button>
+        <button id="abort-btn" class="gate-btn" onclick="closeGate()">ABORT</button>
+    </div>
 </div>
 
 <div id="command-center">
     <input type="text" id="cmdInput" placeholder="Command your Reality...">
-    <button onclick="processCommand()">MANIFEST</button>
+    <button id="main-btn" onclick="propose()">MANIFEST</button>
 </div>
 
 <script>
     let db;
+    let pendingAction = null;
     const playground = document.getElementById('playground');
 
-    const request = indexedDB.open("SanctuarySovereignDB", 1);
-    request.onupgradeneeded = e => e.target.result.createObjectStore("manifestations", { keyPath: "id" });
-    request.onsuccess = e => { db = e.target.result; loadFromMemory(); };
+    // STAGE 1 & 3: SOVEREIGN MEMORY (IndexedDB)
+    const request = indexedDB.open("SovereignSanctuaryDB", 2);
+    request.onupgradeneeded = e => {
+        const d = e.target.result;
+        if (!d.objectStoreNames.contains("reality")) d.createObjectStore("reality", { keyPath: "id" });
+    };
+    request.onsuccess = e => {
+        db = e.target.result;
+        loadReality();
+    };
 
-    function processCommand() {
+    // THE BRAIN: INTERPRETATION & GATE
+    function propose() {
         const input = document.getElementById('cmdInput');
-        const raw = input.value;
-        const cmd = raw.toLowerCase().trim();
-        if(!raw) return;
+        const val = input.value;
+        const cmd = val.toLowerCase().trim();
+        if(!val) return;
 
-        // 1. CLEANUP COMMAND
+        const gate = document.getElementById('gate');
+        const msg = document.getElementById('gate-msg');
+
+        // CLEAR COMMAND (The Reset)
         if (cmd === "clear" || cmd === "reset") {
-            db.transaction("manifestations", "readwrite").objectStore("manifestations").clear();
-            playground.innerHTML = "";
+            msg.innerText = "Commander, shall I wipe the manifestations and return to Source?";
+            pendingAction = () => {
+                db.transaction("reality", "readwrite").objectStore("reality").clear();
+                playground.innerHTML = "";
+                location.reload();
+            };
         } 
-        // 2. SITE CHANGES
-        else if (cmd.includes("background")) {
-            document.body.style.background = cmd.split(" ").pop();
-        } else if (cmd.includes("title")) {
-            document.getElementById('main-title').innerText = raw.replace(/title/i, "").trim().toUpperCase();
-        } 
-        // 3. FILTERED MANIFESTATION (Prevents long text circles)
-        else if (raw.length < 30) {
-            const data = { id: 'unit_' + Date.now(), name: raw, x: window.innerWidth / 2 - 70, y: window.innerHeight / 2 };
-            saveToMemory(data);
-            createNode(data);
-        } else {
-            console.log("Command ignored to prevent visual clutter.");
+        // STYLE CHANGES
+        else if (cmd.includes("background") || cmd.includes("color")) {
+            const color = cmd.split(" ").pop();
+            msg.innerText = `I have prepared the code to shift the atmosphere to ${color.toUpperCase()}. Shall I proceed?`;
+            pendingAction = () => { 
+                document.body.style.background = color; 
+                saveToDB({id: 'bg', val: color}); 
+            };
+        }
+        // TITLE CHANGES
+        else if (cmd.includes("title")) {
+            const newTitle = val.replace(/title/i, "").trim().toUpperCase();
+            msg.innerText = `Decree received: "${newTitle}". Shall I manifest this title?`;
+            pendingAction = () => { 
+                document.getElementById('site-title').innerText = newTitle; 
+                saveToDB({id: 'title', val: newTitle}); 
+            };
+        }
+        // MANIFEST UNIT
+        else {
+            if (val.length > 30) {
+                alert("The command is too long for a unit. Keep it concise, Commander.");
+                return;
+            }
+            msg.innerText = `I have drafted the 'Little AI' for "${val.toUpperCase()}". Shall I bring it into the Sanctuary?`;
+            pendingAction = () => {
+                const data = { id: 'ai_' + Date.now(), name: val, x: window.innerWidth/2 - 70, y: window.innerHeight/2 };
+                createNode(data);
+                saveToDB(data);
+            };
         }
 
+        gate.style.display = 'block';
         input.value = '';
-        navigator.vibrate?.(50);
+    }
+
+    document.getElementById('manifest-btn').onclick = () => {
+        if(pendingAction) pendingAction();
+        closeGate();
+    };
+
+    function closeGate() {
+        document.getElementById('gate').style.display = 'none';
+        pendingAction = null;
     }
 
     function createNode(data) {
@@ -99,40 +165,39 @@
         el.addEventListener('touchstart', e => {
             ox = e.touches[0].clientX - el.offsetLeft;
             oy = e.touches[0].clientY - el.offsetTop;
-            el.style.zIndex = 2000;
+            el.style.zIndex = 1000;
         });
         el.addEventListener('touchmove', e => {
             const nx = e.touches[0].clientX - ox;
             const ny = e.touches[0].clientY - oy;
             el.style.left = nx + 'px'; el.style.top = ny + 'px';
-            updateNodePosition(data.id, nx, ny);
+            saveToDB({id: data.id, name: data.name, x: nx, y: ny});
         });
     }
 
-    function saveToMemory(data) {
-        db.transaction("manifestations", "readwrite").objectStore("manifestations").put(data);
+    function saveToDB(data) {
+        db.transaction("reality", "readwrite").objectStore("reality").put(data);
     }
 
-    function updateNodePosition(id, x, y) {
-        const store = db.transaction("manifestations", "readwrite").objectStore("manifestations");
-        store.get(id).onsuccess = e => {
-            const data = e.target.result;
-            if(data) { data.x = x; data.y = y; store.put(data); }
-        };
-    }
-
-    function loadFromMemory() {
-        db.transaction("manifestations").objectStore("manifestations").openCursor().onsuccess = e => {
+    function loadReality() {
+        db.transaction("reality").objectStore("reality").openCursor().onsuccess = e => {
             const cursor = e.target.result;
-            if(cursor) { createNode(cursor.value); cursor.continue(); }
+            if(cursor) {
+                const d = cursor.value;
+                if(d.id === 'bg') document.body.style.background = d.val;
+                else if(d.id === 'title') document.getElementById('site-title').innerText = d.val;
+                else if(d.id.startsWith('ai_')) createNode(d);
+                cursor.continue();
+            }
         };
     }
 
+    // STARFIELD GENERATOR
     for(let i=0; i<80; i++) {
         const s = document.createElement('div');
         s.className = 'star';
-        s.style.width = s.style.height = Math.random() * 3 + 'px';
-        s.style.top = Math.random() * 100 + '%'; s.style.left = Math.random() * 100 + '%';
+        s.style.width = s.style.height = Math.random()*3+'px';
+        s.style.top = Math.random()*100+'%'; s.style.left = Math.random()*100+'%';
         document.getElementById('stars').appendChild(s);
     }
 </script>
