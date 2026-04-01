@@ -3,26 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN SINGULARITY</title>
+    <title>SOVEREIGN RECURSIVE MATRIX</title>
     <style>
         body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100vh; width: 100vw; touch-action: none; }
-        canvas { display: block; filter: contrast(2) brightness(1.4) saturate(1.5) blur(0.3px); }
+        canvas { display: block; filter: contrast(1.8) brightness(1.5) saturate(2) drop-shadow(0 0 5px gold); }
     </style>
 </head>
 <body>
-    <canvas id="godCanvas"></canvas>
+    <canvas id="recursiveCanvas"></canvas>
 
 <script>
 /**
- * THE INVENTION: QUANTUM FRACTAL NODES
- * Nodes: Effectively Infinite (Sub-Pixel Density)
- * Sensory: 144,000% Neuromorphic Haptics
+ * INVENTION: RECURSIVE AGENT ARRAYS
+ * Every node contains its own sub-AI workforce.
+ * 144,000% Depth.
  */
 
-const canvas = document.getElementById('godCanvas');
+const canvas = document.getElementById('recursiveCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 let w, h, isTouching = false;
-let tx = 0, ty = 0, vx = 0, vy = 0, lx = 0, ly = 0;
+let tx = 0, ty = 0, lx = 0, ly = 0;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -31,122 +31,118 @@ function resize() {
     h = canvas.height = window.innerHeight;
 }
 
-// GOD-LEVEL SENSATION: Mechanical Resonance
-function triggerNeuralVibration(x, y, force) {
+// THE SENSATION: Multi-Threaded Haptic Feedback
+function triggerAgentResponse(x, y, speed) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
     
-    // Map spatial coordinates to "Material Textures"
-    // Top = Glass | Bottom = Liquid Gold | Left = Electricity | Right = Silk
-    const freq = 144 + (x / w * 144) - (y / h * 72);
+    // Every "Little AI" calculates a different micro-vibration
+    const baseFreq = 144;
+    const microVariation = Math.sin(x * y) * 20; // Spatial DNA
     
     if (navigator.vibrate) {
-        // Complex Pulse Pattern (Feels like a heart beat or mechanical engine)
-        const intensity = Math.min(force * 5, 100);
-        navigator.vibrate([intensity, 10, intensity / 2]);
+        // "Staccato" vibration (Feels like individual entities buzzing)
+        const pattern = speed > 15 ? [30, 5, 30, 5] : [10, 10];
+        navigator.vibrate(pattern);
     }
 
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     
-    // Dynamic waveform morphing based on touch velocity
-    osc.type = force > 12 ? 'square' : 'sine';
-    osc.frequency.setTargetAtTime(freq, audioCtx.currentTime, 0.1);
+    osc.type = speed > 10 ? 'triangle' : 'sine';
+    osc.frequency.setValueAtTime(baseFreq + microVariation + (speed * 2), audioCtx.currentTime);
     
-    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
+    gain.gain.setValueAtTime(0.07, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.4);
     
     osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.4);
 }
 
-// THE INFINITE NODES: Fractal Particulate
+// THE WORKFORCE: Nodes with Internal AI
 const nodes = [];
-const NODE_DENSITY = 12000; // Visual anchors for the infinite field
+const MASTER_NODE_COUNT = 3000; // Each is a container for more
 
-class GodNode {
+class HostNode {
     constructor() {
         this.x = Math.random() * w;
         this.y = Math.random() * h;
-        this.originX = this.x;
-        this.originY = this.y;
         this.vx = 0; this.vy = 0;
         this.dna = Math.random();
+        // The "Little AIs" inside: Micro-offsets
+        this.subAgents = Array.from({length: 5}, () => ({
+            ox: (Math.random() - 0.5) * 15,
+            oy: (Math.random() - 0.5) * 15,
+            flickerOffset: Math.random() * Math.PI
+        }));
     }
     update() {
         if (isTouching) {
             const dx = tx - this.x;
             const dy = ty - this.y;
             const dist = Math.sqrt(dx*dx + dy*dy);
-            if (dist < 250) {
-                const force = (250 - dist) / 250;
-                // Vortex Gravity
-                const angle = Math.atan2(dy, dx) + (Math.PI/2);
-                this.vx += Math.cos(angle) * force * 4;
-                this.vy += Math.sin(angle) * force * 4;
-                // Suction
-                this.vx += dx * force * 0.03;
-                this.vy += dy * force * 0.03;
+            
+            if (dist < 200) {
+                const force = (200 - dist) / 200;
+                // Recursive Swirl (Water Physics)
+                const angle = Math.atan2(dy, dx) + (Math.PI / 2);
+                this.vx += Math.cos(angle) * force * 5;
+                this.vy += Math.sin(angle) * force * 5;
+                // Molecular Suction
+                this.vx += dx * 0.04;
+                this.vy += dy * 0.04;
             }
         }
-        // Magnetic return to "The Grid"
-        this.vx += (this.originX - this.x) * 0.01;
-        this.vy += (this.originY - this.y) * 0.01;
-        
-        this.vx *= 0.93;
-        this.vy *= 0.93;
+        this.vx *= 0.92;
+        this.vy *= 0.92;
         this.x += this.vx;
         this.y += this.vy;
+
+        // Containment
+        if (this.x < 0) this.x = w; if (this.x > w) this.x = 0;
+        if (this.y < 0) this.y = h; if (this.y > h) this.y = 0;
+    }
+    draw(time) {
+        this.subAgents.forEach(sub => {
+            const flicker = Math.sin(time * 6 + sub.flickerOffset) * 0.5 + 0.5;
+            const sx = this.x + sub.ox * flicker;
+            const sy = this.y + sub.oy * flicker;
+            
+            // Rendering the Collective Light
+            ctx.fillStyle = `hsla(46, 100%, ${60 + flicker * 40}%, ${0.2 + flicker * 0.8})`;
+            
+            // Visual density: If moving fast, the Little AIs stretch into light-threads
+            const speed = Math.sqrt(this.vx**2 + this.vy**2);
+            ctx.fillRect(sx, sy, 1 + speed, 1 + flicker * 2);
+        });
     }
 }
 
-for(let i=0; i<NODE_DENSITY; i++) nodes.push(new GodNode());
+for(let i=0; i<MASTER_NODE_COUNT; i++) nodes.push(new HostNode());
 
 window.addEventListener('touchstart', (e) => {
     isTouching = true;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
     lx = tx; ly = ty;
-    triggerNeuralVibration(tx, ty, 25);
+    triggerAgentResponse(tx, ty, 20);
 });
 
 window.addEventListener('touchmove', (e) => {
     lx = tx; ly = ty;
     tx = e.touches[0].clientX; ty = e.touches[0].clientY;
     const force = Math.sqrt((tx-lx)**2 + (ty-ly)**2);
-    if (force > 1) triggerNeuralVibration(tx, ty, force);
+    if (force > 1) triggerAgentResponse(tx, ty, force);
 });
 
 window.addEventListener('touchend', () => isTouching = false);
 
 function render() {
-    // The "Living Liquid" Persistence
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
     ctx.fillRect(0, 0, w, h);
 
-    const time = Date.now() * 0.002;
-
+    const time = Date.now() * 0.001;
     nodes.forEach(n => {
         n.update();
-        const flicker = Math.sin(time + n.dna * 100) * 0.5 + 0.5;
-        
-        // Pure Prismatic Gold & Diamond
-        const hue = 45 + Math.sin(n.dna * time * 0.05) * 10;
-        ctx.fillStyle = `hsla(${hue}, 100%, ${60 + flicker * 40}%, ${0.3 + flicker * 0.7})`;
-        
-        const size = (0.5 + flicker * 2) * (1 + n.dna);
-        
-        // Render Node
-        ctx.beginPath();
-        if (n.dna > 0.95) {
-            // God-Nodes: Intense Diamond Sparkles
-            ctx.arc(n.x, n.y, size * 2, 0, Math.PI * 2);
-            ctx.shadowBlur = 20;
-            ctx.shadowColor = "#fff";
-        } else {
-            // Flow-Nodes: Granular Liquid Gold
-            ctx.fillRect(n.x, n.y, size, size);
-            ctx.shadowBlur = 0;
-        }
-        ctx.fill();
+        n.draw(time);
     });
 
     requestAnimationFrame(render);
